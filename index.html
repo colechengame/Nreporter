@@ -261,24 +261,14 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">可存取的報表 (Scope)</label>
-                                        <div class="space-y-2">
-                                            <label class="checkbox-card cursor-pointer block">
-                                                <input type="checkbox" name="scopes" value="A" class="hidden">
-                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
-                                                    <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mr-3 text-xs">A</span>
-                                                    <span class="text-sm">報表A (營收/敏感)</span>
-                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
-                                                </div>
-                                            </label>
-                                            <label class="checkbox-card cursor-pointer block">
-                                                <input type="checkbox" name="scopes" value="B" class="hidden">
-                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
-                                                    <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold mr-3 text-xs">B</span>
-                                                    <span class="text-sm">報表B (營運/一般)</span>
-                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
-                                                </div>
-                                            </label>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">可存取的報表</label>
+                                        <input type="text" id="granular-report-search" placeholder="搜尋報表..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm mb-2 text-sm" oninput="filterReports('granular')">
+                                        <div class="flex gap-2 mb-2">
+                                            <button type="button" onclick="selectAllReports('granular')" class="text-xs text-blue-600 hover:text-blue-800">全選</button>
+                                            <button type="button" onclick="deselectAllReports('granular')" class="text-xs text-gray-500 hover:text-gray-700">取消全選</button>
+                                        </div>
+                                        <div id="granular-report-list" class="space-y-1 max-h-48 overflow-y-auto border rounded-md p-2">
+                                            <!-- 動態生成 -->
                                         </div>
                                     </div>
                                 </div>
@@ -322,31 +312,13 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-bold text-gray-700 mb-2">管理者可存取的報表</label>
-                                        <div class="space-y-2">
-                                            <label class="checkbox-card cursor-pointer block">
-                                                <input type="checkbox" name="group-scopes" value="A" class="hidden" checked>
-                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
-                                                    <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mr-3 text-xs">A</span>
-                                                    <span class="text-sm">報表A (營收/敏感)</span>
-                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
-                                                </div>
-                                            </label>
-                                            <label class="checkbox-card cursor-pointer block">
-                                                <input type="checkbox" name="group-scopes" value="B" class="hidden" checked>
-                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
-                                                    <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold mr-3 text-xs">B</span>
-                                                    <span class="text-sm">報表B (營運/一般)</span>
-                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
-                                                </div>
-                                            </label>
-                                            <label class="checkbox-card cursor-pointer block">
-                                                <input type="checkbox" name="group-scopes" value="C" class="hidden">
-                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
-                                                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold mr-3 text-xs">C</span>
-                                                    <span class="text-sm">報表C (庫存)</span>
-                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
-                                                </div>
-                                            </label>
+                                        <input type="text" id="group-report-search" placeholder="搜尋報表..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm mb-2 text-sm" oninput="filterReports('group')">
+                                        <div class="flex gap-2 mb-2">
+                                            <button type="button" onclick="selectAllReports('group')" class="text-xs text-blue-600 hover:text-blue-800">全選</button>
+                                            <button type="button" onclick="deselectAllReports('group')" class="text-xs text-gray-500 hover:text-gray-700">取消全選</button>
+                                        </div>
+                                        <div id="group-report-list" class="space-y-1 max-h-40 overflow-y-auto border rounded-md p-2">
+                                            <!-- 動態生成 -->
                                         </div>
                                     </div>
                                 </div>
@@ -383,32 +355,14 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">可存取的報表 (Scope)</label>
-                                        <div class="space-y-2">
-                                            <label class="checkbox-card cursor-pointer block">
-                                                <input type="checkbox" name="add-manager-scopes" value="A" class="hidden">
-                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
-                                                    <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mr-3 text-xs">A</span>
-                                                    <span class="text-sm">報表A (營收/敏感)</span>
-                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
-                                                </div>
-                                            </label>
-                                            <label class="checkbox-card cursor-pointer block">
-                                                <input type="checkbox" name="add-manager-scopes" value="B" class="hidden">
-                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
-                                                    <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold mr-3 text-xs">B</span>
-                                                    <span class="text-sm">報表B (營運/一般)</span>
-                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
-                                                </div>
-                                            </label>
-                                            <label class="checkbox-card cursor-pointer block">
-                                                <input type="checkbox" name="add-manager-scopes" value="C" class="hidden">
-                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
-                                                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold mr-3 text-xs">C</span>
-                                                    <span class="text-sm">報表C (庫存)</span>
-                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
-                                                </div>
-                                            </label>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">可存取的報表</label>
+                                        <input type="text" id="manager-report-search" placeholder="搜尋報表..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm mb-2 text-sm" oninput="filterReports('manager')">
+                                        <div class="flex gap-2 mb-2">
+                                            <button type="button" onclick="selectAllReports('manager')" class="text-xs text-blue-600 hover:text-blue-800">全選</button>
+                                            <button type="button" onclick="deselectAllReports('manager')" class="text-xs text-gray-500 hover:text-gray-700">取消全選</button>
+                                        </div>
+                                        <div id="manager-report-list" class="space-y-1 max-h-48 overflow-y-auto border rounded-md p-2">
+                                            <!-- 動態生成 -->
                                         </div>
                                     </div>
                                 </div>
@@ -439,41 +393,104 @@
 
     <script>
         // --- DATA MODEL ---
+        const reportList = [
+            { code: 'R001', name: '護理部消耗報表' },
+            { code: 'R003a', name: '新進人員名單&離職報表' },
+            { code: 'R003b', name: '新人關懷名單' },
+            { code: 'R004', name: '員購報表' },
+            { code: 'R005', name: '好友專案報表' },
+            { code: 'R006', name: '進銷貨明細' },
+            { code: 'R007', name: '好友介紹人報表' },
+            { code: 'R008', name: '電銷報表' },
+            { code: 'R009', name: '手術追蹤報表' },
+            { code: 'R010', name: '設定影片名單' },
+            { code: 'R011', name: '離職人數統計表' },
+            { code: 'R012', name: '電銷獎金經營客表' },
+            { code: 'R013', name: '電銷獎金總表' },
+            { code: 'R014', name: '每月時數表' },
+            { code: 'R015', name: '報修系統報表' },
+            { code: 'R016', name: '諮詢師消耗額統計' },
+            { code: 'R017', name: '諮詢師積分' },
+            { code: 'R018', name: '營養師獎金報表' },
+            { code: 'R019', name: '報修系統積分表' },
+            { code: 'R020', name: '生美、醫美品項明細表' },
+            { code: 'R021', name: '非護理部手術消耗報表' },
+            { code: 'R022', name: '會員資料異動報表' },
+            { code: 'R023', name: '高耗材異常領用清單' },
+            { code: 'R024', name: '近半年銷售或消耗低於50報表' },
+            { code: 'R025', name: '醫師考勤明細' },
+            { code: 'R026', name: '中醫諮詢師積分' },
+            { code: 'R027', name: '各體系分院代碼' },
+            { code: 'R028', name: '中醫藥膳消耗統計' }
+        ];
+
         let stores = [
-            { 
-                code: 'BZ_MED', 
-                name: '板橋醫美', 
-                roleEmail: 'bz_med.manager@company.com',
-                primaryManager: { name: '王小明', status: 'active' },
-                authorizedUsers: [
-                    { name: 'Tina', role: '區經理', scopes: ['A', 'B', 'C'] },
-                    { name: '甲君', role: '督導', scopes: ['A'] }
-                ]
-            },
-            { 
-                code: 'TP_SPA', 
-                name: '忠孝岩盤浴', 
-                roleEmail: 'tp_spa.manager@company.com',
-                primaryManager: { name: '林函儀', status: 'active' }, 
-                authorizedUsers: [
-                    { name: '乙君', role: '儲備', scopes: ['B'] }
-                ]
-            },
-            { 
-                code: 'TC_SPA', 
-                name: '台中岩盤浴', 
-                roleEmail: 'tc_spa.manager@company.com',
-                primaryManager: null, 
-                authorizedUsers: []
-            }
+            // === 醫美部門 ===
+            { code: 'BZ_MED', name: '板橋光澤醫美', roleEmail: 'dr.shine.manager1@gmail.com', primaryManager: { name: '吳佳蓉 Tina', status: 'active' }, authorizedUsers: [] },
+            { code: 'ZX_GZ', name: '忠孝光澤', roleEmail: 'dr.shine.tp.manager@gmail.com', primaryManager: { name: '吳弈澐', status: 'active' }, authorizedUsers: [{ name: '吳佳蓉 Tina', role: '多店管理', scopes: [] }] },
+            { code: 'SX_GZ', name: '三峽光澤診所', roleEmail: 'dr.shine.ss207@gmail.com', primaryManager: { name: '小潔', status: 'active' }, authorizedUsers: [{ name: '吳佳蓉 Tina', role: '多店管理', scopes: [] }] },
+            { code: 'BZ_JB', name: '板橋光澤健保', roleEmail: 'dr.shine.bm.Manager@gmail.com', primaryManager: { name: '謝嫚珈', status: 'active' }, authorizedUsers: [] },
+            { code: 'SC_GZ', name: '三重光澤', roleEmail: 'dr.shine.scsc.manager@gmail.com', primaryManager: { name: '林欣誼', status: 'active' }, authorizedUsers: [{ name: '謝嫚珈', role: '多店管理', scopes: [] }] },
+            { code: 'XZ_GZ', name: '新莊光澤診所', roleEmail: 'dr.shine.bm.Manager@gmail.com', primaryManager: { name: '謝嫚珈', status: 'active' }, authorizedUsers: [] },
+            { code: 'LK_TY', name: '林口彤顏診所', roleEmail: 'dr.shine.lk.manager@gmail.com', primaryManager: { name: '劉玉婷', status: 'active' }, authorizedUsers: [{ name: '謝嫚珈', role: '多店管理', scopes: [] }] },
+            { code: 'BD_JB', name: '八德健保診所', roleEmail: 'dr.shine.tu.bmmanager@gmail.com', primaryManager: { name: '徐惠芳 Nana', status: 'active' }, authorizedUsers: [] },
+            { code: 'HC_GZ', name: '新竹光澤診所', roleEmail: 'dr.shine.tu.bmmanager@gmail.com', primaryManager: { name: '徐惠芳 Nana', status: 'active' }, authorizedUsers: [] },
+            { code: 'GT_GZ', name: '古亭光澤', roleEmail: 'dr.shine.gt.manager@gmail.com', primaryManager: { name: '劉瑀樂 Gigi', status: 'active' }, authorizedUsers: [] },
+            { code: 'NX_GZ', name: '南西光澤診所', roleEmail: 'dr.shine.tp2.manager@gmail.com', primaryManager: { name: '劉婉如 Cathy', status: 'active' }, authorizedUsers: [] },
+            { code: 'SM_GZ', name: '三民光澤診所', roleEmail: 'dr.shine.nj.manager@gmail.com', primaryManager: { name: '吳怡萩 Juby', status: 'active' }, authorizedUsers: [] },
+            { code: 'DZ_GZ', name: '大直光澤診所', roleEmail: 'dr.shine.nj.manager@gmail.com', primaryManager: { name: '吳怡萩 Juby', status: 'active' }, authorizedUsers: [] },
+            { code: 'LD_GZ', name: '羅東光澤', roleEmail: 'dr.shine.ld.Manager@gmail.com', primaryManager: { name: '黃毓芩 Winnie', status: 'active' }, authorizedUsers: [] },
+            { code: 'KS_MED', name: '高雄醫美', roleEmail: 'dr.shine.ksm01@gmail.com', primaryManager: { name: '許又婕', status: 'active' }, authorizedUsers: [] },
+            { code: 'ZL_TY', name: '中壢彤顏醫美', roleEmail: 'dr.shine.jl.manager@gmail.com', primaryManager: { name: '黃翔琳 Kelly', status: 'active' }, authorizedUsers: [] },
+            { code: 'ZL_TY_JB', name: '中壢彤顏健保', roleEmail: 'dr.shine.jl.bmmanager@gmail.com', primaryManager: { name: '吳淑玲', status: 'active' }, authorizedUsers: [] },
+            { code: 'TY_MED', name: '桃園醫美', roleEmail: 'dr.shine.tu.manager1@gmail.com', primaryManager: { name: '黃曉盈', status: 'active' }, authorizedUsers: [] },
+            { code: 'TC_GZ', name: '台中光澤診所', roleEmail: 'dr.shine.ss312@gmail.com', primaryManager: { name: '黃依華 Makiyo', status: 'active' }, authorizedUsers: [] },
+            { code: 'YH_TY', name: '永和彤顏診所', roleEmail: 'dr.shine.kk72@gmail.com', primaryManager: { name: '王千豪 Sogo', status: 'active' }, authorizedUsers: [] },
+            // === 岩盤浴部門 ===
+            { code: 'BZ_SPA', name: '板橋岩盤浴', roleEmail: 'dr.shine.manager1@gmail.com', primaryManager: { name: '吳佳蓉 Tina', status: 'active' }, authorizedUsers: [{ name: '洪綵霙', role: '店長', scopes: [] }] },
+            { code: 'ZX_SPA', name: '忠孝岩盤浴', roleEmail: 'dr.shine.tp.manager@gmail.com', primaryManager: { name: '吳弈澐', status: 'active' }, authorizedUsers: [{ name: '林函誼', role: '主管', scopes: [] }] },
+            { code: 'TC_SPA', name: '台中岩盤浴', roleEmail: 'dr.shine.ss320@gmail.com', primaryManager: { name: '林郁潔', status: 'active' }, authorizedUsers: [] },
+            { code: 'LD_SPA', name: '羅東岩盤浴', roleEmail: 'dr.shine.ld.Manager@gmail.com', primaryManager: { name: '黃毓芩 Winnie', status: 'active' }, authorizedUsers: [{ name: '黃湘婷', role: '店長', scopes: [] }] },
+            { code: 'ZL_SPA', name: '中壢岩盤浴', roleEmail: 'natashaqiu1113@gmail.com', primaryManager: { name: '邱唐如', status: 'active' }, authorizedUsers: [] },
+            { code: 'TY_SPA', name: '桃園岩盤浴', roleEmail: 'dr.shine.kk72@gmail.com', primaryManager: { name: '王千豪 Sogo', status: 'active' }, authorizedUsers: [] },
+            // === 其他 ===
+            { code: 'QP_SPA', name: '青埔岩盤浴', roleEmail: 'qp_spa.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            { code: 'TP_SPA', name: '台北岩盤浴', roleEmail: 'tp_spa.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            { code: 'QP_TY', name: '青埔彤顏', roleEmail: 'qp_ty.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            { code: 'BD_SPA', name: '八德岩盤浴', roleEmail: 'bd_spa.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            { code: 'GT_OFC', name: '古亭辦公室', roleEmail: 'gt_ofc.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            { code: 'HQ', name: '光澤(彤顏)診所總管理處', roleEmail: 'hq.manager@company.com', primaryManager: null, authorizedUsers: [] }
         ];
 
         let groups = [
             {
-                name: '醫美多店管理組',
-                stores: ['板橋醫美', '三峽醫美'],
+                name: 'Tina 多店管理組',
+                stores: ['板橋光澤醫美', '忠孝光澤', '三峽光澤診所', '板橋岩盤浴', '忠孝岩盤浴'],
                 managers: [
-                    { name: 'Tina', scopes: ['A', 'B', 'C'] }
+                    { name: '吳佳蓉 Tina', scopes: [] }
+                ]
+            },
+            {
+                name: '嫚珈 多店管理組',
+                stores: ['板橋光澤健保', '三重光澤', '新莊光澤診所', '林口彤顏診所'],
+                managers: [
+                    { name: '謝嫚珈', scopes: [] }
+                ]
+            },
+            {
+                name: 'Nana 多店管理組',
+                stores: ['八德健保診所', '新竹光澤診所'],
+                managers: [
+                    { name: '徐惠芳 Nana', scopes: [] }
+                ]
+            },
+            {
+                name: '全域副本收件人',
+                stores: ['(所有門市)'],
+                managers: [
+                    { name: '協理', scopes: [] },
+                    { name: 'William', scopes: [] },
+                    { name: 'Arthur', scopes: [] }
                 ]
             }
         ];
@@ -528,15 +545,11 @@
                 else {
                     granularHtml = '<div class="space-y-1">';
                     store.authorizedUsers.forEach(u => {
-                        const badges = u.scopes.map(s => {
-                            let color = s==='A'?'bg-red-100 text-red-700': s==='B'?'bg-green-100 text-green-700':'bg-purple-100 text-purple-700';
-                            return `<span class="px-1.5 rounded text-[10px] font-bold ${color} border border-black/5 mx-0.5">${s}</span>`;
-                        }).join('');
                         granularHtml += `
                             <div class="flex items-center text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100">
                                 <span class="font-medium mr-2">${u.name}</span>
-                                <span class="text-xs text-gray-500 mr-auto">(${u.role})</span>
-                                <div class="flex">${badges}</div>
+                                <span class="text-xs text-gray-500 mr-2">(${u.role})</span>
+                                <div class="flex flex-wrap gap-1">${formatReportBadges(u.scopes, 3)}</div>
                             </div>`;
                     });
                     granularHtml += '</div>';
@@ -585,15 +598,11 @@
                     mgrHtml = '<span class="text-xs text-gray-400">尚未指派管理者</span>';
                 } else {
                     mgrHtml = group.managers.map((m, mIdx) => {
-                        const badges = m.scopes.map(s => {
-                            let color = s==='A'?'bg-red-100 text-red-700': s==='B'?'bg-green-100 text-green-700':'bg-purple-100 text-purple-700';
-                            return `<span class="px-1.5 rounded text-[10px] font-bold ${color} border border-black/5 mx-0.5">${s}</span>`;
-                        }).join('');
                         return `
                             <div class="flex items-center text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100 group">
                                 <i class="fa-solid fa-user-shield text-gray-400 mr-2"></i>
                                 <span class="font-medium mr-2">${m.name}</span>
-                                <div class="flex mr-auto">${badges}</div>
+                                <div class="flex flex-wrap gap-1 mr-auto">${formatReportBadges(m.scopes, 3)}</div>
                                 <button onclick="removeGroupManager(${index}, ${mIdx})" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition ml-2" title="移除管理者">
                                     <i class="fa-solid fa-times"></i>
                                 </button>
@@ -631,6 +640,58 @@
                     </tr>
                 `;
             });
+        }
+
+        // --- REPORT FUNCTIONS ---
+        function generateReportCheckboxes(containerId, namePrefix, checkedCodes = []) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = reportList.map(r => `
+                <label class="flex items-center space-x-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer report-item" data-code="${r.code}" data-name="${r.name}">
+                    <input type="checkbox" name="${namePrefix}" value="${r.code}" ${checkedCodes.includes(r.code) ? 'checked' : ''} class="text-primary rounded">
+                    <span class="text-xs font-mono text-gray-500 w-12">${r.code}</span>
+                    <span class="text-sm truncate">${r.name}</span>
+                </label>
+            `).join('');
+        }
+
+        function filterReports(type) {
+            const searchInput = document.getElementById(`${type}-report-search`);
+            const container = document.getElementById(`${type}-report-list`);
+            const keyword = searchInput.value.toLowerCase();
+            container.querySelectorAll('.report-item').forEach(item => {
+                const code = item.dataset.code.toLowerCase();
+                const name = item.dataset.name.toLowerCase();
+                item.style.display = (code.includes(keyword) || name.includes(keyword)) ? '' : 'none';
+            });
+        }
+
+        function selectAllReports(type) {
+            const container = document.getElementById(`${type}-report-list`);
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                if (cb.closest('.report-item').style.display !== 'none') cb.checked = true;
+            });
+        }
+
+        function deselectAllReports(type) {
+            const container = document.getElementById(`${type}-report-list`);
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        }
+
+        function getSelectedReports(namePrefix) {
+            const selected = [];
+            document.querySelectorAll(`input[name="${namePrefix}"]:checked`).forEach(cb => selected.push(cb.value));
+            return selected;
+        }
+
+        function formatReportBadges(scopes, maxShow = 3) {
+            if (!scopes || scopes.length === 0) return '<span class="text-xs text-gray-400">無</span>';
+            const shown = scopes.slice(0, maxShow);
+            const remaining = scopes.length - maxShow;
+            let html = shown.map(s => `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-blue-100 text-blue-700 border border-blue-200">${s}</span>`).join(' ');
+            if (remaining > 0) {
+                html += ` <span class="text-[10px] text-gray-500">+${remaining}</span>`;
+            }
+            return html;
         }
 
         // --- GROUP ACTIONS ---
@@ -694,7 +755,8 @@
             } else if (type === 'granular') {
                 title.innerText = `新增人員至 ${stores[index].name}`;
                 document.getElementById('form-granular').classList.remove('hidden');
-                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                document.getElementById('granular-report-search').value = '';
+                generateReportCheckboxes('granular-report-list', 'granular-scopes', []);
             } else if (type === 'new-store') {
                 title.innerText = "新展店設定";
                 document.getElementById('form-new-store').classList.remove('hidden');
@@ -714,8 +776,9 @@
                         <span class="text-xs text-gray-400">(${s.code})</span>
                     </label>
                 `).join('');
-                // 重置報表選項
-                document.querySelectorAll('input[name="group-scopes"]').forEach(cb => cb.checked = false);
+                // 初始化報表列表
+                document.getElementById('group-report-search').value = '';
+                generateReportCheckboxes('group-report-list', 'group-scopes', []);
             } else if (type === 'edit-group') {
                 title.innerText = `編輯群組：${groups[index].name}`;
                 document.getElementById('form-edit-group').classList.remove('hidden');
@@ -751,7 +814,8 @@
             } else if (type === 'group-manager') {
                 title.innerText = `新增管理者至：${groups[index].name}`;
                 document.getElementById('form-group-manager').classList.remove('hidden');
-                document.querySelectorAll('input[name="add-manager-scopes"]').forEach(cb => cb.checked = false);
+                document.getElementById('manager-report-search').value = '';
+                generateReportCheckboxes('manager-report-list', 'manager-scopes', []);
             } else if (type === 'edit-store') {
                 title.innerText = "門市設定與 Role Email 維護";
                 document.getElementById('form-edit-store').classList.remove('hidden');
@@ -782,8 +846,7 @@
                     const sel = document.getElementById('granular-select');
                     const name = sel.options[sel.selectedIndex].text.split(' (')[0];
                     const role = sel.options[sel.selectedIndex].text.split(' (')[1].replace(')','');
-                    const scopes = [];
-                    document.querySelectorAll('#form-granular input:checked').forEach(cb => scopes.push(cb.value));
+                    const scopes = getSelectedReports('granular-scopes');
                     if(scopes.length > 0) {
                         stores[currentIndex].authorizedUsers.push({ name, role, scopes });
                     }
@@ -797,8 +860,7 @@
                     const selectedStores = [];
                     document.querySelectorAll('input[name="new-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
                     const managerName = document.getElementById('group-manager-select').value;
-                    const managerScopes = [];
-                    document.querySelectorAll('input[name="group-scopes"]:checked').forEach(cb => managerScopes.push(cb.value));
+                    const managerScopes = getSelectedReports('group-scopes');
                     const managers = managerScopes.length > 0 ? [{ name: managerName, scopes: managerScopes }] : [];
                     groups.push({
                         name,
@@ -812,8 +874,7 @@
                     groups[currentIndex].stores = selectedStores.length > 0 ? selectedStores : ['(未指定)'];
                 } else if (currentModalType === 'group-manager') {
                     const managerName = document.getElementById('add-group-manager-select').value;
-                    const scopes = [];
-                    document.querySelectorAll('input[name="add-manager-scopes"]:checked').forEach(cb => scopes.push(cb.value));
+                    const scopes = getSelectedReports('manager-scopes');
                     if (scopes.length > 0) {
                         // 檢查是否已存在同名管理者
                         const existingIdx = groups[currentIndex].managers.findIndex(m => m.name === managerName);
