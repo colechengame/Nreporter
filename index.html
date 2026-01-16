@@ -881,26 +881,24 @@
             const container = document.getElementById('group-store-checkboxes');
             container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                 cb.checked = checkbox.checked;
-                cb.disabled = checkbox.checked;
             });
-            if (checkbox.checked) {
-                container.classList.add('opacity-50');
-            } else {
-                container.classList.remove('opacity-50');
-            }
         }
 
         function toggleAllStoresEdit(checkbox) {
             const container = document.getElementById('edit-group-store-checkboxes');
             container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                 cb.checked = checkbox.checked;
-                cb.disabled = checkbox.checked;
             });
-            if (checkbox.checked) {
-                container.classList.add('opacity-50');
-            } else {
-                container.classList.remove('opacity-50');
-            }
+        }
+
+        function updateAllStoresCheckbox(type) {
+            const containerId = type === 'new' ? 'group-store-checkboxes' : 'edit-group-store-checkboxes';
+            const allCheckboxId = type === 'new' ? 'new-group-all-stores' : 'edit-group-all-stores';
+            const container = document.getElementById(containerId);
+            const allCheckbox = document.getElementById(allCheckboxId);
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            allCheckbox.checked = allChecked;
         }
 
         // --- GROUP ACTIONS ---
@@ -980,10 +978,9 @@
                 document.getElementById('new-group-all-stores').checked = false;
                 // 動態生成門市選項
                 const storeCheckboxes = document.getElementById('group-store-checkboxes');
-                storeCheckboxes.classList.remove('opacity-50');
                 storeCheckboxes.innerHTML = stores.map((s, i) => `
                     <label class="flex items-center space-x-2 p-1 hover:bg-gray-50 rounded">
-                        <input type="checkbox" name="new-group-stores" value="${s.name}" class="text-primary rounded">
+                        <input type="checkbox" name="new-group-stores" value="${s.name}" class="text-primary rounded" onchange="updateAllStoresCheckbox('new')">
                         <span class="text-sm">${s.name}</span>
                         <span class="text-xs text-gray-400">(${s.code})</span>
                     </label>
@@ -1000,10 +997,9 @@
                 document.getElementById('edit-group-all-stores').checked = isAllStores;
                 // 動態生成門市選項
                 const editStoreCheckboxes = document.getElementById('edit-group-store-checkboxes');
-                editStoreCheckboxes.classList.toggle('opacity-50', isAllStores);
                 editStoreCheckboxes.innerHTML = stores.map(s => `
                     <label class="flex items-center space-x-2 p-1 hover:bg-gray-50 rounded">
-                        <input type="checkbox" name="edit-group-stores" value="${s.name}" ${isAllStores || groups[index].stores.includes(s.name) ? 'checked' : ''} ${isAllStores ? 'disabled' : ''} class="text-primary rounded">
+                        <input type="checkbox" name="edit-group-stores" value="${s.name}" ${isAllStores || groups[index].stores.includes(s.name) ? 'checked' : ''} class="text-primary rounded" onchange="updateAllStoresCheckbox('edit')">
                         <span class="text-sm">${s.name}</span>
                         <span class="text-xs text-gray-400">(${s.code})</span>
                     </label>
@@ -1073,12 +1069,11 @@
                     stores.push({ code, name, roleEmail: email, primaryManager: null, authorizedUsers: [] });
                 } else if (currentModalType === 'new-group') {
                     const name = document.getElementById('group-name').value || '新群組';
-                    const isAllStores = document.getElementById('new-group-all-stores').checked;
                     let selectedStores = [];
-                    if (isAllStores) {
+                    document.querySelectorAll('input[name="new-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
+                    // 如果全選，標記為「所有門市」
+                    if (selectedStores.length === stores.length) {
                         selectedStores = ['(所有門市)'];
-                    } else {
-                        document.querySelectorAll('input[name="new-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
                     }
                     const managerName = document.getElementById('group-manager-select').value;
                     const managerScopes = getSelectedReports('group-scopes');
@@ -1090,12 +1085,11 @@
                     });
                 } else if (currentModalType === 'edit-group') {
                     groups[currentIndex].name = document.getElementById('edit-group-name').value;
-                    const isAllStores = document.getElementById('edit-group-all-stores').checked;
                     let selectedStores = [];
-                    if (isAllStores) {
+                    document.querySelectorAll('input[name="edit-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
+                    // 如果全選，標記為「所有門市」
+                    if (selectedStores.length === stores.length) {
                         selectedStores = ['(所有門市)'];
-                    } else {
-                        document.querySelectorAll('input[name="edit-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
                     }
                     groups[currentIndex].stores = selectedStores.length > 0 ? selectedStores : ['(未指定)'];
                 } else if (currentModalType === 'group-manager') {
