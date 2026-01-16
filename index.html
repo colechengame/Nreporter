@@ -38,6 +38,26 @@
         .checkbox-card input:checked + div .check-icon {
             opacity: 1;
         }
+
+        /* 篩選按鈕樣式 */
+        .store-filter-btn {
+            background: white;
+            border-color: #e5e7eb;
+            color: #6b7280;
+        }
+        .store-filter-btn:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+        .store-filter-btn.active {
+            background: #0F4C81;
+            border-color: #0F4C81;
+            color: white;
+        }
+        .store-filter-btn.active span {
+            background: rgba(255,255,255,0.2) !important;
+            color: white !important;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
@@ -91,14 +111,39 @@
         <!-- VIEW 1: 門市管理 (Store View) -->
         <div id="view-store" class="block animate-fade-in">
             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div class="px-4 py-5 sm:px-6 flex justify-between items-center bg-gray-50 border-b border-gray-200">
-                    <div>
-                        <h3 class="text-lg leading-6 font-bold text-gray-900">門市人員配置與授權</h3>
-                        <p class="mt-1 max-w-2xl text-sm text-gray-500">設定門市角色信箱 (Role Email) 與負責人員。</p>
+                <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-lg leading-6 font-bold text-gray-900">門市人員配置與授權</h3>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">設定門市角色信箱 (Role Email) 與負責人員。</p>
+                        </div>
+                        <button onclick="openModal('new-store')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm shadow transition flex items-center">
+                            <i class="fa-solid fa-plus mr-2"></i> 新展店設定
+                        </button>
                     </div>
-                    <button onclick="openModal('new-store')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm shadow transition flex items-center">
-                        <i class="fa-solid fa-plus mr-2"></i> 新展店設定
-                    </button>
+                    <!-- 搜尋與篩選 -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="store-search" placeholder="搜尋門市名稱、代碼、店經理..."
+                                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"
+                                   oninput="filterStores()">
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="setStoreFilter('all')" id="filter-all" class="store-filter-btn active px-4 py-2 text-sm rounded-lg border transition">
+                                全部 <span class="ml-1 text-xs bg-gray-200 text-gray-600 px-1.5 rounded" id="count-all">0</span>
+                            </button>
+                            <button onclick="setStoreFilter('med')" id="filter-med" class="store-filter-btn px-4 py-2 text-sm rounded-lg border transition">
+                                <i class="fa-solid fa-syringe mr-1 text-pink-500"></i>醫美 <span class="ml-1 text-xs bg-pink-100 text-pink-600 px-1.5 rounded" id="count-med">0</span>
+                            </button>
+                            <button onclick="setStoreFilter('spa')" id="filter-spa" class="store-filter-btn px-4 py-2 text-sm rounded-lg border transition">
+                                <i class="fa-solid fa-spa mr-1 text-amber-500"></i>岩盤浴 <span class="ml-1 text-xs bg-amber-100 text-amber-600 px-1.5 rounded" id="count-spa">0</span>
+                            </button>
+                            <button onclick="setStoreFilter('other')" id="filter-other" class="store-filter-btn px-4 py-2 text-sm rounded-lg border transition">
+                                其他 <span class="ml-1 text-xs bg-gray-200 text-gray-600 px-1.5 rounded" id="count-other">0</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="border-t border-gray-200">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -121,14 +166,23 @@
         <!-- VIEW 2: 群組管理 (Group View) -->
         <div id="view-group" class="hidden animate-fade-in">
             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div class="px-4 py-5 sm:px-6 flex justify-between items-center bg-gray-50 border-b border-gray-200">
-                    <div>
-                        <h3 class="text-lg leading-6 font-bold text-gray-900">區域管理群組</h3>
-                        <p class="mt-1 max-w-2xl text-sm text-gray-500">設定跨店管理者的權限範圍。</p>
+                <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-lg leading-6 font-bold text-gray-900">區域管理群組</h3>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">設定跨店管理者的權限範圍。</p>
+                        </div>
+                        <button onclick="openModal('new-group')" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded text-sm shadow transition flex items-center">
+                            <i class="fa-solid fa-plus mr-2"></i> 新增管理群組
+                        </button>
                     </div>
-                    <button onclick="openModal('new-group')" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded text-sm shadow transition flex items-center">
-                        <i class="fa-solid fa-plus mr-2"></i> 新增管理群組
-                    </button>
+                    <!-- 搜尋 -->
+                    <div class="relative max-w-md">
+                        <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="group-search" placeholder="搜尋群組名稱、管理者..."
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"
+                               oninput="filterGroups()">
+                    </div>
                 </div>
                 <div class="border-t border-gray-200">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -510,7 +564,23 @@
         function renderStores() {
             const tbody = document.getElementById('store-list');
             tbody.innerHTML = '';
-            stores.forEach((store, index) => {
+            updateStoreCounts();
+            const filteredStores = getFilteredStores();
+
+            if (filteredStores.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fa-solid fa-search text-4xl text-gray-300 mb-3"></i>
+                            <p class="font-medium">找不到符合條件的門市</p>
+                            <p class="text-sm">請嘗試其他搜尋條件或篩選器</p>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            filteredStores.forEach((store) => {
+                const index = stores.indexOf(store);
                 // Primary Manager UI
                 let primaryHtml = '';
                 if(store.primaryManager) {
@@ -561,12 +631,18 @@
                     granularHtml += '</div>';
                 }
 
+                const catIcon = getStoreCategory(store) === 'spa'
+                    ? '<i class="fa-solid fa-spa text-amber-500 mr-1.5"></i>'
+                    : getStoreCategory(store) === 'med'
+                        ? '<i class="fa-solid fa-syringe text-pink-500 mr-1.5"></i>'
+                        : '<i class="fa-solid fa-building text-gray-400 mr-1.5"></i>';
+
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50 transition store-row">
                         <td class="px-6 py-4 align-top">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <div class="text-sm font-bold text-gray-900">${store.name}</div>
+                                    <div class="text-sm font-bold text-gray-900">${catIcon}${store.name}</div>
                                     <div class="text-xs text-gray-500 font-mono bg-gray-100 px-1 rounded inline-block mt-1">${store.code}</div>
                                 </div>
                                 <button onclick="openModal('edit-store', ${index})" class="text-gray-400 hover:text-primary transition p-1" title="門市設定 & Email 維護">
@@ -598,7 +674,22 @@
         function renderGroups() {
             const tbody = document.getElementById('group-list');
             tbody.innerHTML = '';
-            groups.forEach((group, index) => {
+            const filteredGroups = getFilteredGroups();
+
+            if (filteredGroups.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fa-solid fa-search text-4xl text-gray-300 mb-3"></i>
+                            <p class="font-medium">找不到符合條件的群組</p>
+                            <p class="text-sm">請嘗試其他搜尋條件</p>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            filteredGroups.forEach((group) => {
+                const index = groups.indexOf(group);
                 let mgrHtml = '';
                 if (group.managers.length === 0) {
                     mgrHtml = '<span class="text-xs text-gray-400">尚未指派管理者</span>';
@@ -645,6 +736,83 @@
                         </td>
                     </tr>
                 `;
+            });
+        }
+
+        // --- FILTER & SEARCH ---
+        let currentStoreFilter = 'all';
+        let currentStoreSearch = '';
+        let currentGroupSearch = '';
+
+        function getStoreCategory(store) {
+            const code = store.code.toUpperCase();
+            if (code.includes('SPA')) return 'spa';
+            if (code.includes('MED') || code.includes('GZ') || code.includes('TY') || code.includes('JB')) return 'med';
+            return 'other';
+        }
+
+        function updateStoreCounts() {
+            let countAll = 0, countMed = 0, countSpa = 0, countOther = 0;
+            stores.forEach(store => {
+                const cat = getStoreCategory(store);
+                countAll++;
+                if (cat === 'med') countMed++;
+                else if (cat === 'spa') countSpa++;
+                else countOther++;
+            });
+            document.getElementById('count-all').textContent = countAll;
+            document.getElementById('count-med').textContent = countMed;
+            document.getElementById('count-spa').textContent = countSpa;
+            document.getElementById('count-other').textContent = countOther;
+        }
+
+        function setStoreFilter(filter) {
+            currentStoreFilter = filter;
+            document.querySelectorAll('.store-filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`filter-${filter}`).classList.add('active');
+            renderStores();
+        }
+
+        function filterStores() {
+            currentStoreSearch = document.getElementById('store-search').value.toLowerCase();
+            renderStores();
+        }
+
+        function getFilteredStores() {
+            return stores.filter(store => {
+                // 部門篩選
+                if (currentStoreFilter !== 'all') {
+                    const cat = getStoreCategory(store);
+                    if (cat !== currentStoreFilter) return false;
+                }
+                // 搜尋篩選
+                if (currentStoreSearch) {
+                    const searchFields = [
+                        store.name,
+                        store.code,
+                        store.roleEmail,
+                        store.primaryManager?.name || ''
+                    ].join(' ').toLowerCase();
+                    if (!searchFields.includes(currentStoreSearch)) return false;
+                }
+                return true;
+            });
+        }
+
+        function filterGroups() {
+            currentGroupSearch = document.getElementById('group-search').value.toLowerCase();
+            renderGroups();
+        }
+
+        function getFilteredGroups() {
+            if (!currentGroupSearch) return groups;
+            return groups.filter(group => {
+                const searchFields = [
+                    group.name,
+                    group.stores.join(' '),
+                    group.managers.map(m => m.name).join(' ')
+                ].join(' ').toLowerCase();
+                return searchFields.includes(currentGroupSearch);
             });
         }
 
