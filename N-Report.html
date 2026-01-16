@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Report 權限中控台 (V3 Email 維護版)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F4C81',
+                        secondary: '#F5F7FA',
+                        ai: '#8B5CF6',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        .animate-scale-in { animation: scaleIn 0.2s ease-out; }
+        
+        .checkbox-card input:checked + div {
+            border-color: #0F4C81;
+            background-color: #ebf5ff;
+            color: #0F4C81;
+        }
+        .checkbox-card input:checked + div .check-icon {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+
+    <!-- 頂部導航 -->
+    <nav class="bg-primary text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl"><i class="fa-solid fa-shield-halved mr-2"></i>N-Report 權限中控台</span>
+                    <span class="ml-4 px-2 py-0.5 rounded text-xs bg-blue-800 text-blue-200 border border-blue-700">Unified Access Control</span>
+                </div>
+                <div class="flex items-center space-x-4 text-sm">
+                    <div class="hidden md:flex items-center space-x-2 mr-4">
+                        <span class="flex items-center text-xs text-blue-200"><span class="w-2 h-2 rounded-full bg-red-400 mr-1"></span>報表A:營收</span>
+                        <span class="flex items-center text-xs text-blue-200"><span class="w-2 h-2 rounded-full bg-green-400 mr-1"></span>報表B:營運</span>
+                        <span class="flex items-center text-xs text-blue-200"><span class="w-2 h-2 rounded-full bg-purple-400 mr-1"></span>報表C:庫存</span>
+                    </div>
+                    
+                    <button onclick="openAIModal()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-4 py-2 rounded-full font-bold shadow-md transition transform hover:scale-105 flex items-center border border-white/20">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> AI 助手
+                    </button>
+
+                    <span class="bg-blue-800 px-3 py-1 rounded-full"><i class="fa-solid fa-user-tie mr-1"></i> 營業部主管</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 頁籤切換 -->
+        <div class="mb-6 border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button onclick="switchTab('store')" id="tab-store" class="border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-colors">
+                    <i class="fa-solid fa-store mr-2"></i> 門市與細部權限 (Store & Granular)
+                </button>
+                <button onclick="switchTab('group')" id="tab-group" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-colors">
+                    <i class="fa-solid fa-layer-group mr-2"></i> 多店/區域管理 (Group)
+                </button>
+            </nav>
+        </div>
+
+        <!-- VIEW 1: 門市管理 (Store View) -->
+        <div id="view-store" class="block animate-fade-in">
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 flex justify-between items-center bg-gray-50 border-b border-gray-200">
+                    <div>
+                        <h3 class="text-lg leading-6 font-bold text-gray-900">門市人員配置與授權</h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">設定門市角色信箱 (Role Email) 與負責人員。</p>
+                    </div>
+                    <button onclick="openModal('new-store')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm shadow transition flex items-center">
+                        <i class="fa-solid fa-plus mr-2"></i> 新展店設定
+                    </button>
+                </div>
+                <div class="border-t border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/5">門市資訊</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/3">主要店經理 & Role Email</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/3">其他授權人員 (Granular)</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/10 text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="store-list">
+                            <!-- JS Generated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: 群組管理 (Group View) -->
+        <div id="view-group" class="hidden animate-fade-in">
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 flex justify-between items-center bg-gray-50 border-b border-gray-200">
+                    <div>
+                        <h3 class="text-lg leading-6 font-bold text-gray-900">區域管理群組</h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">設定跨店管理者的權限範圍。</p>
+                    </div>
+                    <button onclick="openModal('new-group')" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded text-sm shadow transition flex items-center">
+                        <i class="fa-solid fa-plus mr-2"></i> 新增管理群組
+                    </button>
+                </div>
+                <div class="border-t border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">群組名稱</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">包含門市</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">管理者 & 權限</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="group-list">
+                            <!-- JS Generated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AI Modal -->
+    <div id="ai-modal" class="fixed z-20 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-80 transition-opacity backdrop-blur-sm" onclick="closeAIModal()"></div>
+            <div class="inline-block align-middle bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-xl sm:w-full border border-violet-200">
+                <div class="bg-gradient-to-r from-violet-600 to-fuchsia-600 p-4">
+                    <h3 class="text-lg leading-6 font-bold text-white flex items-center">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> AI 智慧指令助手
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-sm text-gray-600 mb-4">使用自然語言快速管理門市、權限與 Role Email。</p>
+                    <div class="relative rounded-md shadow-sm">
+                        <textarea id="ai-input" rows="3" class="focus:ring-violet-500 focus:border-violet-500 block w-full sm:text-sm border-gray-300 rounded-md p-3 border" placeholder="例如：把板橋醫美的店長換成張三，或把忠孝岩盤浴的 Role Email 改成 tp_spa.admin@company.com"></textarea>
+                        <div id="ai-loading" class="absolute inset-0 bg-white/80 flex items-center justify-center hidden rounded-md backdrop-blur-sm">
+                            <div class="flex flex-col items-center">
+                                <i class="fa-solid fa-circle-notch fa-spin text-violet-600 text-3xl mb-2"></i>
+                                <span class="text-sm text-violet-600 font-bold">Gemini 正在處理...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <p class="text-xs text-gray-400 font-bold mb-2 uppercase tracking-wide">試試看指令：</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="fillAIInput('把板橋醫美的店長換成 Tina')" class="text-xs bg-violet-50 text-violet-700 px-2 py-1 rounded-full border border-violet-200 hover:bg-violet-100 transition">換店長</button>
+                            <button onclick="fillAIInput('修改板橋醫美的 Email 為 bz_med.new@company.com')" class="text-xs bg-violet-50 text-violet-700 px-2 py-1 rounded-full border border-violet-200 hover:bg-violet-100 transition">修改 Role Email</button>
+                            <button onclick="fillAIInput('讓 David 可以看忠孝岩盤浴的營收報表')" class="text-xs bg-violet-50 text-violet-700 px-2 py-1 rounded-full border border-violet-200 hover:bg-violet-100 transition">授權看報表</button>
+                        </div>
+                    </div>
+
+                    <div id="ai-result" class="mt-4 hidden p-3 bg-green-50 rounded-md border border-green-200 text-sm text-green-800">
+                        <i class="fa-solid fa-check-circle mr-1"></i> <span id="ai-result-text"></span>
+                    </div>
+                    <div id="ai-error" class="mt-4 hidden p-3 bg-red-50 rounded-md border border-red-200 text-sm text-red-800">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i> <span id="ai-error-text"></span>
+                    </div>
+
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="submitAICommand()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-violet-600 text-base font-medium text-white hover:bg-violet-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition">
+                        執行指令
+                    </button>
+                    <button type="button" onclick="closeAIModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-100 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 編輯 Modal -->
+    <div id="modal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border-t-4 border-primary">
+                
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div id="modal-icon-bg" class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i id="modal-icon" class="fa-solid fa-pen text-blue-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">標題</h3>
+                            <div class="mt-4" id="modal-content">
+                                
+                                <!-- FORM 0: 編輯門市設定 (Edit Store) -->
+                                <div id="form-edit-store" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">門市名稱</label>
+                                        <input type="text" id="edit-store-name" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">門市代碼 (不可修改)</label>
+                                        <input type="text" id="edit-store-code" disabled class="block w-full border-gray-300 rounded-md border p-2 bg-gray-100 text-gray-500 cursor-not-allowed">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">角色 Email (Role Email)</label>
+                                        <div class="flex rounded-md shadow-sm">
+                                            <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                                                <i class="fa-regular fa-envelope"></i>
+                                            </span>
+                                            <input type="email" id="edit-store-email" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-primary focus:border-primary sm:text-sm border-gray-300 border" placeholder="manager@company.com">
+                                        </div>
+                                        <p class="mt-2 text-xs text-gray-500">
+                                            <i class="fa-solid fa-circle-info mr-1 text-blue-500"></i>
+                                            修改此 Email 將同步更新 Google Drive 權限與 n8n 分派規則。
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- FORM 1: 指派主要店長 (Single) -->
+                                <div id="form-primary" class="form-section hidden">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">選擇主要負責人</label>
+                                    <select id="primary-select" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary">
+                                        <option value="1001">王小明 (店長)</option>
+                                        <option value="3005">林函儀 (店長)</option>
+                                        <option value="9999">-- 暫時懸缺 --</option>
+                                    </select>
+                                    <div class="mt-4 bg-yellow-50 p-3 rounded-md border border-yellow-200">
+                                         <p class="text-xs text-yellow-700 font-bold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 注意：</p>
+                                         <p class="text-xs text-yellow-700">該人員將自動繼承目前的 Role Email。若要修改 Email 地址，請使用「門市設定」功能。</p>
+                                    </div>
+                                </div>
+
+                                <!-- FORM 2: 新增細部權限人員 (Granular) -->
+                                <div id="form-granular" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">選擇員工/角色</label>
+                                        <select id="granular-select" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary">
+                                            <option value="甲君">甲君 (區督導)</option>
+                                            <option value="乙君">乙君 (儲備幹部)</option>
+                                            <option value="Tina">Tina (區經理)</option>
+                                            <option value="David">David (顧問)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">可存取的報表 (Scope)</label>
+                                        <div class="space-y-2">
+                                            <label class="checkbox-card cursor-pointer block">
+                                                <input type="checkbox" name="scopes" value="A" class="hidden">
+                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
+                                                    <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mr-3 text-xs">A</span>
+                                                    <span class="text-sm">報表A (營收/敏感)</span>
+                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
+                                                </div>
+                                            </label>
+                                            <label class="checkbox-card cursor-pointer block">
+                                                <input type="checkbox" name="scopes" value="B" class="hidden">
+                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
+                                                    <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold mr-3 text-xs">B</span>
+                                                    <span class="text-sm">報表B (營運/一般)</span>
+                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- FORM 3: 新展店 -->
+                                <div id="form-new-store" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">門市代碼</label>
+                                        <input type="text" id="store-code" placeholder="TP_MED" oninput="autoGenEmail()" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">門市名稱</label>
+                                        <input type="text" id="store-name" placeholder="台北醫美" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">預設 Role Email</label>
+                                        <input type="email" id="store-email" placeholder="auto-generated..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm bg-gray-50">
+                                    </div>
+                                </div>
+
+                                <!-- FORM 4: 新群組 -->
+                                <div id="form-new-group" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">群組名稱</label>
+                                        <input type="text" id="group-name" placeholder="北區督導組" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">包含門市</label>
+                                        <div class="flex gap-2">
+                                            <label class="flex items-center space-x-2"><input type="checkbox" checked class="text-primary"> <span class="text-sm">板橋醫美</span></label>
+                                            <label class="flex items-center space-x-2"><input type="checkbox" class="text-primary"> <span class="text-sm">忠孝岩盤浴</span></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="saveData()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-800 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition">
+                        儲存並同步
+                    </button>
+                    <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-100 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 hidden flex items-center w-full max-w-sm p-4 text-gray-500 bg-white rounded-lg shadow-lg border border-gray-200 transform transition-all duration-300 translate-y-10 opacity-0 z-50">
+        <div id="toast-icon-bg" class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-500 bg-blue-100 rounded-lg">
+            <i id="toast-icon" class="fa-solid fa-rotate animate-spin"></i>
+        </div>
+        <div class="ml-3 text-sm font-normal" id="toast-msg">同步中...</div>
+    </div>
+
+    <script>
+        // --- DATA MODEL ---
+        let stores = [
+            { 
+                code: 'BZ_MED', 
+                name: '板橋醫美', 
+                roleEmail: 'bz_med.manager@company.com',
+                primaryManager: { name: '王小明', status: 'active' },
+                authorizedUsers: [
+                    { name: 'Tina', role: '區經理', scopes: ['A', 'B', 'C'] },
+                    { name: '甲君', role: '督導', scopes: ['A'] }
+                ]
+            },
+            { 
+                code: 'TP_SPA', 
+                name: '忠孝岩盤浴', 
+                roleEmail: 'tp_spa.manager@company.com',
+                primaryManager: { name: '林函儀', status: 'active' }, 
+                authorizedUsers: [
+                    { name: '乙君', role: '儲備', scopes: ['B'] }
+                ]
+            },
+            { 
+                code: 'TC_SPA', 
+                name: '台中岩盤浴', 
+                roleEmail: 'tc_spa.manager@company.com',
+                primaryManager: null, 
+                authorizedUsers: []
+            }
+        ];
+
+        let groups = [
+            {
+                name: '醫美多店管理組',
+                stores: ['板橋醫美', '三峽醫美'],
+                managers: [
+                    { name: 'Tina', scopes: ['A', 'B', 'C'] }
+                ]
+            }
+        ];
+
+        let currentModalType = '';
+        let currentIndex = -1;
+        
+        const apiKey = ""; // API Key
+
+        // --- RENDER ---
+        function renderStores() {
+            const tbody = document.getElementById('store-list');
+            tbody.innerHTML = '';
+            stores.forEach((store, index) => {
+                // Primary Manager UI
+                let primaryHtml = '';
+                if(store.primaryManager) {
+                    primaryHtml = `
+                        <div class="flex flex-col">
+                            <div class="flex items-center mb-1">
+                                <div class="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs mr-2 border-2 border-white shadow-sm ring-1 ring-gray-200">
+                                    ${store.primaryManager.name.substring(0,1)}
+                                </div>
+                                <div>
+                                    <div class="text-sm font-bold text-gray-900">${store.primaryManager.name}</div>
+                                    <div class="text-xs text-green-600"><i class="fa-solid fa-circle-check"></i> 權限生效</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center ml-10">
+                                <span class="bg-gray-100 text-gray-600 text-[11px] px-2 py-0.5 rounded border border-gray-300 flex items-center font-mono group cursor-pointer hover:bg-gray-200" onclick="openModal('edit-store', ${index})" title="點擊編輯 Email">
+                                    <i class="fa-regular fa-envelope mr-1.5 text-gray-400"></i> ${store.roleEmail}
+                                </span>
+                            </div>
+                        </div>`;
+                } else {
+                    primaryHtml = `
+                        <div class="flex flex-col">
+                             <div class="flex items-center">
+                                <span class="text-sm text-red-500 font-bold bg-red-50 px-2 py-1 rounded border border-red-200"><i class="fa-solid fa-triangle-exclamation mr-1"></i>未指派</span>
+                             </div>
+                             <div class="flex items-center mt-2">
+                                <span class="bg-gray-50 text-gray-400 text-[11px] px-2 py-0.5 rounded border border-gray-200 flex items-center font-mono group cursor-pointer hover:bg-gray-100" onclick="openModal('edit-store', ${index})" title="點擊編輯 Email">
+                                    <i class="fa-regular fa-envelope mr-1.5"></i> ${store.roleEmail}
+                                </span>
+                            </div>
+                        </div>`;
+                }
+
+                // Granular Users UI
+                let granularHtml = '';
+                if(store.authorizedUsers.length === 0) granularHtml = '<span class="text-xs text-gray-400">無其他授權人員</span>';
+                else {
+                    granularHtml = '<div class="space-y-1">';
+                    store.authorizedUsers.forEach(u => {
+                        const badges = u.scopes.map(s => {
+                            let color = s==='A'?'bg-red-100 text-red-700': s==='B'?'bg-green-100 text-green-700':'bg-purple-100 text-purple-700';
+                            return `<span class="px-1.5 rounded text-[10px] font-bold ${color} border border-black/5 mx-0.5">${s}</span>`;
+                        }).join('');
+                        granularHtml += `
+                            <div class="flex items-center text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                                <span class="font-medium mr-2">${u.name}</span>
+                                <span class="text-xs text-gray-500 mr-auto">(${u.role})</span>
+                                <div class="flex">${badges}</div>
+                            </div>`;
+                    });
+                    granularHtml += '</div>';
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 align-top">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="text-sm font-bold text-gray-900">${store.name}</div>
+                                    <div class="text-xs text-gray-500 font-mono bg-gray-100 px-1 rounded inline-block mt-1">${store.code}</div>
+                                </div>
+                                <button onclick="openModal('edit-store', ${index})" class="text-gray-400 hover:text-primary transition p-1" title="門市設定 & Email 維護">
+                                    <i class="fa-solid fa-gear"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 align-top border-l border-r border-gray-100 bg-blue-50/20">
+                            <div class="flex flex-col h-full justify-between">
+                                ${primaryHtml}
+                                <button onclick="openModal('primary', ${index})" class="text-xs text-blue-600 hover:text-blue-800 mt-2 text-left font-bold pl-10 flex items-center">
+                                    <i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> 權限移轉
+                                </button>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            ${granularHtml}
+                        </td>
+                        <td class="px-6 py-4 align-top text-right">
+                             <button onclick="openModal('granular', ${index})" class="text-gray-500 hover:text-primary font-bold border border-gray-300 hover:bg-gray-50 px-2 py-1 rounded text-xs transition">
+                                <i class="fa-solid fa-plus"></i> 加人
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderGroups() {
+            const tbody = document.getElementById('group-list');
+            tbody.innerHTML = '';
+            groups.forEach((group, index) => {
+                let mgrHtml = group.managers.map(m => {
+                     const badges = m.scopes.map(s => {
+                            let color = s==='A'?'bg-red-100 text-red-700': s==='B'?'bg-green-100 text-green-700':'bg-purple-100 text-purple-700';
+                            return `<span class="px-1.5 rounded text-[10px] font-bold ${color} border border-black/5 mx-0.5">${s}</span>`;
+                        }).join('');
+                    return `<div class="flex items-center text-sm"><i class="fa-solid fa-user-shield text-gray-400 mr-2"></i> ${m.name} ${badges}</div>`;
+                }).join('');
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4 font-bold text-sm text-gray-900">${group.name}</td>
+                        <td class="px-6 py-4"><div class="flex gap-1">${group.stores.map(s=>`<span class="bg-gray-100 px-2 py-0.5 rounded text-xs border">${s}</span>`).join('')}</div></td>
+                        <td class="px-6 py-4 space-y-1">${mgrHtml}</td>
+                        <td class="px-6 py-4 text-right"><button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-gear"></i></button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- INTERACTION ---
+        function switchTab(tab) {
+            document.getElementById('view-store').classList.toggle('hidden', tab !== 'store');
+            document.getElementById('view-group').classList.toggle('hidden', tab !== 'group');
+            
+            const activeClass = "border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-colors";
+            const inactiveClass = "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-colors";
+            
+            document.getElementById('tab-store').className = tab === 'store' ? activeClass : inactiveClass;
+            document.getElementById('tab-group').className = tab === 'group' ? activeClass : inactiveClass;
+
+            if(tab === 'store') renderStores(); else renderGroups();
+        }
+
+        function autoGenEmail() {
+            const code = document.getElementById('store-code').value;
+            if(code) {
+                document.getElementById('store-email').value = `${code.toLowerCase()}.manager@company.com`;
+            }
+        }
+
+        function openModal(type, index) {
+            currentModalType = type;
+            currentIndex = index;
+            const modal = document.getElementById('modal');
+            const title = document.getElementById('modal-title');
+            
+            // Hide all forms
+            document.querySelectorAll('.form-section').forEach(el => el.classList.add('hidden'));
+
+            if(type === 'primary') {
+                title.innerText = `指派 ${stores[index].name} 主要店經理`;
+                document.getElementById('form-primary').classList.remove('hidden');
+            } else if (type === 'granular') {
+                title.innerText = `新增人員至 ${stores[index].name}`;
+                document.getElementById('form-granular').classList.remove('hidden');
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            } else if (type === 'new-store') {
+                title.innerText = "新展店設定";
+                document.getElementById('form-new-store').classList.remove('hidden');
+                document.getElementById('store-code').value = '';
+                document.getElementById('store-name').value = '';
+                document.getElementById('store-email').value = '';
+            } else if (type === 'new-group') {
+                title.innerText = "新增管理群組";
+                document.getElementById('form-new-group').classList.remove('hidden');
+            } else if (type === 'edit-store') {
+                title.innerText = "門市設定與 Role Email 維護";
+                document.getElementById('form-edit-store').classList.remove('hidden');
+                document.getElementById('edit-store-name').value = stores[index].name;
+                document.getElementById('edit-store-code').value = stores[index].code;
+                document.getElementById('edit-store-email').value = stores[index].roleEmail;
+            }
+
+            modal.classList.remove('hidden');
+            modal.querySelector('div[class*="transform"]').classList.add('animate-scale-in');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function saveData() {
+            closeModal();
+            showToast('syncing');
+
+            setTimeout(() => {
+                if(currentModalType === 'primary') {
+                    const sel = document.getElementById('primary-select');
+                    const name = sel.options[sel.selectedIndex].text.split(' (')[0];
+                    if(sel.value === '9999') stores[currentIndex].primaryManager = null;
+                    else stores[currentIndex].primaryManager = { name: name, status: 'active' };
+                } else if (currentModalType === 'granular') {
+                    const sel = document.getElementById('granular-select');
+                    const name = sel.options[sel.selectedIndex].text.split(' (')[0];
+                    const role = sel.options[sel.selectedIndex].text.split(' (')[1].replace(')','');
+                    const scopes = [];
+                    document.querySelectorAll('#form-granular input:checked').forEach(cb => scopes.push(cb.value));
+                    if(scopes.length > 0) {
+                        stores[currentIndex].authorizedUsers.push({ name, role, scopes });
+                    }
+                } else if (currentModalType === 'new-store') {
+                    const code = document.getElementById('store-code').value || 'NEW';
+                    const name = document.getElementById('store-name').value || '新門市';
+                    const email = document.getElementById('store-email').value || `${code.toLowerCase()}.manager@company.com`;
+                    stores.push({ code, name, roleEmail: email, primaryManager: null, authorizedUsers: [] });
+                } else if (currentModalType === 'new-group') {
+                    const name = document.getElementById('group-name').value || '新群組';
+                    groups.push({ name, stores: ['(新設定)'], managers: [] });
+                } else if (currentModalType === 'edit-store') {
+                    stores[currentIndex].name = document.getElementById('edit-store-name').value;
+                    // Code is disabled
+                    stores[currentIndex].roleEmail = document.getElementById('edit-store-email').value;
+                }
+
+                renderStores();
+                renderGroups();
+                showToast('success');
+            }, 800);
+        }
+
+        function showToast(state, customMsg) {
+            const toast = document.getElementById('toast');
+            const iconBg = document.getElementById('toast-icon-bg');
+            const icon = document.getElementById('toast-icon');
+            const msg = document.getElementById('toast-msg');
+
+            toast.classList.remove('hidden', 'translate-y-10', 'opacity-0');
+
+            if(state === 'syncing') {
+                iconBg.className = "inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-500 bg-blue-100 rounded-lg";
+                icon.className = "fa-solid fa-rotate animate-spin";
+                msg.innerText = "正在同步 Google Drive...";
+            } else {
+                iconBg.className = "inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg";
+                icon.className = "fa-solid fa-check";
+                msg.innerText = customMsg || "設定已生效！";
+                setTimeout(() => {
+                    toast.classList.add('translate-y-10', 'opacity-0');
+                    setTimeout(() => toast.classList.add('hidden'), 300);
+                }, 2000);
+            }
+        }
+
+        // --- AI LOGIC ---
+        function openAIModal() {
+            document.getElementById('ai-modal').classList.remove('hidden');
+            document.getElementById('ai-result').classList.add('hidden');
+            document.getElementById('ai-error').classList.add('hidden');
+            document.getElementById('ai-input').value = '';
+            document.getElementById('ai-input').focus();
+        }
+
+        function closeAIModal() {
+            document.getElementById('ai-modal').classList.add('hidden');
+        }
+
+        function fillAIInput(text) {
+            document.getElementById('ai-input').value = text;
+        }
+
+        async function submitAICommand() {
+            const input = document.getElementById('ai-input').value;
+            if(!input.trim()) return;
+
+            const loading = document.getElementById('ai-loading');
+            const resultDiv = document.getElementById('ai-result');
+            const errorDiv = document.getElementById('ai-error');
+            const resultText = document.getElementById('ai-result-text');
+            const errorText = document.getElementById('ai-error-text');
+
+            loading.classList.remove('hidden');
+            resultDiv.classList.add('hidden');
+            errorDiv.classList.add('hidden');
+
+            try {
+                // 1. Prepare Context for LLM
+                const currentStoreNames = stores.map(s => s.name).join(', ');
+                const context = `
+                    Current Stores: ${currentStoreNames}
+                    User Command: ${input}
+                    
+                    You are an AI assistant for a permission system. Parse the user's natural language command into a JSON action.
+                    Output JSON format ONLY. No markdown.
+                    
+                    Action Types:
+                    1. ASSIGN_PRIMARY: { "type": "ASSIGN_PRIMARY", "storeName": "Target Store Name", "managerName": "Name" }
+                    2. ADD_GRANULAR: { "type": "ADD_GRANULAR", "storeName": "Target Store Name", "userName": "Name", "role": "Title", "scopes": ["A"|"B"|"C"] }
+                    3. CREATE_STORE: { "type": "CREATE_STORE", "name": "Store Name", "code": "CODE" }
+                    4. UPDATE_STORE_EMAIL: { "type": "UPDATE_STORE_EMAIL", "storeName": "Target Store Name", "newEmail": "email@address" }
+                       - Matches: "把[店名]的 Email 改成 [email]", "修改[店名]的 Role Email 為 [email]"
+                    
+                    If store name is fuzzy, try to match closest from Current Stores list.
+                `;
+
+                // 2. Call Gemini API
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: context }] }]
+                    })
+                });
+
+                if(!response.ok) throw new Error('API Request Failed');
+                
+                const data = await response.json();
+                const rawText = data.candidates[0].content.parts[0].text;
+                const jsonStr = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const action = JSON.parse(jsonStr);
+
+                // 3. Execute Action
+                let successMsg = "";
+
+                if (action.type === 'ASSIGN_PRIMARY') {
+                    const store = stores.find(s => s.name.includes(action.storeName) || action.storeName.includes(s.name));
+                    if (store) {
+                        store.primaryManager = { name: action.managerName, status: 'active' };
+                        successMsg = `已成功將 ${store.name} 的主要店長變更為 ${action.managerName}`;
+                    } else { throw new Error(`找不到門市：${action.storeName}`); }
+                } 
+                else if (action.type === 'ADD_GRANULAR') {
+                    const store = stores.find(s => s.name.includes(action.storeName) || action.storeName.includes(s.name));
+                    if (store) {
+                        store.authorizedUsers.push({ name: action.userName, role: action.role || '專員', scopes: action.scopes });
+                        successMsg = `已授權 ${action.userName} 存取 ${store.name} 的 ${action.scopes.join(',')} 報表`;
+                    } else { throw new Error(`找不到門市：${action.storeName}`); }
+                }
+                else if (action.type === 'CREATE_STORE') {
+                    const newCode = action.code || 'NEW';
+                    const newEmail = `${newCode.toLowerCase()}.manager@company.com`;
+                    stores.push({ code: newCode, name: action.name, roleEmail: newEmail, primaryManager: null, authorizedUsers: [] });
+                    successMsg = `已建立新門市：${action.name}`;
+                }
+                else if (action.type === 'UPDATE_STORE_EMAIL') {
+                    const store = stores.find(s => s.name.includes(action.storeName) || action.storeName.includes(s.name));
+                    if (store) {
+                        store.roleEmail = action.newEmail;
+                        successMsg = `已更新 ${store.name} 的 Role Email 為 ${action.newEmail}`;
+                    } else { throw new Error(`找不到門市：${action.storeName}`); }
+                }
+                else {
+                    throw new Error("無法辨識指令，請試著說得更清楚一點。");
+                }
+
+                renderStores();
+                resultText.innerText = successMsg;
+                resultDiv.classList.remove('hidden');
+                showToast('success', 'AI 指令執行成功！');
+
+            } catch (err) {
+                console.error(err);
+                errorText.innerText = "指令執行失敗：" + (err.message || "請檢查 API Key");
+                errorDiv.classList.remove('hidden');
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+
+        renderStores();
+    </script>
+</body>
+</html>
