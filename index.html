@@ -307,9 +307,108 @@
                                     </div>
                                     <div class="mb-4">
                                         <label class="block text-sm font-bold text-gray-700 mb-2">包含門市</label>
-                                        <div class="flex gap-2">
-                                            <label class="flex items-center space-x-2"><input type="checkbox" checked class="text-primary"> <span class="text-sm">板橋醫美</span></label>
-                                            <label class="flex items-center space-x-2"><input type="checkbox" class="text-primary"> <span class="text-sm">忠孝岩盤浴</span></label>
+                                        <div id="group-store-checkboxes" class="space-y-2 max-h-40 overflow-y-auto border rounded-md p-2">
+                                            <!-- 動態生成 -->
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">指定管理者</label>
+                                        <select id="group-manager-select" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                            <option value="Tina">Tina (區經理)</option>
+                                            <option value="甲君">甲君 (區督導)</option>
+                                            <option value="乙君">乙君 (儲備幹部)</option>
+                                            <option value="David">David (顧問)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">管理者可存取的報表</label>
+                                        <div class="space-y-2">
+                                            <label class="checkbox-card cursor-pointer block">
+                                                <input type="checkbox" name="group-scopes" value="A" class="hidden" checked>
+                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
+                                                    <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mr-3 text-xs">A</span>
+                                                    <span class="text-sm">報表A (營收/敏感)</span>
+                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
+                                                </div>
+                                            </label>
+                                            <label class="checkbox-card cursor-pointer block">
+                                                <input type="checkbox" name="group-scopes" value="B" class="hidden" checked>
+                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
+                                                    <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold mr-3 text-xs">B</span>
+                                                    <span class="text-sm">報表B (營運/一般)</span>
+                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
+                                                </div>
+                                            </label>
+                                            <label class="checkbox-card cursor-pointer block">
+                                                <input type="checkbox" name="group-scopes" value="C" class="hidden">
+                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
+                                                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold mr-3 text-xs">C</span>
+                                                    <span class="text-sm">報表C (庫存)</span>
+                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- FORM 5: 編輯群組 -->
+                                <div id="form-edit-group" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">群組名稱</label>
+                                        <input type="text" id="edit-group-name" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">包含門市</label>
+                                        <div id="edit-group-store-checkboxes" class="space-y-2 max-h-40 overflow-y-auto border rounded-md p-2">
+                                            <!-- 動態生成 -->
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">現有管理者</label>
+                                        <div id="edit-group-managers-list" class="space-y-2">
+                                            <!-- 動態生成 -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- FORM 6: 新增群組管理者 -->
+                                <div id="form-group-manager" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">選擇人員</label>
+                                        <select id="add-group-manager-select" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                            <option value="Tina">Tina (區經理)</option>
+                                            <option value="甲君">甲君 (區督導)</option>
+                                            <option value="乙君">乙君 (儲備幹部)</option>
+                                            <option value="David">David (顧問)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">可存取的報表 (Scope)</label>
+                                        <div class="space-y-2">
+                                            <label class="checkbox-card cursor-pointer block">
+                                                <input type="checkbox" name="add-manager-scopes" value="A" class="hidden">
+                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
+                                                    <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mr-3 text-xs">A</span>
+                                                    <span class="text-sm">報表A (營收/敏感)</span>
+                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
+                                                </div>
+                                            </label>
+                                            <label class="checkbox-card cursor-pointer block">
+                                                <input type="checkbox" name="add-manager-scopes" value="B" class="hidden">
+                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
+                                                    <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold mr-3 text-xs">B</span>
+                                                    <span class="text-sm">報表B (營運/一般)</span>
+                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
+                                                </div>
+                                            </label>
+                                            <label class="checkbox-card cursor-pointer block">
+                                                <input type="checkbox" name="add-manager-scopes" value="C" class="hidden">
+                                                <div class="border rounded-md p-2 flex items-center hover:bg-gray-50 transition border-gray-200">
+                                                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold mr-3 text-xs">C</span>
+                                                    <span class="text-sm">報表C (庫存)</span>
+                                                    <i class="fa-solid fa-circle-check text-primary ml-auto opacity-0 check-icon"></i>
+                                                </div>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -481,23 +580,82 @@
             const tbody = document.getElementById('group-list');
             tbody.innerHTML = '';
             groups.forEach((group, index) => {
-                let mgrHtml = group.managers.map(m => {
-                     const badges = m.scopes.map(s => {
+                let mgrHtml = '';
+                if (group.managers.length === 0) {
+                    mgrHtml = '<span class="text-xs text-gray-400">尚未指派管理者</span>';
+                } else {
+                    mgrHtml = group.managers.map((m, mIdx) => {
+                        const badges = m.scopes.map(s => {
                             let color = s==='A'?'bg-red-100 text-red-700': s==='B'?'bg-green-100 text-green-700':'bg-purple-100 text-purple-700';
                             return `<span class="px-1.5 rounded text-[10px] font-bold ${color} border border-black/5 mx-0.5">${s}</span>`;
                         }).join('');
-                    return `<div class="flex items-center text-sm"><i class="fa-solid fa-user-shield text-gray-400 mr-2"></i> ${m.name} ${badges}</div>`;
-                }).join('');
+                        return `
+                            <div class="flex items-center text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100 group">
+                                <i class="fa-solid fa-user-shield text-gray-400 mr-2"></i>
+                                <span class="font-medium mr-2">${m.name}</span>
+                                <div class="flex mr-auto">${badges}</div>
+                                <button onclick="removeGroupManager(${index}, ${mIdx})" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition ml-2" title="移除管理者">
+                                    <i class="fa-solid fa-times"></i>
+                                </button>
+                            </div>`;
+                    }).join('');
+                }
 
                 tbody.innerHTML += `
-                    <tr>
-                        <td class="px-6 py-4 font-bold text-sm text-gray-900">${group.name}</td>
-                        <td class="px-6 py-4"><div class="flex gap-1">${group.stores.map(s=>`<span class="bg-gray-100 px-2 py-0.5 rounded text-xs border">${s}</span>`).join('')}</div></td>
-                        <td class="px-6 py-4 space-y-1">${mgrHtml}</td>
-                        <td class="px-6 py-4 text-right"><button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-gear"></i></button></td>
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-sm text-gray-900">${group.name}</div>
+                            <div class="text-xs text-gray-500 mt-1">${group.stores.length} 間門市</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-wrap gap-1">
+                                ${group.stores.map(s=>`<span class="bg-gray-100 px-2 py-0.5 rounded text-xs border">${s}</span>`).join('')}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="space-y-1">${mgrHtml}</div>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button onclick="openModal('group-manager', ${index})" class="text-gray-500 hover:text-primary font-bold border border-gray-300 hover:bg-gray-50 px-2 py-1 rounded text-xs transition" title="新增管理者">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                </button>
+                                <button onclick="openModal('edit-group', ${index})" class="text-gray-500 hover:text-primary font-bold border border-gray-300 hover:bg-gray-50 px-2 py-1 rounded text-xs transition" title="編輯群組">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="deleteGroup(${index})" class="text-gray-500 hover:text-red-600 font-bold border border-gray-300 hover:bg-red-50 hover:border-red-300 px-2 py-1 rounded text-xs transition" title="刪除群組">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
                     </tr>
                 `;
             });
+        }
+
+        // --- GROUP ACTIONS ---
+        function deleteGroup(index) {
+            if (confirm(`確定要刪除群組「${groups[index].name}」嗎？\n此操作將移除所有管理者的群組權限。`)) {
+                showToast('syncing');
+                setTimeout(() => {
+                    groups.splice(index, 1);
+                    renderGroups();
+                    showToast('success', '群組已刪除！');
+                }, 500);
+            }
+        }
+
+        function removeGroupManager(groupIndex, managerIndex) {
+            const group = groups[groupIndex];
+            const manager = group.managers[managerIndex];
+            if (confirm(`確定要從「${group.name}」移除管理者「${manager.name}」嗎？`)) {
+                showToast('syncing');
+                setTimeout(() => {
+                    groups[groupIndex].managers.splice(managerIndex, 1);
+                    renderGroups();
+                    showToast('success', '管理者已移除！');
+                }, 500);
+            }
         }
 
         // --- INTERACTION ---
@@ -546,6 +704,54 @@
             } else if (type === 'new-group') {
                 title.innerText = "新增管理群組";
                 document.getElementById('form-new-group').classList.remove('hidden');
+                document.getElementById('group-name').value = '';
+                // 動態生成門市選項
+                const storeCheckboxes = document.getElementById('group-store-checkboxes');
+                storeCheckboxes.innerHTML = stores.map((s, i) => `
+                    <label class="flex items-center space-x-2 p-1 hover:bg-gray-50 rounded">
+                        <input type="checkbox" name="new-group-stores" value="${s.name}" class="text-primary rounded">
+                        <span class="text-sm">${s.name}</span>
+                        <span class="text-xs text-gray-400">(${s.code})</span>
+                    </label>
+                `).join('');
+                // 重置報表選項
+                document.querySelectorAll('input[name="group-scopes"]').forEach(cb => cb.checked = false);
+            } else if (type === 'edit-group') {
+                title.innerText = `編輯群組：${groups[index].name}`;
+                document.getElementById('form-edit-group').classList.remove('hidden');
+                document.getElementById('edit-group-name').value = groups[index].name;
+                // 動態生成門市選項
+                const editStoreCheckboxes = document.getElementById('edit-group-store-checkboxes');
+                editStoreCheckboxes.innerHTML = stores.map(s => `
+                    <label class="flex items-center space-x-2 p-1 hover:bg-gray-50 rounded">
+                        <input type="checkbox" name="edit-group-stores" value="${s.name}" ${groups[index].stores.includes(s.name) ? 'checked' : ''} class="text-primary rounded">
+                        <span class="text-sm">${s.name}</span>
+                        <span class="text-xs text-gray-400">(${s.code})</span>
+                    </label>
+                `).join('');
+                // 顯示現有管理者
+                const managersList = document.getElementById('edit-group-managers-list');
+                if (groups[index].managers.length === 0) {
+                    managersList.innerHTML = '<span class="text-xs text-gray-400">尚無管理者</span>';
+                } else {
+                    managersList.innerHTML = groups[index].managers.map((m, mIdx) => {
+                        const badges = m.scopes.map(s => {
+                            let color = s==='A'?'bg-red-100 text-red-700': s==='B'?'bg-green-100 text-green-700':'bg-purple-100 text-purple-700';
+                            return `<span class="px-1.5 rounded text-[10px] font-bold ${color} border border-black/5">${s}</span>`;
+                        }).join(' ');
+                        return `
+                            <div class="flex items-center text-sm bg-gray-50 px-2 py-1.5 rounded border border-gray-200">
+                                <i class="fa-solid fa-user-shield text-gray-400 mr-2"></i>
+                                <span class="font-medium mr-2">${m.name}</span>
+                                <div class="flex gap-1">${badges}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } else if (type === 'group-manager') {
+                title.innerText = `新增管理者至：${groups[index].name}`;
+                document.getElementById('form-group-manager').classList.remove('hidden');
+                document.querySelectorAll('input[name="add-manager-scopes"]').forEach(cb => cb.checked = false);
             } else if (type === 'edit-store') {
                 title.innerText = "門市設定與 Role Email 維護";
                 document.getElementById('form-edit-store').classList.remove('hidden');
@@ -588,7 +794,36 @@
                     stores.push({ code, name, roleEmail: email, primaryManager: null, authorizedUsers: [] });
                 } else if (currentModalType === 'new-group') {
                     const name = document.getElementById('group-name').value || '新群組';
-                    groups.push({ name, stores: ['(新設定)'], managers: [] });
+                    const selectedStores = [];
+                    document.querySelectorAll('input[name="new-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
+                    const managerName = document.getElementById('group-manager-select').value;
+                    const managerScopes = [];
+                    document.querySelectorAll('input[name="group-scopes"]:checked').forEach(cb => managerScopes.push(cb.value));
+                    const managers = managerScopes.length > 0 ? [{ name: managerName, scopes: managerScopes }] : [];
+                    groups.push({
+                        name,
+                        stores: selectedStores.length > 0 ? selectedStores : ['(未指定)'],
+                        managers
+                    });
+                } else if (currentModalType === 'edit-group') {
+                    groups[currentIndex].name = document.getElementById('edit-group-name').value;
+                    const selectedStores = [];
+                    document.querySelectorAll('input[name="edit-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
+                    groups[currentIndex].stores = selectedStores.length > 0 ? selectedStores : ['(未指定)'];
+                } else if (currentModalType === 'group-manager') {
+                    const managerName = document.getElementById('add-group-manager-select').value;
+                    const scopes = [];
+                    document.querySelectorAll('input[name="add-manager-scopes"]:checked').forEach(cb => scopes.push(cb.value));
+                    if (scopes.length > 0) {
+                        // 檢查是否已存在同名管理者
+                        const existingIdx = groups[currentIndex].managers.findIndex(m => m.name === managerName);
+                        if (existingIdx >= 0) {
+                            // 更新權限
+                            groups[currentIndex].managers[existingIdx].scopes = scopes;
+                        } else {
+                            groups[currentIndex].managers.push({ name: managerName, scopes });
+                        }
+                    }
                 } else if (currentModalType === 'edit-store') {
                     stores[currentIndex].name = document.getElementById('edit-store-name').value;
                     // Code is disabled
