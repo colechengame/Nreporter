@@ -357,6 +357,10 @@
                                     </div>
                                     <div class="mb-4">
                                         <label class="block text-sm font-bold text-gray-700 mb-2">包含門市</label>
+                                        <label class="flex items-center space-x-2 p-2 bg-blue-50 rounded-md border border-blue-200 mb-2 cursor-pointer hover:bg-blue-100">
+                                            <input type="checkbox" id="new-group-all-stores" onchange="toggleAllStoresNew(this)" class="text-primary rounded">
+                                            <span class="text-sm font-bold text-blue-700"><i class="fa-solid fa-globe mr-1"></i>所有門市（全選）</span>
+                                        </label>
                                         <div id="group-store-checkboxes" class="space-y-2 max-h-40 overflow-y-auto border rounded-md p-2">
                                             <!-- 動態生成 -->
                                         </div>
@@ -391,6 +395,10 @@
                                     </div>
                                     <div class="mb-4">
                                         <label class="block text-sm font-bold text-gray-700 mb-2">包含門市</label>
+                                        <label class="flex items-center space-x-2 p-2 bg-blue-50 rounded-md border border-blue-200 mb-2 cursor-pointer hover:bg-blue-100">
+                                            <input type="checkbox" id="edit-group-all-stores" onchange="toggleAllStoresEdit(this)" class="text-primary rounded">
+                                            <span class="text-sm font-bold text-blue-700"><i class="fa-solid fa-globe mr-1"></i>所有門市（全選）</span>
+                                        </label>
                                         <div id="edit-group-store-checkboxes" class="space-y-2 max-h-40 overflow-y-auto border rounded-md p-2">
                                             <!-- 動態生成 -->
                                         </div>
@@ -868,6 +876,33 @@
             return html;
         }
 
+        // --- GROUP STORE SELECTION ---
+        function toggleAllStoresNew(checkbox) {
+            const container = document.getElementById('group-store-checkboxes');
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = checkbox.checked;
+                cb.disabled = checkbox.checked;
+            });
+            if (checkbox.checked) {
+                container.classList.add('opacity-50');
+            } else {
+                container.classList.remove('opacity-50');
+            }
+        }
+
+        function toggleAllStoresEdit(checkbox) {
+            const container = document.getElementById('edit-group-store-checkboxes');
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = checkbox.checked;
+                cb.disabled = checkbox.checked;
+            });
+            if (checkbox.checked) {
+                container.classList.add('opacity-50');
+            } else {
+                container.classList.remove('opacity-50');
+            }
+        }
+
         // --- GROUP ACTIONS ---
         function deleteGroup(index) {
             if (confirm(`確定要刪除群組「${groups[index].name}」嗎？\n此操作將移除所有管理者的群組權限。`)) {
@@ -941,8 +976,11 @@
                 title.innerText = "新增管理群組";
                 document.getElementById('form-new-group').classList.remove('hidden');
                 document.getElementById('group-name').value = '';
+                // 重置全選狀態
+                document.getElementById('new-group-all-stores').checked = false;
                 // 動態生成門市選項
                 const storeCheckboxes = document.getElementById('group-store-checkboxes');
+                storeCheckboxes.classList.remove('opacity-50');
                 storeCheckboxes.innerHTML = stores.map((s, i) => `
                     <label class="flex items-center space-x-2 p-1 hover:bg-gray-50 rounded">
                         <input type="checkbox" name="new-group-stores" value="${s.name}" class="text-primary rounded">
@@ -957,11 +995,15 @@
                 title.innerText = `編輯群組：${groups[index].name}`;
                 document.getElementById('form-edit-group').classList.remove('hidden');
                 document.getElementById('edit-group-name').value = groups[index].name;
+                // 檢查是否為「所有門市」
+                const isAllStores = groups[index].stores.includes('(所有門市)');
+                document.getElementById('edit-group-all-stores').checked = isAllStores;
                 // 動態生成門市選項
                 const editStoreCheckboxes = document.getElementById('edit-group-store-checkboxes');
+                editStoreCheckboxes.classList.toggle('opacity-50', isAllStores);
                 editStoreCheckboxes.innerHTML = stores.map(s => `
                     <label class="flex items-center space-x-2 p-1 hover:bg-gray-50 rounded">
-                        <input type="checkbox" name="edit-group-stores" value="${s.name}" ${groups[index].stores.includes(s.name) ? 'checked' : ''} class="text-primary rounded">
+                        <input type="checkbox" name="edit-group-stores" value="${s.name}" ${isAllStores || groups[index].stores.includes(s.name) ? 'checked' : ''} ${isAllStores ? 'disabled' : ''} class="text-primary rounded">
                         <span class="text-sm">${s.name}</span>
                         <span class="text-xs text-gray-400">(${s.code})</span>
                     </label>
@@ -1031,8 +1073,13 @@
                     stores.push({ code, name, roleEmail: email, primaryManager: null, authorizedUsers: [] });
                 } else if (currentModalType === 'new-group') {
                     const name = document.getElementById('group-name').value || '新群組';
-                    const selectedStores = [];
-                    document.querySelectorAll('input[name="new-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
+                    const isAllStores = document.getElementById('new-group-all-stores').checked;
+                    let selectedStores = [];
+                    if (isAllStores) {
+                        selectedStores = ['(所有門市)'];
+                    } else {
+                        document.querySelectorAll('input[name="new-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
+                    }
                     const managerName = document.getElementById('group-manager-select').value;
                     const managerScopes = getSelectedReports('group-scopes');
                     const managers = managerScopes.length > 0 ? [{ name: managerName, scopes: managerScopes }] : [];
@@ -1043,8 +1090,13 @@
                     });
                 } else if (currentModalType === 'edit-group') {
                     groups[currentIndex].name = document.getElementById('edit-group-name').value;
-                    const selectedStores = [];
-                    document.querySelectorAll('input[name="edit-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
+                    const isAllStores = document.getElementById('edit-group-all-stores').checked;
+                    let selectedStores = [];
+                    if (isAllStores) {
+                        selectedStores = ['(所有門市)'];
+                    } else {
+                        document.querySelectorAll('input[name="edit-group-stores"]:checked').forEach(cb => selectedStores.push(cb.value));
+                    }
                     groups[currentIndex].stores = selectedStores.length > 0 ? selectedStores : ['(未指定)'];
                 } else if (currentModalType === 'group-manager') {
                     const managerName = document.getElementById('add-group-manager-select').value;
