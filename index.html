@@ -1297,76 +1297,268 @@
         // --- REPORT FUNCTIONS ---
         function generateReportCheckboxes(containerId, namePrefix, checkedCodes = []) {
             const container = document.getElementById(containerId);
+            if (!container) return;
 
-            // 依分類分組
             const categories = ['營運', '人資', '財務', '行銷', '會員', '系統'];
-            let html = '';
 
-            categories.forEach(category => {
+            // 建立分類籤頁 HTML
+            let tabsHtml = '<div class="report-tabs flex flex-wrap gap-1 mb-2 border-b border-gray-200 pb-2">';
+            categories.forEach((category, idx) => {
+                const colors = reportCategoryColors[category];
+                const count = reportList.filter(r => r.category === category).length;
+                const isActive = idx === 0;
+                tabsHtml += `
+                    <button type="button" class="report-tab ${isActive ? 'active' : ''} px-2 py-1 text-xs font-bold rounded-t transition-all border-b-2
+                            ${isActive ? colors.bg + ' ' + colors.text + ' border-current' : 'text-gray-400 border-transparent hover:text-gray-600 hover:bg-gray-50'}"
+                            data-category="${category}" data-container="${containerId}"
+                            onclick="switchReportTab(this, '${containerId}')">
+                        <i class="fa-solid ${colors.icon} mr-1"></i>${category}
+                        <span class="ml-0.5 text-[10px] opacity-70">${count}</span>
+                    </button>
+                `;
+            });
+            tabsHtml += '</div>';
+
+            // 建立搜尋結果區域（預設隱藏）
+            let searchResultsHtml = `
+                <div class="report-search-results hidden" data-container="${containerId}">
+                    <div class="flex items-center justify-between mb-2 px-1">
+                        <span class="text-xs font-bold text-violet-600"><i class="fa-solid fa-search mr-1"></i>搜尋結果</span>
+                        <span class="report-search-count text-[10px] text-gray-400"></span>
+                    </div>
+                    <div class="report-search-grid grid grid-cols-2 gap-1.5"></div>
+                </div>
+            `;
+
+            // 建立各分類的內容區域（雙欄網格）
+            let contentHtml = '<div class="report-tab-contents">';
+            categories.forEach((category, idx) => {
                 const reportsInCategory = reportList.filter(r => r.category === category);
                 if (reportsInCategory.length === 0) return;
 
                 const colors = reportCategoryColors[category];
-                html += `
-                    <div class="report-category mb-2" data-category="${category}">
-                        <div class="flex items-center px-2 py-1 ${colors.bg} rounded-t-lg border-b ${colors.border}">
-                            <i class="fa-solid ${colors.icon} ${colors.text} mr-2 text-xs"></i>
-                            <span class="text-xs font-bold ${colors.text}">${category}</span>
-                            <span class="text-[10px] ${colors.text} ml-auto opacity-70">${reportsInCategory.length} 項</span>
-                        </div>
-                        <div class="space-y-0.5 border-l border-r border-b ${colors.border} rounded-b-lg p-1">
-                `;
+                const isHidden = idx !== 0;
+
+                contentHtml += `<div class="report-tab-content ${isHidden ? 'hidden' : ''}" data-category="${category}">
+                        <div class="grid grid-cols-2 gap-1.5">`;
 
                 reportsInCategory.forEach(r => {
                     const isChecked = checkedCodes.includes(r.code);
-                    html += `
-                        <label class="flex items-center p-1.5 hover:${colors.bg} rounded cursor-pointer report-item transition-all" data-code="${r.code}" data-name="${r.name}" data-category="${r.category}">
-                            <input type="checkbox" name="${namePrefix}" value="${r.code}" ${isChecked ? 'checked' : ''} class="text-primary rounded mr-2 w-3.5 h-3.5">
+                    contentHtml += `
+                        <label class="flex items-center p-2 rounded-lg cursor-pointer report-item transition-all border
+                               ${isChecked ? colors.border + ' ' + colors.bg : 'border-gray-100 hover:border-gray-200 hover:' + colors.bg}"
+                               data-code="${r.code}" data-name="${r.name}" data-category="${r.category}">
+                            <input type="checkbox" name="${namePrefix}" value="${r.code}" ${isChecked ? 'checked' : ''}
+                                   class="text-primary rounded mr-2 w-3.5 h-3.5 flex-shrink-0"
+                                   onchange="updateReportItemStyle(this)">
                             <div class="flex-1 min-w-0">
-                                <div class="text-sm font-medium text-gray-800 truncate">${r.name}</div>
+                                <div class="text-xs font-medium text-gray-800 truncate leading-tight">${r.name}</div>
+                                <span class="text-[10px] text-gray-400">${r.code}</span>
                             </div>
-                            <span class="text-[10px] text-gray-400 ml-1">${r.code}</span>
                         </label>
                     `;
                 });
 
-                html += '</div></div>';
+                contentHtml += '</div></div>';
+            });
+            contentHtml += '</div>';
+
+            container.innerHTML = tabsHtml + searchResultsHtml + contentHtml;
+        }
+
+        // 更新報表項目的選中樣式
+        function updateReportItemStyle(checkbox) {
+            const label = checkbox.closest('.report-item');
+            if (!label) return;
+            const category = label.dataset.category;
+            const colors = reportCategoryColors[category] || reportCategoryColors['系統'];
+
+            // 移除所有可能的樣式類
+            label.classList.remove('border-gray-100', 'hover:border-gray-200');
+            Object.values(reportCategoryColors).forEach(c => {
+                label.classList.remove(c.border, c.bg);
             });
 
-            container.innerHTML = html;
+            if (checkbox.checked) {
+                label.classList.add(colors.border, colors.bg);
+            } else {
+                label.classList.add('border-gray-100', 'hover:border-gray-200');
+            }
+        }
+
+        // 切換報表分類籤頁
+        function switchReportTab(button, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const category = button.dataset.category;
+
+            // 更新所有籤頁按鈕樣式
+            container.querySelectorAll('.report-tab').forEach(tab => {
+                const tabCat = tab.dataset.category;
+                const tabColors = reportCategoryColors[tabCat];
+                // 先移除所有樣式
+                tab.classList.remove('active', 'border-current');
+                Object.values(reportCategoryColors).forEach(c => {
+                    tab.classList.remove(c.bg, c.text);
+                });
+
+                if (tab === button) {
+                    tab.classList.add('active', tabColors.bg, tabColors.text, 'border-current');
+                    tab.classList.remove('text-gray-400', 'border-transparent', 'hover:text-gray-600', 'hover:bg-gray-50');
+                } else {
+                    tab.classList.add('text-gray-400', 'border-transparent', 'hover:text-gray-600', 'hover:bg-gray-50');
+                }
+            });
+
+            // 切換內容區域
+            container.querySelectorAll('.report-tab-content').forEach(content => {
+                content.classList.toggle('hidden', content.dataset.category !== category);
+            });
         }
 
         function filterReports(type) {
             const searchInput = document.getElementById(`${type}-report-search`);
             const container = document.getElementById(`${type}-report-list`);
-            const keyword = searchInput.value.toLowerCase();
+            if (!searchInput || !container) return;
 
-            // 篩選報表項目（模糊搜尋：代碼、名稱、分類）
-            container.querySelectorAll('.report-item').forEach(item => {
-                const code = item.dataset.code.toLowerCase();
-                const name = item.dataset.name.toLowerCase();
-                const category = (item.dataset.category || '').toLowerCase();
-                const match = code.includes(keyword) || name.includes(keyword) || category.includes(keyword);
-                item.style.display = match ? '' : 'none';
-            });
+            const keyword = searchInput.value.toLowerCase().trim();
+            const tabsEl = container.querySelector('.report-tabs');
+            const tabContentsEl = container.querySelector('.report-tab-contents');
+            const searchResultsEl = container.querySelector('.report-search-results');
 
-            // 隱藏沒有可見項目的分類
-            container.querySelectorAll('.report-category').forEach(categoryEl => {
-                const visibleItems = categoryEl.querySelectorAll('.report-item:not([style*="display: none"])');
-                categoryEl.style.display = visibleItems.length > 0 ? '' : 'none';
-            });
+            if (!keyword) {
+                // 清空搜尋：顯示籤頁模式
+                if (tabsEl) tabsEl.classList.remove('hidden');
+                if (tabContentsEl) tabContentsEl.classList.remove('hidden');
+                if (searchResultsEl) searchResultsEl.classList.add('hidden');
+                return;
+            }
+
+            // 有搜尋關鍵字：切換到搜尋結果模式
+            if (tabsEl) tabsEl.classList.add('hidden');
+            if (tabContentsEl) tabContentsEl.classList.add('hidden');
+            if (searchResultsEl) {
+                searchResultsEl.classList.remove('hidden');
+
+                // 找出符合的報表
+                const matchedReports = reportList.filter(r => {
+                    return r.code.toLowerCase().includes(keyword) ||
+                           r.name.toLowerCase().includes(keyword) ||
+                           r.category.toLowerCase().includes(keyword);
+                });
+
+                // 取得目前已選中的報表
+                const checkedCodes = [];
+                container.querySelectorAll('.report-tab-contents input[type="checkbox"]:checked').forEach(cb => {
+                    checkedCodes.push(cb.value);
+                });
+
+                // 取得 namePrefix
+                const firstCheckbox = container.querySelector('.report-tab-contents input[type="checkbox"]');
+                const namePrefix = firstCheckbox ? firstCheckbox.name : 'search-scopes';
+
+                // 生成搜尋結果 HTML
+                const searchGrid = searchResultsEl.querySelector('.report-search-grid');
+                const searchCount = searchResultsEl.querySelector('.report-search-count');
+
+                if (matchedReports.length === 0) {
+                    searchGrid.innerHTML = '<div class="col-span-2 text-center text-gray-400 text-sm py-4"><i class="fa-solid fa-search mr-1"></i>找不到符合的報表</div>';
+                    searchCount.textContent = '';
+                } else {
+                    searchCount.textContent = `共 ${matchedReports.length} 項`;
+                    searchGrid.innerHTML = matchedReports.map(r => {
+                        const colors = reportCategoryColors[r.category] || reportCategoryColors['系統'];
+                        const isChecked = checkedCodes.includes(r.code);
+                        return `
+                            <label class="flex items-center p-2 rounded-lg cursor-pointer report-search-item transition-all border
+                                   ${isChecked ? colors.border + ' ' + colors.bg : 'border-gray-100 hover:border-gray-200 hover:' + colors.bg}"
+                                   data-code="${r.code}" data-category="${r.category}">
+                                <input type="checkbox" value="${r.code}" ${isChecked ? 'checked' : ''}
+                                       class="text-primary rounded mr-2 w-3.5 h-3.5 flex-shrink-0"
+                                       onchange="syncSearchCheckbox(this, '${containerId}', '${namePrefix}')">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-xs font-medium text-gray-800 truncate leading-tight">${r.name}</div>
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-[10px] text-gray-400">${r.code}</span>
+                                        <span class="text-[9px] ${colors.text} ${colors.bg} px-1 rounded">${r.category}</span>
+                                    </div>
+                                </div>
+                            </label>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+
+        // 同步搜尋結果的勾選狀態到實際的 checkbox
+        function syncSearchCheckbox(searchCheckbox, containerId, namePrefix) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const code = searchCheckbox.value;
+            const isChecked = searchCheckbox.checked;
+
+            // 更新籤頁內容區的對應 checkbox
+            const realCheckbox = container.querySelector(`.report-tab-contents input[value="${code}"]`);
+            if (realCheckbox) {
+                realCheckbox.checked = isChecked;
+                updateReportItemStyle(realCheckbox);
+            }
+
+            // 更新搜尋結果項目的樣式
+            const label = searchCheckbox.closest('.report-search-item');
+            if (label) {
+                const category = label.dataset.category;
+                const colors = reportCategoryColors[category] || reportCategoryColors['系統'];
+
+                label.classList.remove('border-gray-100', 'hover:border-gray-200');
+                Object.values(reportCategoryColors).forEach(c => {
+                    label.classList.remove(c.border, c.bg);
+                });
+
+                if (isChecked) {
+                    label.classList.add(colors.border, colors.bg);
+                } else {
+                    label.classList.add('border-gray-100', 'hover:border-gray-200');
+                }
+            }
         }
 
         function selectAllReports(type) {
             const container = document.getElementById(`${type}-report-list`);
-            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                if (cb.closest('.report-item').style.display !== 'none') cb.checked = true;
-            });
+            if (!container) return;
+
+            // 檢查是否在搜尋模式
+            const searchResultsEl = container.querySelector('.report-search-results');
+            const isSearchMode = searchResultsEl && !searchResultsEl.classList.contains('hidden');
+
+            if (isSearchMode) {
+                // 搜尋模式：勾選搜尋結果中的所有項目
+                searchResultsEl.querySelectorAll('.report-search-item input[type="checkbox"]').forEach(cb => {
+                    cb.checked = true;
+                    syncSearchCheckbox(cb, `${type}-report-list`, cb.name);
+                });
+            } else {
+                // 籤頁模式：勾選當前籤頁中的所有項目
+                const activeTab = container.querySelector('.report-tab-content:not(.hidden)');
+                if (activeTab) {
+                    activeTab.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                        cb.checked = true;
+                        updateReportItemStyle(cb);
+                    });
+                }
+            }
         }
 
         function deselectAllReports(type) {
             const container = document.getElementById(`${type}-report-list`);
-            container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            if (!container) return;
+
+            // 取消所有 checkbox（包括籤頁內容和搜尋結果）
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+                updateReportItemStyle(cb);
+            });
         }
 
         function getSelectedReports(namePrefix) {
