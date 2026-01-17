@@ -67,7 +67,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
-                    <span class="font-bold text-xl"><i class="fa-solid fa-shield-halved mr-2"></i>N-Report 權限中控台</span>
+                    <span class="font-bold text-2xl"><i class="fa-solid fa-shield-halved mr-2"></i>N-Report 權限中控台</span>
                     <span class="ml-4 px-2 py-0.5 rounded text-xs bg-blue-800 text-blue-200 border border-blue-700">Unified Access Control</span>
                 </div>
                 <div class="flex items-center space-x-4 text-sm">
@@ -99,16 +99,16 @@
         <!-- 頁籤切換 -->
         <div class="mb-6 border-b border-gray-200">
             <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                <button onclick="switchTab('store')" id="tab-store" class="border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-colors">
+                <button onclick="switchTab('store')" id="tab-store" class="border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
                     <i class="fa-solid fa-store mr-2"></i> 門市與細部權限 (Store & Granular)
                 </button>
-                <button onclick="switchTab('group')" id="tab-group" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-colors">
+                <button onclick="switchTab('group')" id="tab-group" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
                     <i class="fa-solid fa-layer-group mr-2"></i> 多店/區域管理 (Group)
                 </button>
-                <button onclick="switchTab('template')" id="tab-template" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-colors">
+                <button onclick="switchTab('template')" id="tab-template" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
                     <i class="fa-solid fa-clipboard-list mr-2"></i> 報表組合 (Templates)
                 </button>
-                <button onclick="switchTab('staff')" id="tab-staff" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-colors">
+                <button onclick="switchTab('staff')" id="tab-staff" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
                     <i class="fa-solid fa-users-gear mr-2"></i> 人員管理 (Staff)
                 </button>
             </nav>
@@ -120,10 +120,10 @@
                 <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <div>
-                            <h3 class="text-lg leading-6 font-bold text-gray-900">門市人員配置與授權</h3>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">設定門市角色信箱 (Role Email) 與負責人員。</p>
+                            <h3 class="text-xl leading-6 font-bold text-gray-900">門市人員配置與授權</h3>
+                            <p class="mt-1 max-w-2xl text-base text-gray-500">設定門市角色信箱 (Role Email) 與負責人員。</p>
                         </div>
-                        <button onclick="openModal('new-store')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm shadow transition flex items-center">
+                        <button onclick="openModal('new-store')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-base shadow transition flex items-center">
                             <i class="fa-solid fa-plus mr-2"></i> 新展店設定
                         </button>
                     </div>
@@ -132,7 +132,7 @@
                         <div class="relative flex-1">
                             <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                             <input type="text" id="store-search" placeholder="搜尋門市名稱、代碼、店經理..."
-                                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"
+                                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-base focus:ring-primary focus:border-primary"
                                    oninput="filterStores()">
                         </div>
                         <div class="flex gap-2">
@@ -155,10 +155,10 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/5">門市資訊</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/3">主要店經理 & Role Email</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/3">其他授權人員 (Granular)</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/10 text-right">操作</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/5">門市資訊</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/3">主要店經理 & Role Email</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/3">其他授權人員 (Granular)</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/10 text-right">操作</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="store-list">
@@ -175,10 +175,10 @@
                 <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <div>
-                            <h3 class="text-lg leading-6 font-bold text-gray-900">區域管理群組</h3>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">設定跨店管理者的權限範圍。</p>
+                            <h3 class="text-xl leading-6 font-bold text-gray-900">區域管理群組</h3>
+                            <p class="mt-1 max-w-2xl text-base text-gray-500">設定跨店管理者的權限範圍。</p>
                         </div>
-                        <button onclick="openModal('new-group')" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded text-sm shadow transition flex items-center">
+                        <button onclick="openModal('new-group')" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded text-base shadow transition flex items-center">
                             <i class="fa-solid fa-plus mr-2"></i> 新增管理群組
                         </button>
                     </div>
@@ -186,7 +186,7 @@
                     <div class="relative max-w-md">
                         <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         <input type="text" id="group-search" placeholder="搜尋群組名稱、管理者..."
-                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-base focus:ring-primary focus:border-primary"
                                oninput="filterGroups()">
                     </div>
                 </div>
@@ -194,10 +194,10 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">群組名稱</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">包含門市</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">管理者 & 權限</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">操作</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">群組名稱</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">包含門市</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">管理者 & 權限</th>
+                                <th scope="col" class="px-6 py-3 text-right text-sm font-bold text-gray-500 uppercase tracking-wider">操作</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="group-list">
@@ -214,10 +214,10 @@
                 <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <div>
-                            <h3 class="text-lg leading-6 font-bold text-gray-900">報表組合管理</h3>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">預先定義報表組合，指派權限時可快速套用。</p>
+                            <h3 class="text-xl leading-6 font-bold text-gray-900">報表組合管理</h3>
+                            <p class="mt-1 max-w-2xl text-base text-gray-500">預先定義報表組合，指派權限時可快速套用。</p>
                         </div>
-                        <button onclick="openModal('new-template')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm shadow transition flex items-center">
+                        <button onclick="openModal('new-template')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-base shadow transition flex items-center">
                             <i class="fa-solid fa-plus mr-2"></i> 新增報表組合
                         </button>
                     </div>
@@ -225,7 +225,7 @@
                     <div class="relative max-w-md">
                         <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         <input type="text" id="template-search" placeholder="搜尋組合名稱..."
-                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-base focus:ring-indigo-500 focus:border-indigo-500"
                                oninput="filterTemplates()">
                     </div>
                 </div>
@@ -233,10 +233,10 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/5">組合名稱</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/5">適用說明</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">包含報表</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider w-24">操作</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/5">組合名稱</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/5">適用說明</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">包含報表</th>
+                                <th scope="col" class="px-6 py-3 text-right text-sm font-bold text-gray-500 uppercase tracking-wider w-24">操作</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="template-list">
@@ -253,10 +253,10 @@
                 <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <div>
-                            <h3 class="text-lg leading-6 font-bold text-gray-900">人員暱稱管理</h3>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">設定人員的暱稱，方便在系統中快速識別。</p>
+                            <h3 class="text-xl leading-6 font-bold text-gray-900">人員暱稱管理</h3>
+                            <p class="mt-1 max-w-2xl text-base text-gray-500">設定人員的暱稱，方便在系統中快速識別。</p>
                         </div>
-                        <button onclick="openModal('new-staff')" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded text-sm shadow transition flex items-center">
+                        <button onclick="openModal('new-staff')" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded text-base shadow transition flex items-center">
                             <i class="fa-solid fa-user-plus mr-2"></i> 新增人員
                         </button>
                     </div>
@@ -264,7 +264,7 @@
                     <div class="relative max-w-md">
                         <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         <input type="text" id="staff-search" placeholder="搜尋姓名、暱稱、職位..."
-                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-teal-500 focus:border-teal-500"
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-base focus:ring-teal-500 focus:border-teal-500"
                                oninput="filterStaff()">
                     </div>
                 </div>
@@ -272,10 +272,10 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/4">姓名</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/4">暱稱</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/4">職位</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider w-24">操作</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/4">姓名</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/4">暱稱</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/4">職位</th>
+                                <th scope="col" class="px-6 py-3 text-right text-sm font-bold text-gray-500 uppercase tracking-wider w-24">操作</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="staff-list">
@@ -294,7 +294,7 @@
             <div class="fixed inset-0 bg-gray-900 bg-opacity-80 transition-opacity backdrop-blur-sm" onclick="closeAIModal()"></div>
             <div class="relative bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-xl sm:w-full border border-violet-200">
                 <div class="bg-gradient-to-r from-violet-600 to-fuchsia-600 p-4">
-                    <h3 class="text-lg leading-6 font-bold text-white flex items-center">
+                    <h3 class="text-xl leading-6 font-bold text-white flex items-center">
                         <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> AI 智慧指令助手
                     </h3>
                 </div>
@@ -351,7 +351,7 @@
                             <i id="modal-icon" class="fa-solid fa-pen text-blue-600"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">標題</h3>
+                            <h3 class="text-xl leading-6 font-bold text-gray-900" id="modal-title">標題</h3>
                             <div class="mt-4" id="modal-content">
                                 
                                 <!-- FORM 0: 編輯門市設定 (Edit Store) -->
@@ -414,8 +414,8 @@
                                         </div>
                                         <input type="text" id="granular-report-search" placeholder="搜尋名稱、分類..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm mb-2 text-sm" oninput="filterReports('granular')">
                                         <div class="flex gap-2 mb-2">
-                                            <button type="button" onclick="selectAllReports('granular')" class="text-xs text-blue-600 hover:text-blue-800">全選</button>
-                                            <button type="button" onclick="deselectAllReports('granular')" class="text-xs text-gray-500 hover:text-gray-700">取消全選</button>
+                                            <button type="button" onclick="selectAllReports('granular')" class="text-sm text-blue-600 hover:text-blue-800">全選</button>
+                                            <button type="button" onclick="deselectAllReports('granular')" class="text-sm text-gray-500 hover:text-gray-700">取消全選</button>
                                         </div>
                                         <div id="granular-report-list" class="space-y-1 overflow-y-auto border rounded-md p-2">
                                             <!-- 動態生成 -->
@@ -474,8 +474,8 @@
                                         </div>
                                         <input type="text" id="group-report-search" placeholder="搜尋名稱、分類..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm mb-2 text-sm" oninput="filterReports('group')">
                                         <div class="flex gap-2 mb-2">
-                                            <button type="button" onclick="selectAllReports('group')" class="text-xs text-blue-600 hover:text-blue-800">全選</button>
-                                            <button type="button" onclick="deselectAllReports('group')" class="text-xs text-gray-500 hover:text-gray-700">取消全選</button>
+                                            <button type="button" onclick="selectAllReports('group')" class="text-sm text-blue-600 hover:text-blue-800">全選</button>
+                                            <button type="button" onclick="deselectAllReports('group')" class="text-sm text-gray-500 hover:text-gray-700">取消全選</button>
                                         </div>
                                         <div id="group-report-list" class="space-y-1 overflow-y-auto border rounded-md p-2">
                                             <!-- 動態生成 -->
@@ -528,8 +528,8 @@
                                         </div>
                                         <input type="text" id="manager-report-search" placeholder="搜尋名稱、分類..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm mb-2 text-sm" oninput="filterReports('manager')">
                                         <div class="flex gap-2 mb-2">
-                                            <button type="button" onclick="selectAllReports('manager')" class="text-xs text-blue-600 hover:text-blue-800">全選</button>
-                                            <button type="button" onclick="deselectAllReports('manager')" class="text-xs text-gray-500 hover:text-gray-700">取消全選</button>
+                                            <button type="button" onclick="selectAllReports('manager')" class="text-sm text-blue-600 hover:text-blue-800">全選</button>
+                                            <button type="button" onclick="deselectAllReports('manager')" class="text-sm text-gray-500 hover:text-gray-700">取消全選</button>
                                         </div>
                                         <div id="manager-report-list" class="space-y-1 overflow-y-auto border rounded-md p-2">
                                             <!-- 動態生成 -->
@@ -551,8 +551,8 @@
                                         <label class="block text-sm font-bold text-gray-700 mb-2">包含報表</label>
                                         <input type="text" id="template-report-search" placeholder="搜尋名稱、分類..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm mb-2 text-sm" oninput="filterReports('template')">
                                         <div class="flex gap-2 mb-2">
-                                            <button type="button" onclick="selectAllReports('template')" class="text-xs text-blue-600 hover:text-blue-800">全選</button>
-                                            <button type="button" onclick="deselectAllReports('template')" class="text-xs text-gray-500 hover:text-gray-700">取消全選</button>
+                                            <button type="button" onclick="selectAllReports('template')" class="text-sm text-blue-600 hover:text-blue-800">全選</button>
+                                            <button type="button" onclick="deselectAllReports('template')" class="text-sm text-gray-500 hover:text-gray-700">取消全選</button>
                                         </div>
                                         <div id="template-report-list" class="space-y-1 overflow-y-auto border rounded-md p-2">
                                             <!-- 動態生成 -->
@@ -578,8 +578,8 @@
                                         <label class="block text-sm font-bold text-gray-700 mb-2">包含報表</label>
                                         <input type="text" id="edit-template-report-search" placeholder="搜尋名稱、分類..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm mb-2 text-sm" oninput="filterReports('edit-template')">
                                         <div class="flex gap-2 mb-2">
-                                            <button type="button" onclick="selectAllReports('edit-template')" class="text-xs text-blue-600 hover:text-blue-800">全選</button>
-                                            <button type="button" onclick="deselectAllReports('edit-template')" class="text-xs text-gray-500 hover:text-gray-700">取消全選</button>
+                                            <button type="button" onclick="selectAllReports('edit-template')" class="text-sm text-blue-600 hover:text-blue-800">全選</button>
+                                            <button type="button" onclick="deselectAllReports('edit-template')" class="text-sm text-gray-500 hover:text-gray-700">取消全選</button>
                                         </div>
                                         <div id="edit-template-report-list" class="space-y-1 overflow-y-auto border rounded-md p-2">
                                             <!-- 動態生成 -->
@@ -949,7 +949,7 @@
                         <td class="px-6 py-4 align-top border-l border-r border-gray-100 bg-blue-50/20">
                             <div class="flex flex-col h-full justify-between">
                                 ${primaryHtml}
-                                <button onclick="openModal('primary', ${index})" class="text-xs text-blue-600 hover:text-blue-800 mt-2 text-left font-bold pl-10 flex items-center">
+                                <button onclick="openModal('primary', ${index})" class="text-sm text-blue-600 hover:text-blue-800 mt-2 text-left font-bold pl-10 flex items-center">
                                     <i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> 權限移轉
                                 </button>
                             </div>
@@ -1006,7 +1006,7 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-6 py-4">
-                            <div class="font-bold text-sm text-gray-900">${group.name}</div>
+                            <div class="font-bold text-base text-gray-900">${group.name}</div>
                             <div class="text-xs text-gray-500 mt-1">${group.stores.length} 間門市</div>
                         </td>
                         <td class="px-6 py-4">
@@ -1077,7 +1077,7 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-6 py-4">
-                            <div class="font-bold text-sm text-gray-900">${template.name}</div>
+                            <div class="font-bold text-base text-gray-900">${template.name}</div>
                             <div class="text-xs text-gray-400 mt-1">${template.id}</div>
                         </td>
                         <td class="px-6 py-4">
@@ -1730,8 +1730,8 @@
             document.getElementById('view-template').classList.toggle('hidden', tab !== 'template');
             document.getElementById('view-staff').classList.toggle('hidden', tab !== 'staff');
 
-            const activeClass = "border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-colors";
-            const inactiveClass = "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center transition-colors";
+            const activeClass = "border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors";
+            const inactiveClass = "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors";
 
             document.getElementById('tab-store').className = tab === 'store' ? activeClass : inactiveClass;
             document.getElementById('tab-group').className = tab === 'group' ? activeClass : inactiveClass;
