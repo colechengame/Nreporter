@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Report | 新展店 / 報表管理 / Google Drive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F4C81',
+                        secondary: '#F5F7FA',
+                        gdrive: '#4285F4',
+                        ggreen: '#34A853',
+                        gyellow: '#FBBC05',
+                        gred: '#EA4335',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        .animate-slide-in { animation: slideIn 0.3s ease-out; }
+        .pulse-ring::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid currentColor; animation: pulse-ring 1.5s ease-out infinite; }
+
+        /* Step Indicator */
+        .step-item { position: relative; }
+        .step-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: calc(100% - 40px);
+            height: 2px;
+            background: #e5e7eb;
+            transform: translateX(20px);
+        }
+        .step-item.completed:not(:last-child)::after { background: #10b981; }
+        .step-item.active:not(:last-child)::after { background: linear-gradient(to right, #10b981 50%, #e5e7eb 50%); }
+
+        /* Google Drive Colors */
+        .gdrive-folder { color: #5f6368; }
+        .gdrive-sheet { color: #0F9D58; }
+        .gdrive-doc { color: #4285F4; }
+
+        /* Radio Card */
+        .radio-card input:checked + div { border-color: #0F4C81; background: linear-gradient(135deg, #ebf5ff 0%, #f0f7ff 100%); }
+        .radio-card input:checked + div .radio-icon { background: #0F4C81; color: white; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="text-gray-500 hover:text-primary transition">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>返回主控台
+                </a>
+                <span class="text-gray-300">|</span>
+                <h1 class="text-lg font-bold text-gray-800">
+                    <i class="fa-solid fa-screwdriver-wrench mr-2 text-primary"></i>系統設定
+                </h1>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs text-gray-400">連線狀態</span>
+                <span class="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
+                    Google Drive 已連接
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- Tab Navigation -->
+        <div class="bg-white rounded-xl shadow-sm mb-6 p-1 inline-flex">
+            <button onclick="switchMainTab('new-store')" id="main-tab-new-store" class="px-6 py-3 rounded-lg font-bold text-sm transition-all bg-primary text-white">
+                <i class="fa-solid fa-store mr-2"></i>新展店設定
+            </button>
+            <button onclick="switchMainTab('reports')" id="main-tab-reports" class="px-6 py-3 rounded-lg font-bold text-sm transition-all text-gray-500 hover:bg-gray-100">
+                <i class="fa-solid fa-file-lines mr-2"></i>報表管理
+            </button>
+            <button onclick="switchMainTab('gdrive')" id="main-tab-gdrive" class="px-6 py-3 rounded-lg font-bold text-sm transition-all text-gray-500 hover:bg-gray-100">
+                <i class="fa-brands fa-google-drive mr-2"></i>Google Drive
+            </button>
+        </div>
+
+        <!-- ========== VIEW 1: 新展店設定 ========== -->
+        <div id="view-new-store" class="animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <!-- Step Indicator -->
+                <div class="bg-gradient-to-r from-primary to-blue-600 px-6 py-4">
+                    <div class="flex justify-between max-w-2xl mx-auto">
+                        <div class="step-item active flex flex-col items-center" id="step-1">
+                            <div class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center font-bold text-sm shadow">1</div>
+                            <span class="text-xs text-white/80 mt-2">基本資料</span>
+                        </div>
+                        <div class="step-item flex flex-col items-center" id="step-2">
+                            <div class="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-sm">2</div>
+                            <span class="text-xs text-white/60 mt-2">人員指派</span>
+                        </div>
+                        <div class="step-item flex flex-col items-center" id="step-3">
+                            <div class="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-sm">3</div>
+                            <span class="text-xs text-white/60 mt-2">Drive 設定</span>
+                        </div>
+                        <div class="step-item flex flex-col items-center" id="step-4">
+                            <div class="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-sm">4</div>
+                            <span class="text-xs text-white/60 mt-2">確認建立</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step Content -->
+                <div class="p-6">
+                    <!-- Step 1: 基本資料 -->
+                    <div id="step-content-1" class="step-content">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">
+                            <i class="fa-solid fa-building text-primary mr-2"></i>門市基本資料
+                        </h2>
+
+                        <!-- Store Type Selection -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-bold text-gray-700 mb-3">門市類型 <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-3 gap-4">
+                                <label class="radio-card cursor-pointer">
+                                    <input type="radio" name="store-type" value="MED" class="hidden" checked>
+                                    <div class="border-2 border-gray-200 rounded-xl p-4 transition-all hover:border-gray-300">
+                                        <div class="radio-icon w-12 h-12 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center mb-3 transition-all">
+                                            <i class="fa-solid fa-syringe text-xl"></i>
+                                        </div>
+                                        <div class="font-bold text-gray-800">醫美診所</div>
+                                        <div class="text-xs text-gray-500 mt-1">光澤/彤顏診所</div>
+                                    </div>
+                                </label>
+                                <label class="radio-card cursor-pointer">
+                                    <input type="radio" name="store-type" value="SPA" class="hidden">
+                                    <div class="border-2 border-gray-200 rounded-xl p-4 transition-all hover:border-gray-300">
+                                        <div class="radio-icon w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-3 transition-all">
+                                            <i class="fa-solid fa-spa text-xl"></i>
+                                        </div>
+                                        <div class="font-bold text-gray-800">岩盤浴</div>
+                                        <div class="text-xs text-gray-500 mt-1">SPA 館</div>
+                                    </div>
+                                </label>
+                                <label class="radio-card cursor-pointer">
+                                    <input type="radio" name="store-type" value="OTHER" class="hidden">
+                                    <div class="border-2 border-gray-200 rounded-xl p-4 transition-all hover:border-gray-300">
+                                        <div class="radio-icon w-12 h-12 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center mb-3 transition-all">
+                                            <i class="fa-solid fa-building text-xl"></i>
+                                        </div>
+                                        <div class="font-bold text-gray-800">其他</div>
+                                        <div class="text-xs text-gray-500 mt-1">辦公室/總部</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Store Info -->
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">門市代碼 <span class="text-red-500">*</span></label>
+                                <input type="text" id="new-store-code" placeholder="例如: BZ_MED"
+                                       class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                                       oninput="autoGenerateEmail()">
+                                <p class="text-xs text-gray-500 mt-1">建議格式: 地區_類型 (如 BZ_MED, ZX_SPA)</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">門市名稱 <span class="text-red-500">*</span></label>
+                                <input type="text" id="new-store-name" placeholder="例如: 板橋光澤醫美"
+                                       class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition">
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">角色 Email (Role Email) <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <i class="fa-regular fa-envelope"></i>
+                                </span>
+                                <input type="email" id="new-store-email" placeholder="自動產生..."
+                                       class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <i class="fa-solid fa-circle-info mr-1 text-blue-500"></i>
+                                此 Email 將用於 Google Drive 權限授權與 n8n 報表分派
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: 人員指派 -->
+                    <div id="step-content-2" class="step-content hidden">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">
+                            <i class="fa-solid fa-user-tie text-primary mr-2"></i>人員指派
+                        </h2>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-lightbulb text-blue-500 mt-0.5 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-blue-800 font-medium">提示</p>
+                                    <p class="text-sm text-blue-700 mt-1">您可以稍後再指派店經理，目前為選填項目。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Primary Manager -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">指派主要店經理</label>
+                            <select id="new-store-manager" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition">
+                                <option value="">-- 暫不指派 --</option>
+                            </select>
+                        </div>
+
+                        <!-- Additional Authorized Users -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">新增授權人員 (選填)</label>
+                            <div id="auth-users-list" class="space-y-2 mb-3">
+                                <!-- Dynamic content -->
+                            </div>
+                            <button type="button" onclick="addAuthUserRow()" class="text-sm text-primary hover:text-blue-700 font-medium">
+                                <i class="fa-solid fa-plus mr-1"></i>新增授權人員
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Google Drive 設定 -->
+                    <div id="step-content-3" class="step-content hidden">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">
+                            <i class="fa-brands fa-google-drive text-gdrive mr-2"></i>Google Drive 設定
+                        </h2>
+
+                        <div class="space-y-4">
+                            <!-- Auto Create Folder -->
+                            <label class="flex items-start p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+                                <input type="checkbox" id="gdrive-create-folder" checked class="mt-1 w-5 h-5 text-primary rounded">
+                                <div class="ml-4">
+                                    <div class="font-bold text-gray-800 flex items-center">
+                                        <i class="fa-solid fa-folder-plus text-gdrive mr-2"></i>
+                                        自動建立 Google Drive 資料夾
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">系統將在「門市報表」資料夾下建立此門市的專屬資料夾</p>
+                                    <div class="mt-2 text-xs bg-gray-100 px-3 py-2 rounded-lg font-mono text-gray-600">
+                                        <i class="fa-solid fa-folder text-yellow-500 mr-1"></i>/門市報表/<span id="preview-folder-name" class="text-primary font-bold">新門市</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Auto Grant Access -->
+                            <label class="flex items-start p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+                                <input type="checkbox" id="gdrive-grant-access" checked class="mt-1 w-5 h-5 text-primary rounded">
+                                <div class="ml-4">
+                                    <div class="font-bold text-gray-800 flex items-center">
+                                        <i class="fa-solid fa-share-nodes text-ggreen mr-2"></i>
+                                        自動授權 Role Email 存取權限
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">將 Role Email 加入為資料夾的「編輯者」</p>
+                                    <div class="mt-2 flex items-center text-xs">
+                                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                                            <i class="fa-solid fa-pen mr-1"></i>編輯者權限
+                                        </span>
+                                        <span class="mx-2 text-gray-400">→</span>
+                                        <span id="preview-email" class="text-gray-600 font-mono">email@company.com</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Create Subfolders -->
+                            <label class="flex items-start p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+                                <input type="checkbox" id="gdrive-create-subfolders" class="mt-1 w-5 h-5 text-primary rounded">
+                                <div class="ml-4">
+                                    <div class="font-bold text-gray-800 flex items-center">
+                                        <i class="fa-solid fa-sitemap text-gyellow mr-2"></i>
+                                        建立報表分類子資料夾
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">自動建立「營運」、「人資」、「財務」等分類子資料夾</p>
+                                </div>
+                            </label>
+
+                            <!-- Notify n8n -->
+                            <label class="flex items-start p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+                                <input type="checkbox" id="notify-n8n" checked class="mt-1 w-5 h-5 text-primary rounded">
+                                <div class="ml-4">
+                                    <div class="font-bold text-gray-800 flex items-center">
+                                        <i class="fa-solid fa-bolt text-orange-500 mr-2"></i>
+                                        通知 n8n 更新分派規則
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">觸發 n8n 工作流，將新門市加入報表自動分派名單</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: 確認建立 -->
+                    <div id="step-content-4" class="step-content hidden">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">
+                            <i class="fa-solid fa-clipboard-check text-primary mr-2"></i>確認門市資料
+                        </h2>
+
+                        <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4">基本資料</h3>
+                                    <dl class="space-y-3">
+                                        <div class="flex justify-between">
+                                            <dt class="text-gray-500">門市類型</dt>
+                                            <dd id="confirm-type" class="font-medium text-gray-800">醫美診所</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-gray-500">門市代碼</dt>
+                                            <dd id="confirm-code" class="font-mono font-medium text-gray-800">-</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-gray-500">門市名稱</dt>
+                                            <dd id="confirm-name" class="font-medium text-gray-800">-</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-gray-500">Role Email</dt>
+                                            <dd id="confirm-email" class="font-mono text-sm text-gray-800">-</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4">人員配置</h3>
+                                    <dl class="space-y-3">
+                                        <div class="flex justify-between">
+                                            <dt class="text-gray-500">店經理</dt>
+                                            <dd id="confirm-manager" class="font-medium text-gray-800">未指派</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-gray-500">授權人員</dt>
+                                            <dd id="confirm-auth-count" class="font-medium text-gray-800">0 人</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                            </div>
+
+                            <hr class="my-6 border-gray-200">
+
+                            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4">Google Drive 操作</h3>
+                            <div id="confirm-gdrive-actions" class="space-y-2">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between mt-8 pt-6 border-t border-gray-200">
+                        <button type="button" id="btn-prev" onclick="prevStep()" class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium transition hidden">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>上一步
+                        </button>
+                        <div class="flex-1"></div>
+                        <button type="button" id="btn-next" onclick="nextStep()" class="px-8 py-3 bg-primary hover:bg-blue-700 text-white font-bold rounded-lg shadow transition">
+                            下一步<i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                        <button type="button" id="btn-submit" onclick="submitNewStore()" class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow transition hidden">
+                            <i class="fa-solid fa-check mr-2"></i>建立門市
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== VIEW 2: 報表管理 ========== -->
+        <div id="view-reports" class="hidden animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">報表管理</h2>
+                        <p class="text-sm text-gray-500 mt-1">管理系統中的報表定義與 Google Drive 來源設定</p>
+                    </div>
+                    <button onclick="openReportModal('new')" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow transition">
+                        <i class="fa-solid fa-plus mr-2"></i>新增報表
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex flex-wrap gap-4 items-center">
+                    <div class="relative flex-1 max-w-md">
+                        <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="report-search" placeholder="搜尋報表代碼、名稱..."
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                               oninput="filterReportList()">
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="setReportFilter('all')" class="report-filter-btn active px-3 py-2 text-sm rounded-lg border transition">全部</button>
+                        <button onclick="setReportFilter('營運')" class="report-filter-btn px-3 py-2 text-sm rounded-lg border transition">
+                            <i class="fa-solid fa-chart-line mr-1 text-emerald-500"></i>營運
+                        </button>
+                        <button onclick="setReportFilter('人資')" class="report-filter-btn px-3 py-2 text-sm rounded-lg border transition">
+                            <i class="fa-solid fa-users mr-1 text-violet-500"></i>人資
+                        </button>
+                        <button onclick="setReportFilter('財務')" class="report-filter-btn px-3 py-2 text-sm rounded-lg border transition">
+                            <i class="fa-solid fa-coins mr-1 text-amber-500"></i>財務
+                        </button>
+                        <button onclick="setReportFilter('行銷')" class="report-filter-btn px-3 py-2 text-sm rounded-lg border transition">
+                            <i class="fa-solid fa-bullhorn mr-1 text-pink-500"></i>行銷
+                        </button>
+                        <button onclick="setReportFilter('會員')" class="report-filter-btn px-3 py-2 text-sm rounded-lg border transition">
+                            <i class="fa-solid fa-id-card mr-1 text-cyan-500"></i>會員
+                        </button>
+                        <button onclick="setReportFilter('系統')" class="report-filter-btn px-3 py-2 text-sm rounded-lg border transition">
+                            <i class="fa-solid fa-gear mr-1 text-gray-500"></i>系統
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report List -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">代碼</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">報表名稱</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">分類</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Google Drive 來源</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">狀態</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wide">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-list" class="divide-y divide-gray-200">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== VIEW 3: Google Drive ========== -->
+        <div id="view-gdrive" class="hidden animate-fade-in">
+            <div class="grid grid-cols-3 gap-6">
+                <!-- Main Panel -->
+                <div class="col-span-2 space-y-6">
+                    <!-- Status Card -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <h2 class="text-xl font-bold text-gray-800">
+                                <i class="fa-brands fa-google-drive text-gdrive mr-2"></i>同步狀態
+                            </h2>
+                            <button onclick="syncAllDrive()" class="bg-gdrive hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow transition">
+                                <i class="fa-solid fa-rotate mr-2"></i>全部同步
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <!-- Stats -->
+                            <div class="grid grid-cols-4 gap-4 mb-6">
+                                <div class="bg-green-50 rounded-xl p-4 text-center">
+                                    <div class="text-3xl font-bold text-green-600" id="sync-count-ok">28</div>
+                                    <div class="text-sm text-green-700">同步成功</div>
+                                </div>
+                                <div class="bg-yellow-50 rounded-xl p-4 text-center">
+                                    <div class="text-3xl font-bold text-yellow-600" id="sync-count-pending">3</div>
+                                    <div class="text-sm text-yellow-700">待同步</div>
+                                </div>
+                                <div class="bg-red-50 rounded-xl p-4 text-center">
+                                    <div class="text-3xl font-bold text-red-600" id="sync-count-error">1</div>
+                                    <div class="text-sm text-red-700">同步失敗</div>
+                                </div>
+                                <div class="bg-blue-50 rounded-xl p-4 text-center">
+                                    <div class="text-3xl font-bold text-blue-600">32</div>
+                                    <div class="text-sm text-blue-700">總門市數</div>
+                                </div>
+                            </div>
+
+                            <!-- Sync Items -->
+                            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4">門市同步狀態</h3>
+                            <div class="space-y-2 max-h-80 overflow-y-auto" id="sync-items-list">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Permission Changes Queue -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-bold text-gray-800">
+                                <i class="fa-solid fa-clock-rotate-left text-amber-500 mr-2"></i>待處理的權限變更
+                            </h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-3" id="pending-changes-list">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Panel -->
+                <div class="space-y-6">
+                    <!-- Connection Status -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4">API 連線</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Google Drive API</span>
+                                <span class="text-green-600 flex items-center text-sm">
+                                    <i class="fa-solid fa-circle-check mr-1"></i>已連接
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">n8n Webhook</span>
+                                <span class="text-green-600 flex items-center text-sm">
+                                    <i class="fa-solid fa-circle-check mr-1"></i>已連接
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Service Account</span>
+                                <span class="text-green-600 flex items-center text-sm">
+                                    <i class="fa-solid fa-circle-check mr-1"></i>有效
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Logs -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-gray-700">同步日誌</h3>
+                            <button class="text-xs text-primary hover:underline">查看全部</button>
+                        </div>
+                        <div class="p-4 max-h-64 overflow-y-auto">
+                            <div class="space-y-2 text-xs" id="sync-logs">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4">快速操作</h3>
+                        <div class="space-y-2">
+                            <button onclick="openDrivePicker()" class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center">
+                                <i class="fa-solid fa-folder-open text-yellow-500 mr-3"></i>
+                                <span class="text-sm text-gray-700">瀏覽 Drive 資料夾</span>
+                            </button>
+                            <button onclick="validateAllPermissions()" class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center">
+                                <i class="fa-solid fa-shield-check text-green-500 mr-3"></i>
+                                <span class="text-sm text-gray-700">驗證全部權限</span>
+                            </button>
+                            <button onclick="exportSyncReport()" class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center">
+                                <i class="fa-solid fa-file-export text-blue-500 mr-3"></i>
+                                <span class="text-sm text-gray-700">匯出同步報告</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ========== Report Modal ========== -->
+    <div id="report-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeReportModal()"></div>
+        <div class="absolute inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+            <div class="bg-gradient-to-r from-primary to-blue-600 px-6 py-4 flex justify-between items-center">
+                <h3 id="report-modal-title" class="text-lg font-bold text-white">
+                    <i class="fa-solid fa-file-circle-plus mr-2"></i>新增報表
+                </h3>
+                <button onclick="closeReportModal()" class="text-white/80 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto">
+                <form id="report-form">
+                    <input type="hidden" id="edit-report-index" value="-1">
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">報表代碼 <span class="text-red-500">*</span></label>
+                            <input type="text" id="report-code" placeholder="R029"
+                                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">分類 <span class="text-red-500">*</span></label>
+                            <select id="report-category" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                <option value="營運">營運</option>
+                                <option value="人資">人資</option>
+                                <option value="財務">財務</option>
+                                <option value="行銷">行銷</option>
+                                <option value="會員">會員</option>
+                                <option value="系統">系統</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">報表名稱 <span class="text-red-500">*</span></label>
+                        <input type="text" id="report-name" placeholder="輸入報表名稱"
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">報表說明</label>
+                        <textarea id="report-description" rows="2" placeholder="選填：簡述報表用途"
+                                  class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"></textarea>
+                    </div>
+
+                    <hr class="my-6 border-gray-200">
+
+                    <h4 class="text-sm font-bold text-gray-700 mb-4">
+                        <i class="fa-brands fa-google-drive text-gdrive mr-2"></i>Google Drive 來源設定
+                    </h4>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">來源類型</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="radio-card cursor-pointer">
+                                <input type="radio" name="report-source-type" value="none" class="hidden" checked>
+                                <div class="border-2 border-gray-200 rounded-lg p-3 text-center transition-all hover:border-gray-300">
+                                    <i class="fa-solid fa-ban text-gray-400 text-xl mb-1"></i>
+                                    <div class="text-xs font-medium text-gray-600">無連結</div>
+                                </div>
+                            </label>
+                            <label class="radio-card cursor-pointer">
+                                <input type="radio" name="report-source-type" value="sheet" class="hidden">
+                                <div class="border-2 border-gray-200 rounded-lg p-3 text-center transition-all hover:border-gray-300">
+                                    <i class="fa-solid fa-table text-ggreen text-xl mb-1"></i>
+                                    <div class="text-xs font-medium text-gray-600">Google Sheets</div>
+                                </div>
+                            </label>
+                            <label class="radio-card cursor-pointer">
+                                <input type="radio" name="report-source-type" value="folder" class="hidden">
+                                <div class="border-2 border-gray-200 rounded-lg p-3 text-center transition-all hover:border-gray-300">
+                                    <i class="fa-solid fa-folder text-yellow-500 text-xl mb-1"></i>
+                                    <div class="text-xs font-medium text-gray-600">資料夾</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="gdrive-source-input" class="hidden mb-4">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Google Drive ID / URL</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="report-gdrive-id" placeholder="貼上 Google Drive 連結或檔案 ID"
+                                   class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                            <button type="button" onclick="openDrivePicker()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="my-6 border-gray-200">
+
+                    <h4 class="text-sm font-bold text-gray-700 mb-4">
+                        <i class="fa-solid fa-sliders text-primary mr-2"></i>預設權限設定
+                    </h4>
+
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="report-add-to-all" class="w-4 h-4 text-primary rounded mr-3">
+                            <span class="text-sm text-gray-700">自動加入「全報表組合」</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="report-grant-all-managers" class="w-4 h-4 text-primary rounded mr-3">
+                            <span class="text-sm text-gray-700">預設授權給所有店經理</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+                <button type="button" onclick="closeReportModal()" class="px-6 py-2 text-gray-600 hover:text-gray-800 font-medium transition">
+                    取消
+                </button>
+                <button type="button" onclick="saveReport()" class="px-6 py-2 bg-primary hover:bg-blue-700 text-white font-bold rounded-lg shadow transition">
+                    <i class="fa-solid fa-check mr-2"></i>儲存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== Success Modal ========== -->
+    <div id="success-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-8 text-center animate-fade-in w-96">
+            <div class="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fa-solid fa-check text-4xl text-green-600"></i>
+            </div>
+            <h3 id="success-title" class="text-xl font-bold text-gray-800 mb-2">建立成功！</h3>
+            <p id="success-message" class="text-gray-600 mb-6">門市已成功建立並同步至 Google Drive</p>
+            <button onclick="closeSuccessModal()" class="w-full py-3 bg-primary hover:bg-blue-700 text-white font-bold rounded-lg transition">
+                完成
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== Toast ========== -->
+    <div id="toast" class="fixed bottom-6 right-6 hidden transform transition-all duration-300 translate-y-4 opacity-0 z-50">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 px-5 py-4 flex items-center min-w-80">
+            <div id="toast-icon" class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-4">
+                <i class="fa-solid fa-rotate animate-spin"></i>
+            </div>
+            <div>
+                <div id="toast-title" class="font-bold text-gray-800">處理中</div>
+                <div id="toast-message" class="text-sm text-gray-500">正在同步 Google Drive...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATA ==========
+        let reportList = [
+            { code: 'R001', name: '護理部消耗報表', category: '營運', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R006', name: '進銷貨明細', category: '營運', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R009', name: '手術追蹤報表', category: '營運', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R016', name: '諮詢師消耗額統計', category: '營運', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R020', name: '生美、醫美品項明細表', category: '營運', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R021', name: '非護理部手術消耗報表', category: '營運', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R023', name: '高耗材異常領用清單', category: '營運', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R024', name: '近半年銷售或消耗低於50報表', category: '營運', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R028', name: '中醫藥膳消耗統計', category: '營運', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R003a', name: '新進人員名單&離職報表', category: '人資', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R003b', name: '新人關懷名單', category: '人資', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R011', name: '離職人數統計表', category: '人資', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R014', name: '每月時數表', category: '人資', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R025', name: '醫師考勤明細', category: '人資', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R004', name: '員購報表', category: '財務', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R012', name: '電銷獎金經營客表', category: '財務', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R013', name: '電銷獎金總表', category: '財務', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R017', name: '諮詢師積分', category: '財務', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R018', name: '營養師獎金報表', category: '財務', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R026', name: '中醫諮詢師積分', category: '財務', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R005', name: '好友專案報表', category: '行銷', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R007', name: '好友介紹人報表', category: '行銷', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R008', name: '電銷報表', category: '行銷', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R010', name: '設定影片名單', category: '會員', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R022', name: '會員資料異動報表', category: '會員', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R015', name: '報修系統報表', category: '系統', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R019', name: '報修系統積分表', category: '系統', description: '', gdriveId: '', gdriveType: 'none', isActive: true },
+            { code: 'R027', name: '各體系分院代碼', category: '系統', description: '', gdriveId: '', gdriveType: 'none', isActive: true }
+        ];
+
+        let staffList = [
+            { id: 'S001', name: '吳佳蓉', nickname: 'Tina', role: '區經理' },
+            { id: 'S002', name: '謝嫚珈', nickname: '', role: '區經理' },
+            { id: 'S003', name: '徐惠芳', nickname: 'Nana', role: '區經理' },
+            { id: 'S004', name: '吳弈澐', nickname: '', role: '店長' },
+            { id: 'S005', name: '林欣誼', nickname: '', role: '店長' },
+            { id: 'S006', name: '劉玉婷', nickname: '', role: '店長' },
+            { id: 'S007', name: '劉瑀樂', nickname: 'Gigi', role: '店長' },
+            { id: 'S008', name: '劉婉如', nickname: 'Cathy', role: '店長' },
+            { id: 'S009', name: '吳怡萩', nickname: 'Juby', role: '店長' },
+            { id: 'S010', name: '黃毓芩', nickname: 'Winnie', role: '店長' }
+        ];
+
+        let stores = [
+            { code: 'BZ_MED', name: '板橋光澤醫美', syncStatus: 'ok' },
+            { code: 'ZX_GZ', name: '忠孝光澤', syncStatus: 'ok' },
+            { code: 'SX_GZ', name: '三峽光澤診所', syncStatus: 'pending' },
+            { code: 'BZ_JB', name: '板橋光澤健保', syncStatus: 'ok' },
+            { code: 'SC_GZ', name: '三重光澤', syncStatus: 'error' },
+            { code: 'XZ_GZ', name: '新莊光澤診所', syncStatus: 'ok' },
+            { code: 'LK_TY', name: '林口彤顏診所', syncStatus: 'pending' },
+            { code: 'BD_JB', name: '八德健保診所', syncStatus: 'ok' }
+        ];
+
+        const categoryColors = {
+            '營運': { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: 'fa-chart-line' },
+            '人資': { bg: 'bg-violet-100', text: 'text-violet-700', icon: 'fa-users' },
+            '財務': { bg: 'bg-amber-100', text: 'text-amber-700', icon: 'fa-coins' },
+            '行銷': { bg: 'bg-pink-100', text: 'text-pink-700', icon: 'fa-bullhorn' },
+            '會員': { bg: 'bg-cyan-100', text: 'text-cyan-700', icon: 'fa-id-card' },
+            '系統': { bg: 'bg-gray-100', text: 'text-gray-600', icon: 'fa-gear' }
+        };
+
+        let currentStep = 1;
+        let currentReportFilter = 'all';
+        let authUserCount = 0;
+
+        // ========== MAIN TAB ==========
+        function switchMainTab(tab) {
+            document.getElementById('view-new-store').classList.toggle('hidden', tab !== 'new-store');
+            document.getElementById('view-reports').classList.toggle('hidden', tab !== 'reports');
+            document.getElementById('view-gdrive').classList.toggle('hidden', tab !== 'gdrive');
+
+            document.querySelectorAll('[id^="main-tab-"]').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('text-gray-500', 'hover:bg-gray-100');
+            });
+            const activeBtn = document.getElementById(`main-tab-${tab}`);
+            activeBtn.classList.add('bg-primary', 'text-white');
+            activeBtn.classList.remove('text-gray-500', 'hover:bg-gray-100');
+
+            if (tab === 'reports') renderReportList();
+            if (tab === 'gdrive') renderGDrivePanel();
+        }
+
+        // ========== NEW STORE WIZARD ==========
+        function updateStepUI() {
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`step-${i}`);
+                const contentEl = document.getElementById(`step-content-${i}`);
+                const circle = stepEl.querySelector('div');
+                const label = stepEl.querySelector('span');
+
+                contentEl.classList.toggle('hidden', i !== currentStep);
+
+                stepEl.classList.remove('completed', 'active');
+                if (i < currentStep) {
+                    stepEl.classList.add('completed');
+                    circle.className = 'w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm shadow';
+                    circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    label.className = 'text-xs text-white/80 mt-2';
+                } else if (i === currentStep) {
+                    stepEl.classList.add('active');
+                    circle.className = 'w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center font-bold text-sm shadow';
+                    circle.textContent = i;
+                    label.className = 'text-xs text-white/80 mt-2';
+                } else {
+                    circle.className = 'w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-sm';
+                    circle.textContent = i;
+                    label.className = 'text-xs text-white/60 mt-2';
+                }
+            }
+
+            document.getElementById('btn-prev').classList.toggle('hidden', currentStep === 1);
+            document.getElementById('btn-next').classList.toggle('hidden', currentStep === 4);
+            document.getElementById('btn-submit').classList.toggle('hidden', currentStep !== 4);
+        }
+
+        function nextStep() {
+            if (currentStep === 1) {
+                // Validate step 1
+                const code = document.getElementById('new-store-code').value.trim();
+                const name = document.getElementById('new-store-name').value.trim();
+                if (!code || !name) {
+                    showToast('error', '請填寫必填欄位', '門市代碼和名稱為必填');
+                    return;
+                }
+            }
+
+            if (currentStep < 4) {
+                currentStep++;
+                updateStepUI();
+
+                if (currentStep === 2) {
+                    populateManagerSelect();
+                }
+                if (currentStep === 3) {
+                    updatePreview();
+                }
+                if (currentStep === 4) {
+                    updateConfirmation();
+                }
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepUI();
+            }
+        }
+
+        function autoGenerateEmail() {
+            const code = document.getElementById('new-store-code').value.trim();
+            if (code) {
+                document.getElementById('new-store-email').value = `${code.toLowerCase()}.manager@company.com`;
+            }
+        }
+
+        function populateManagerSelect() {
+            const select = document.getElementById('new-store-manager');
+            select.innerHTML = '<option value="">-- 暫不指派 --</option>';
+            staffList.forEach(staff => {
+                const display = staff.nickname ? `${staff.name} ${staff.nickname}` : staff.name;
+                select.innerHTML += `<option value="${staff.id}">${display} (${staff.role})</option>`;
+            });
+        }
+
+        function addAuthUserRow() {
+            authUserCount++;
+            const container = document.getElementById('auth-users-list');
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-2 p-3 bg-gray-50 rounded-lg animate-slide-in';
+            row.id = `auth-user-${authUserCount}`;
+
+            let options = staffList.map(s => {
+                const display = s.nickname ? `${s.name} ${s.nickname}` : s.name;
+                return `<option value="${s.id}">${display}</option>`;
+            }).join('');
+
+            row.innerHTML = `
+                <select class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    ${options}
+                </select>
+                <input type="text" placeholder="角色說明" class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <button type="button" onclick="removeAuthUserRow(${authUserCount})" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeAuthUserRow(id) {
+            document.getElementById(`auth-user-${id}`)?.remove();
+        }
+
+        function updatePreview() {
+            const name = document.getElementById('new-store-name').value || '新門市';
+            const email = document.getElementById('new-store-email').value || 'email@company.com';
+            document.getElementById('preview-folder-name').textContent = name;
+            document.getElementById('preview-email').textContent = email;
+        }
+
+        function updateConfirmation() {
+            const typeEl = document.querySelector('input[name="store-type"]:checked');
+            const typeMap = { 'MED': '醫美診所', 'SPA': '岩盤浴', 'OTHER': '其他' };
+            document.getElementById('confirm-type').textContent = typeMap[typeEl?.value] || '未選擇';
+            document.getElementById('confirm-code').textContent = document.getElementById('new-store-code').value || '-';
+            document.getElementById('confirm-name').textContent = document.getElementById('new-store-name').value || '-';
+            document.getElementById('confirm-email').textContent = document.getElementById('new-store-email').value || '-';
+
+            const managerSelect = document.getElementById('new-store-manager');
+            const managerText = managerSelect.value ? managerSelect.options[managerSelect.selectedIndex].text : '未指派';
+            document.getElementById('confirm-manager').textContent = managerText;
+
+            const authCount = document.querySelectorAll('#auth-users-list > div').length;
+            document.getElementById('confirm-auth-count').textContent = `${authCount} 人`;
+
+            // Google Drive actions
+            const actions = [];
+            if (document.getElementById('gdrive-create-folder').checked) {
+                actions.push('<i class="fa-solid fa-check text-green-500 mr-2"></i>建立 Google Drive 資料夾');
+            }
+            if (document.getElementById('gdrive-grant-access').checked) {
+                actions.push('<i class="fa-solid fa-check text-green-500 mr-2"></i>授權 Role Email 存取權限');
+            }
+            if (document.getElementById('gdrive-create-subfolders').checked) {
+                actions.push('<i class="fa-solid fa-check text-green-500 mr-2"></i>建立報表分類子資料夾');
+            }
+            if (document.getElementById('notify-n8n').checked) {
+                actions.push('<i class="fa-solid fa-check text-green-500 mr-2"></i>通知 n8n 更新分派規則');
+            }
+            if (actions.length === 0) {
+                actions.push('<span class="text-gray-400">無 Google Drive 操作</span>');
+            }
+            document.getElementById('confirm-gdrive-actions').innerHTML = actions.map(a => `<div class="text-sm text-gray-700">${a}</div>`).join('');
+        }
+
+        function submitNewStore() {
+            showToast('loading', '建立門市中', '正在同步 Google Drive...');
+
+            setTimeout(() => {
+                hideToast();
+                document.getElementById('success-modal').classList.remove('hidden');
+            }, 2000);
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.add('hidden');
+            // Reset form
+            currentStep = 1;
+            updateStepUI();
+            document.getElementById('new-store-code').value = '';
+            document.getElementById('new-store-name').value = '';
+            document.getElementById('new-store-email').value = '';
+            document.getElementById('auth-users-list').innerHTML = '';
+            authUserCount = 0;
+        }
+
+        // ========== REPORT MANAGEMENT ==========
+        function renderReportList() {
+            const tbody = document.getElementById('report-list');
+            const searchTerm = document.getElementById('report-search')?.value.toLowerCase() || '';
+
+            let filtered = reportList.filter(r => {
+                if (currentReportFilter !== 'all' && r.category !== currentReportFilter) return false;
+                if (searchTerm && !r.code.toLowerCase().includes(searchTerm) && !r.name.toLowerCase().includes(searchTerm)) return false;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fa-solid fa-file-circle-xmark text-4xl text-gray-300 mb-3"></i>
+                            <p class="font-medium">找不到符合條件的報表</p>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((report, idx) => {
+                const colors = categoryColors[report.category];
+                const originalIdx = reportList.indexOf(report);
+                const gdriveIcon = report.gdriveType === 'sheet' ? '<i class="fa-solid fa-table text-ggreen"></i>' :
+                                   report.gdriveType === 'folder' ? '<i class="fa-solid fa-folder text-yellow-500"></i>' :
+                                   '<span class="text-gray-300">-</span>';
+
+                return `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4">
+                            <span class="font-mono text-sm font-bold text-gray-800">${report.code}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-900">${report.name}</div>
+                            ${report.description ? `<div class="text-xs text-gray-500 mt-1">${report.description}</div>` : ''}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}">
+                                <i class="fa-solid ${colors.icon} mr-1"></i>${report.category}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            ${gdriveIcon}
+                            ${report.gdriveId ? `<span class="ml-2 text-xs text-gray-500 font-mono">${report.gdriveId.substring(0,8)}...</span>` : ''}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="${report.isActive ? 'text-green-600' : 'text-gray-400'}">
+                                <i class="fa-solid ${report.isActive ? 'fa-circle-check' : 'fa-circle-xmark'} mr-1"></i>
+                                ${report.isActive ? '啟用' : '停用'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="openReportModal('edit', ${originalIdx})" class="text-primary hover:text-blue-700 mr-3" title="編輯">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="toggleReportStatus(${originalIdx})" class="text-gray-400 hover:text-gray-600 mr-3" title="切換狀態">
+                                <i class="fa-solid fa-power-off"></i>
+                            </button>
+                            <button onclick="deleteReport(${originalIdx})" class="text-red-400 hover:text-red-600" title="刪除">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setReportFilter(filter) {
+            currentReportFilter = filter;
+            document.querySelectorAll('.report-filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-primary', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-600');
+            });
+            event.target.closest('.report-filter-btn').classList.add('active', 'bg-primary', 'text-white');
+            event.target.closest('.report-filter-btn').classList.remove('bg-white', 'text-gray-600');
+            renderReportList();
+        }
+
+        function filterReportList() {
+            renderReportList();
+        }
+
+        function openReportModal(mode, index = -1) {
+            const modal = document.getElementById('report-modal');
+            const title = document.getElementById('report-modal-title');
+
+            document.getElementById('edit-report-index').value = index;
+
+            if (mode === 'edit' && index >= 0) {
+                const report = reportList[index];
+                title.innerHTML = '<i class="fa-solid fa-pen mr-2"></i>編輯報表';
+                document.getElementById('report-code').value = report.code;
+                document.getElementById('report-code').disabled = true;
+                document.getElementById('report-name').value = report.name;
+                document.getElementById('report-category').value = report.category;
+                document.getElementById('report-description').value = report.description || '';
+                document.getElementById('report-gdrive-id').value = report.gdriveId || '';
+                document.querySelector(`input[name="report-source-type"][value="${report.gdriveType || 'none'}"]`).checked = true;
+            } else {
+                title.innerHTML = '<i class="fa-solid fa-file-circle-plus mr-2"></i>新增報表';
+                document.getElementById('report-code').value = '';
+                document.getElementById('report-code').disabled = false;
+                document.getElementById('report-name').value = '';
+                document.getElementById('report-category').value = '營運';
+                document.getElementById('report-description').value = '';
+                document.getElementById('report-gdrive-id').value = '';
+                document.querySelector('input[name="report-source-type"][value="none"]').checked = true;
+            }
+
+            updateGdriveSourceInput();
+            modal.classList.remove('hidden');
+        }
+
+        function closeReportModal() {
+            document.getElementById('report-modal').classList.add('hidden');
+        }
+
+        function updateGdriveSourceInput() {
+            const sourceType = document.querySelector('input[name="report-source-type"]:checked')?.value;
+            document.getElementById('gdrive-source-input').classList.toggle('hidden', sourceType === 'none');
+        }
+
+        // Listen to radio changes
+        document.querySelectorAll('input[name="report-source-type"]').forEach(radio => {
+            radio.addEventListener('change', updateGdriveSourceInput);
+        });
+
+        function saveReport() {
+            const index = parseInt(document.getElementById('edit-report-index').value);
+            const code = document.getElementById('report-code').value.trim();
+            const name = document.getElementById('report-name').value.trim();
+            const category = document.getElementById('report-category').value;
+            const description = document.getElementById('report-description').value.trim();
+            const gdriveType = document.querySelector('input[name="report-source-type"]:checked')?.value || 'none';
+            const gdriveId = document.getElementById('report-gdrive-id').value.trim();
+
+            if (!code || !name) {
+                showToast('error', '請填寫必填欄位', '報表代碼和名稱為必填');
+                return;
+            }
+
+            if (index >= 0) {
+                // Edit
+                reportList[index].name = name;
+                reportList[index].category = category;
+                reportList[index].description = description;
+                reportList[index].gdriveType = gdriveType;
+                reportList[index].gdriveId = gdriveId;
+            } else {
+                // New
+                reportList.push({ code, name, category, description, gdriveType, gdriveId, isActive: true });
+            }
+
+            closeReportModal();
+            renderReportList();
+            showToast('success', '儲存成功', index >= 0 ? '報表已更新' : '新報表已建立');
+        }
+
+        function toggleReportStatus(index) {
+            reportList[index].isActive = !reportList[index].isActive;
+            renderReportList();
+            showToast('success', '狀態已更新', `報表已${reportList[index].isActive ? '啟用' : '停用'}`);
+        }
+
+        function deleteReport(index) {
+            if (confirm(`確定要刪除報表「${reportList[index].name}」嗎？`)) {
+                reportList.splice(index, 1);
+                renderReportList();
+                showToast('success', '刪除成功', '報表已刪除');
+            }
+        }
+
+        // ========== GOOGLE DRIVE PANEL ==========
+        function renderGDrivePanel() {
+            renderSyncItems();
+            renderPendingChanges();
+            renderSyncLogs();
+        }
+
+        function renderSyncItems() {
+            const container = document.getElementById('sync-items-list');
+            container.innerHTML = stores.map(store => {
+                const statusConfig = {
+                    'ok': { icon: 'fa-circle-check', color: 'text-green-500', bg: 'bg-green-50', label: '已同步' },
+                    'pending': { icon: 'fa-clock', color: 'text-yellow-500', bg: 'bg-yellow-50', label: '待同步' },
+                    'error': { icon: 'fa-circle-exclamation', color: 'text-red-500', bg: 'bg-red-50', label: '同步失敗' }
+                };
+                const status = statusConfig[store.syncStatus];
+
+                return `
+                    <div class="flex items-center justify-between p-3 ${status.bg} rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fa-solid ${status.icon} ${status.color} mr-3"></i>
+                            <div>
+                                <div class="font-medium text-gray-800">${store.name}</div>
+                                <div class="text-xs text-gray-500">${store.code}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs ${status.color}">${status.label}</span>
+                            ${store.syncStatus !== 'ok' ? `
+                                <button onclick="syncStore('${store.code}')" class="px-2 py-1 text-xs bg-white border border-gray-200 rounded hover:bg-gray-50 transition">
+                                    <i class="fa-solid fa-rotate mr-1"></i>同步
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPendingChanges() {
+            const container = document.getElementById('pending-changes-list');
+            const changes = [
+                { type: 'add', user: 'david@company.com', store: '板橋光澤醫美', action: '新增編輯權限' },
+                { type: 'remove', user: 'old@company.com', store: '忠孝光澤', action: '移除存取權限' },
+                { type: 'update', user: 'tina@company.com', store: '三重光澤', action: '更新為檢視者' }
+            ];
+
+            container.innerHTML = changes.map(c => {
+                const icons = { add: 'fa-user-plus text-green-500', remove: 'fa-user-minus text-red-500', update: 'fa-user-pen text-blue-500' };
+                return `
+                    <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fa-solid ${icons[c.type]} mr-3"></i>
+                            <div>
+                                <div class="text-sm font-medium text-gray-800">${c.action}</div>
+                                <div class="text-xs text-gray-500">${c.user} → ${c.store}</div>
+                            </div>
+                        </div>
+                        <button class="px-3 py-1 text-xs bg-primary text-white rounded hover:bg-blue-700 transition">
+                            執行
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderSyncLogs() {
+            const container = document.getElementById('sync-logs');
+            const logs = [
+                { time: '14:32:15', type: 'success', msg: '板橋光澤醫美 權限同步完成' },
+                { time: '14:31:48', type: 'success', msg: '建立資料夾: /門市報表/新竹光澤' },
+                { time: '14:30:22', type: 'error', msg: '三重光澤 同步失敗: 網路逾時' },
+                { time: '14:28:10', type: 'success', msg: 'n8n 分派規則已更新' },
+                { time: '14:25:33', type: 'success', msg: 'tina@company.com 已授權' }
+            ];
+
+            container.innerHTML = logs.map(log => {
+                const color = log.type === 'success' ? 'text-green-600' : 'text-red-600';
+                const icon = log.type === 'success' ? 'fa-check' : 'fa-xmark';
+                return `
+                    <div class="flex items-start gap-2">
+                        <span class="text-gray-400 flex-shrink-0">${log.time}</span>
+                        <i class="fa-solid ${icon} ${color} mt-0.5"></i>
+                        <span class="${color}">${log.msg}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function syncStore(code) {
+            showToast('loading', '同步中', `正在同步 ${code}...`);
+            setTimeout(() => {
+                const store = stores.find(s => s.code === code);
+                if (store) store.syncStatus = 'ok';
+                renderSyncItems();
+                showToast('success', '同步完成', `${code} 已同步`);
+            }, 1500);
+        }
+
+        function syncAllDrive() {
+            showToast('loading', '全部同步中', '正在同步所有門市...');
+            setTimeout(() => {
+                stores.forEach(s => s.syncStatus = 'ok');
+                renderSyncItems();
+                showToast('success', '同步完成', '所有門市已同步');
+            }, 3000);
+        }
+
+        function openDrivePicker() {
+            showToast('info', 'Google Drive', '瀏覽器將開啟 Google Drive 選擇器...');
+        }
+
+        function validateAllPermissions() {
+            showToast('loading', '驗證中', '正在驗證所有權限...');
+            setTimeout(() => {
+                showToast('success', '驗證完成', '所有權限設定正確');
+            }, 2000);
+        }
+
+        function exportSyncReport() {
+            showToast('success', '匯出成功', '同步報告已下載');
+        }
+
+        // ========== TOAST ==========
+        function showToast(type, title, message) {
+            const toast = document.getElementById('toast');
+            const iconEl = document.getElementById('toast-icon');
+            const titleEl = document.getElementById('toast-title');
+            const msgEl = document.getElementById('toast-message');
+
+            const configs = {
+                loading: { bg: 'bg-blue-100', text: 'text-blue-600', icon: 'fa-rotate animate-spin' },
+                success: { bg: 'bg-green-100', text: 'text-green-600', icon: 'fa-check' },
+                error: { bg: 'bg-red-100', text: 'text-red-600', icon: 'fa-xmark' },
+                info: { bg: 'bg-gray-100', text: 'text-gray-600', icon: 'fa-info' }
+            };
+
+            const config = configs[type] || configs.info;
+            iconEl.className = `w-10 h-10 rounded-full ${config.bg} ${config.text} flex items-center justify-center`;
+            iconEl.innerHTML = `<i class="fa-solid ${config.icon}"></i>`;
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+
+            toast.classList.remove('hidden', 'translate-y-4', 'opacity-0');
+
+            if (type !== 'loading') {
+                setTimeout(hideToast, 3000);
+            }
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('translate-y-4', 'opacity-0');
+            setTimeout(() => toast.classList.add('hidden'), 300);
+        }
+
+        // ========== INIT ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStepUI();
+            populateManagerSelect();
+        });
+    </script>
+</body>
+</html>

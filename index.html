@@ -111,6 +111,12 @@
                 <button onclick="switchTab('staff')" id="tab-staff" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
                     <i class="fa-solid fa-users-gear mr-2"></i> 人員管理 (Staff)
                 </button>
+                <button onclick="switchTab('settings')" id="tab-settings" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
+                    <i class="fa-solid fa-screwdriver-wrench mr-2"></i> 系統設定
+                </button>
+                <button onclick="switchTab('docs')" id="tab-docs" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
+                    <i class="fa-solid fa-book mr-2"></i> 技術文檔
+                </button>
             </nav>
         </div>
 
@@ -282,6 +288,349 @@
                             <!-- JS Generated -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 5: 系統設定 (Settings View) -->
+        <div id="view-settings" class="hidden animate-fade-in">
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-slate-700 to-slate-800 text-white">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-xl leading-6 font-bold flex items-center">
+                                <i class="fa-solid fa-screwdriver-wrench mr-2"></i>系統設定
+                            </h3>
+                            <p class="mt-1 max-w-2xl text-sm text-slate-300">新展店設定、報表管理、Google Drive 整合</p>
+                        </div>
+                        <button onclick="openSettingsInNewTab()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded text-sm transition flex items-center">
+                            <i class="fa-solid fa-up-right-from-square mr-2"></i> 新視窗開啟
+                        </button>
+                    </div>
+                </div>
+                <!-- 內嵌子頁籤 -->
+                <div class="border-b border-gray-200 bg-gray-50">
+                    <nav class="flex px-4" aria-label="Settings Tabs">
+                        <button onclick="switchSettingsTab('new-store')" id="settings-tab-new-store" class="settings-tab-btn active px-4 py-3 text-sm font-bold border-b-2 border-primary text-primary">
+                            <i class="fa-solid fa-store mr-1"></i> 新展店
+                        </button>
+                        <button onclick="switchSettingsTab('reports')" id="settings-tab-reports" class="settings-tab-btn px-4 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                            <i class="fa-solid fa-file-lines mr-1"></i> 報表管理
+                        </button>
+                        <button onclick="switchSettingsTab('gdrive')" id="settings-tab-gdrive" class="settings-tab-btn px-4 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                            <i class="fa-brands fa-google-drive mr-1"></i> Google Drive
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Settings: 新展店 -->
+                <div id="settings-new-store" class="settings-content p-6">
+                    <div class="max-w-3xl mx-auto">
+                        <!-- Step Indicator -->
+                        <div class="flex justify-between mb-8">
+                            <div class="flex-1 text-center">
+                                <div id="new-store-step-1" class="w-10 h-10 mx-auto rounded-full bg-primary text-white flex items-center justify-center font-bold mb-2">1</div>
+                                <span class="text-xs text-gray-600">基本資料</span>
+                            </div>
+                            <div class="flex-1 text-center">
+                                <div id="new-store-step-2" class="w-10 h-10 mx-auto rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold mb-2">2</div>
+                                <span class="text-xs text-gray-400">人員指派</span>
+                            </div>
+                            <div class="flex-1 text-center">
+                                <div id="new-store-step-3" class="w-10 h-10 mx-auto rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold mb-2">3</div>
+                                <span class="text-xs text-gray-400">Drive 設定</span>
+                            </div>
+                            <div class="flex-1 text-center">
+                                <div id="new-store-step-4" class="w-10 h-10 mx-auto rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold mb-2">4</div>
+                                <span class="text-xs text-gray-400">確認建立</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 1 Content -->
+                        <div id="new-store-content-1" class="new-store-step">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-building text-primary mr-2"></i>門市基本資料</h4>
+
+                            <!-- Store Type -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 mb-3">門市類型 <span class="text-red-500">*</span></label>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="new-store-type" value="MED" class="hidden peer" checked>
+                                        <div class="border-2 border-gray-200 rounded-xl p-4 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition">
+                                            <i class="fa-solid fa-syringe text-2xl text-pink-500 mb-2"></i>
+                                            <div class="font-bold text-gray-800">醫美診所</div>
+                                            <div class="text-xs text-gray-500">光澤/彤顏</div>
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="new-store-type" value="SPA" class="hidden peer">
+                                        <div class="border-2 border-gray-200 rounded-xl p-4 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition">
+                                            <i class="fa-solid fa-spa text-2xl text-amber-500 mb-2"></i>
+                                            <div class="font-bold text-gray-800">岩盤浴</div>
+                                            <div class="text-xs text-gray-500">SPA 館</div>
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="new-store-type" value="OTHER" class="hidden peer">
+                                        <div class="border-2 border-gray-200 rounded-xl p-4 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition">
+                                            <i class="fa-solid fa-building text-2xl text-gray-500 mb-2"></i>
+                                            <div class="font-bold text-gray-800">其他</div>
+                                            <div class="text-xs text-gray-500">辦公室/總部</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Store Info -->
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">門市代碼 <span class="text-red-500">*</span></label>
+                                    <input type="text" id="wizard-store-code" placeholder="例如: BZ_MED" oninput="wizardAutoEmail()"
+                                           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                    <p class="text-xs text-gray-500 mt-1">格式: 地區_類型</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">門市名稱 <span class="text-red-500">*</span></label>
+                                    <input type="text" id="wizard-store-name" placeholder="例如: 板橋光澤醫美"
+                                           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">角色 Email (Role Email) <span class="text-red-500">*</span></label>
+                                <input type="email" id="wizard-store-email" placeholder="自動產生..."
+                                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-circle-info mr-1 text-blue-500"></i>此 Email 將用於 Google Drive 權限授權</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 Content -->
+                        <div id="new-store-content-2" class="new-store-step hidden">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-user-tie text-primary mr-2"></i>人員指派</h4>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                <p class="text-sm text-blue-700"><i class="fa-solid fa-lightbulb mr-2"></i>您可以稍後再指派店經理</p>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">指派主要店經理</label>
+                                <select id="wizard-store-manager" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                                    <option value="">-- 暫不指派 --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 Content -->
+                        <div id="new-store-content-3" class="new-store-step hidden">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-brands fa-google-drive text-blue-500 mr-2"></i>Google Drive 設定</h4>
+                            <div class="space-y-3">
+                                <label class="flex items-start p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+                                    <input type="checkbox" id="wizard-gdrive-folder" checked class="mt-1 w-5 h-5 text-primary rounded">
+                                    <div class="ml-4">
+                                        <div class="font-bold text-gray-800"><i class="fa-solid fa-folder-plus text-blue-500 mr-2"></i>自動建立 Google Drive 資料夾</div>
+                                        <p class="text-sm text-gray-500">在「門市報表」下建立此門市的專屬資料夾</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+                                    <input type="checkbox" id="wizard-gdrive-access" checked class="mt-1 w-5 h-5 text-primary rounded">
+                                    <div class="ml-4">
+                                        <div class="font-bold text-gray-800"><i class="fa-solid fa-share-nodes text-green-500 mr-2"></i>自動授權 Role Email</div>
+                                        <p class="text-sm text-gray-500">將 Role Email 設為資料夾「編輯者」</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+                                    <input type="checkbox" id="wizard-n8n-notify" checked class="mt-1 w-5 h-5 text-primary rounded">
+                                    <div class="ml-4">
+                                        <div class="font-bold text-gray-800"><i class="fa-solid fa-bolt text-orange-500 mr-2"></i>通知 n8n 更新分派規則</div>
+                                        <p class="text-sm text-gray-500">觸發工作流將新門市加入報表分派名單</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 Content -->
+                        <div id="new-store-content-4" class="new-store-step hidden">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-clipboard-check text-primary mr-2"></i>確認門市資料</h4>
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <dl class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <dt class="text-sm text-gray-500">門市類型</dt>
+                                        <dd id="wizard-confirm-type" class="font-bold text-gray-800">-</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm text-gray-500">門市代碼</dt>
+                                        <dd id="wizard-confirm-code" class="font-mono font-bold text-gray-800">-</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm text-gray-500">門市名稱</dt>
+                                        <dd id="wizard-confirm-name" class="font-bold text-gray-800">-</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm text-gray-500">Role Email</dt>
+                                        <dd id="wizard-confirm-email" class="font-mono text-sm text-gray-800">-</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm text-gray-500">店經理</dt>
+                                        <dd id="wizard-confirm-manager" class="font-bold text-gray-800">-</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm text-gray-500">Drive 操作</dt>
+                                        <dd id="wizard-confirm-gdrive" class="text-sm text-gray-800">-</dd>
+                                    </div>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="flex justify-between mt-8 pt-6 border-t border-gray-200">
+                            <button type="button" id="wizard-prev" onclick="wizardPrev()" class="px-6 py-2 text-gray-600 hover:text-gray-800 font-medium hidden">
+                                <i class="fa-solid fa-arrow-left mr-2"></i>上一步
+                            </button>
+                            <div class="flex-1"></div>
+                            <button type="button" id="wizard-next" onclick="wizardNext()" class="px-6 py-2 bg-primary hover:bg-blue-700 text-white font-bold rounded-lg shadow transition">
+                                下一步<i class="fa-solid fa-arrow-right ml-2"></i>
+                            </button>
+                            <button type="button" id="wizard-submit" onclick="wizardSubmit()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow transition hidden">
+                                <i class="fa-solid fa-check mr-2"></i>建立門市
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings: 報表管理 -->
+                <div id="settings-reports" class="settings-content hidden p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-file-lines text-primary mr-2"></i>報表管理</h4>
+                        <button onclick="openModal('new-report')" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition">
+                            <i class="fa-solid fa-plus mr-2"></i>新增報表
+                        </button>
+                    </div>
+                    <!-- Filter -->
+                    <div class="flex gap-2 mb-4 flex-wrap">
+                        <button onclick="setReportMgmtFilter('all')" class="report-mgmt-filter active px-3 py-1.5 text-xs rounded-lg border bg-primary text-white">全部</button>
+                        <button onclick="setReportMgmtFilter('營運')" class="report-mgmt-filter px-3 py-1.5 text-xs rounded-lg border bg-white text-gray-600 hover:bg-gray-50">營運</button>
+                        <button onclick="setReportMgmtFilter('人資')" class="report-mgmt-filter px-3 py-1.5 text-xs rounded-lg border bg-white text-gray-600 hover:bg-gray-50">人資</button>
+                        <button onclick="setReportMgmtFilter('財務')" class="report-mgmt-filter px-3 py-1.5 text-xs rounded-lg border bg-white text-gray-600 hover:bg-gray-50">財務</button>
+                        <button onclick="setReportMgmtFilter('行銷')" class="report-mgmt-filter px-3 py-1.5 text-xs rounded-lg border bg-white text-gray-600 hover:bg-gray-50">行銷</button>
+                        <button onclick="setReportMgmtFilter('會員')" class="report-mgmt-filter px-3 py-1.5 text-xs rounded-lg border bg-white text-gray-600 hover:bg-gray-50">會員</button>
+                        <button onclick="setReportMgmtFilter('系統')" class="report-mgmt-filter px-3 py-1.5 text-xs rounded-lg border bg-white text-gray-600 hover:bg-gray-50">系統</button>
+                    </div>
+                    <!-- Report List -->
+                    <div class="overflow-x-auto border rounded-lg">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-bold text-gray-500">代碼</th>
+                                    <th class="px-4 py-3 text-left font-bold text-gray-500">報表名稱</th>
+                                    <th class="px-4 py-3 text-left font-bold text-gray-500">分類</th>
+                                    <th class="px-4 py-3 text-left font-bold text-gray-500">狀態</th>
+                                    <th class="px-4 py-3 text-right font-bold text-gray-500">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-mgmt-list" class="divide-y divide-gray-200">
+                                <!-- JS Generated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Settings: Google Drive -->
+                <div id="settings-gdrive" class="settings-content hidden p-6">
+                    <div class="grid grid-cols-3 gap-6">
+                        <!-- Main Panel -->
+                        <div class="col-span-2">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-brands fa-google-drive text-blue-500 mr-2"></i>同步狀態</h4>
+                            <!-- Stats -->
+                            <div class="grid grid-cols-4 gap-3 mb-6">
+                                <div class="bg-green-50 rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-green-600" id="gdrive-sync-ok">28</div>
+                                    <div class="text-xs text-green-700">同步成功</div>
+                                </div>
+                                <div class="bg-yellow-50 rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-yellow-600" id="gdrive-sync-pending">3</div>
+                                    <div class="text-xs text-yellow-700">待同步</div>
+                                </div>
+                                <div class="bg-red-50 rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-red-600" id="gdrive-sync-error">1</div>
+                                    <div class="text-xs text-red-700">失敗</div>
+                                </div>
+                                <div class="bg-blue-50 rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-blue-600">32</div>
+                                    <div class="text-xs text-blue-700">總門市</div>
+                                </div>
+                            </div>
+                            <!-- Store Sync List -->
+                            <div class="border rounded-lg overflow-hidden">
+                                <div class="bg-gray-50 px-4 py-2 border-b flex justify-between items-center">
+                                    <span class="font-bold text-sm text-gray-700">門市同步狀態</span>
+                                    <button onclick="syncAllGDrive()" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition">
+                                        <i class="fa-solid fa-rotate mr-1"></i>全部同步
+                                    </button>
+                                </div>
+                                <div id="gdrive-sync-list" class="max-h-64 overflow-y-auto divide-y divide-gray-100">
+                                    <!-- JS Generated -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Side Panel -->
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">API 連線</h4>
+                            <div class="bg-white border rounded-lg p-4 mb-4 space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Google Drive</span>
+                                    <span class="text-green-600"><i class="fa-solid fa-circle-check mr-1"></i>已連接</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">n8n Webhook</span>
+                                    <span class="text-green-600"><i class="fa-solid fa-circle-check mr-1"></i>已連接</span>
+                                </div>
+                            </div>
+                            <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">同步日誌</h4>
+                            <div class="bg-white border rounded-lg p-4 text-xs space-y-1 max-h-48 overflow-y-auto" id="gdrive-logs">
+                                <div class="text-gray-400">14:32:15 <span class="text-green-600">板橋光澤醫美 同步完成</span></div>
+                                <div class="text-gray-400">14:31:48 <span class="text-green-600">建立資料夾: 新竹光澤</span></div>
+                                <div class="text-gray-400">14:30:22 <span class="text-red-600">三重光澤 同步失敗</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 6: 技術文檔 (Docs View) -->
+        <div id="view-docs" class="hidden animate-fade-in">
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-indigo-700 to-purple-700 text-white">
+                    <h3 class="text-xl leading-6 font-bold flex items-center">
+                        <i class="fa-solid fa-book mr-2"></i>技術文檔
+                    </h3>
+                    <p class="mt-1 text-sm text-indigo-200">系統架構說明與開發文件</p>
+                </div>
+                <!-- Doc Tabs -->
+                <div class="border-b border-gray-200 bg-gray-50">
+                    <nav class="flex px-4 overflow-x-auto" aria-label="Doc Tabs">
+                        <button onclick="switchDocTab('architecture')" id="doc-tab-architecture" class="doc-tab-btn active px-4 py-3 text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap">
+                            <i class="fa-solid fa-sitemap mr-1"></i> 全端架構
+                        </button>
+                        <button onclick="switchDocTab('permission')" id="doc-tab-permission" class="doc-tab-btn px-4 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            <i class="fa-solid fa-shield-halved mr-1"></i> 權限邏輯
+                        </button>
+                        <button onclick="switchDocTab('dual-source')" id="doc-tab-dual-source" class="doc-tab-btn px-4 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            <i class="fa-solid fa-code-branch mr-1"></i> 雙來源架構
+                        </button>
+                        <button onclick="switchDocTab('unified-n8n')" id="doc-tab-unified-n8n" class="doc-tab-btn px-4 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            <i class="fa-solid fa-diagram-project mr-1"></i> N8N 整合
+                        </button>
+                        <button onclick="switchDocTab('rules')" id="doc-tab-rules" class="doc-tab-btn px-4 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            <i class="fa-solid fa-list-check mr-1"></i> 系統規則
+                        </button>
+                    </nav>
+                </div>
+                <!-- Doc Content -->
+                <div class="p-6">
+                    <div id="doc-content" class="prose prose-sm max-w-none">
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>載入文檔中...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1729,6 +2078,8 @@
             document.getElementById('view-group').classList.toggle('hidden', tab !== 'group');
             document.getElementById('view-template').classList.toggle('hidden', tab !== 'template');
             document.getElementById('view-staff').classList.toggle('hidden', tab !== 'staff');
+            document.getElementById('view-settings').classList.toggle('hidden', tab !== 'settings');
+            document.getElementById('view-docs').classList.toggle('hidden', tab !== 'docs');
 
             const activeClass = "border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors";
             const inactiveClass = "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors";
@@ -1737,11 +2088,15 @@
             document.getElementById('tab-group').className = tab === 'group' ? activeClass : inactiveClass;
             document.getElementById('tab-template').className = tab === 'template' ? activeClass : inactiveClass;
             document.getElementById('tab-staff').className = tab === 'staff' ? activeClass : inactiveClass;
+            document.getElementById('tab-settings').className = tab === 'settings' ? activeClass : inactiveClass;
+            document.getElementById('tab-docs').className = tab === 'docs' ? activeClass : inactiveClass;
 
             if(tab === 'store') renderStores();
             else if(tab === 'group') renderGroups();
             else if(tab === 'template') renderReportTemplates();
             else if(tab === 'staff') renderStaff();
+            else if(tab === 'settings') initSettingsTab();
+            else if(tab === 'docs') loadDocContent('architecture');
         }
 
         function autoGenEmail() {
@@ -2145,6 +2500,487 @@
             }
         }
 
+        // ========== SETTINGS TAB FUNCTIONS ==========
+        let wizardStep = 1;
+        let currentReportMgmtFilter = 'all';
+
+        function initSettingsTab() {
+            populateWizardManagerSelect();
+            renderReportMgmtList();
+            renderGDriveSyncList();
+        }
+
+        function openSettingsInNewTab() {
+            window.open('store-report-gdrive.html', '_blank');
+        }
+
+        function switchSettingsTab(tab) {
+            document.getElementById('settings-new-store').classList.toggle('hidden', tab !== 'new-store');
+            document.getElementById('settings-reports').classList.toggle('hidden', tab !== 'reports');
+            document.getElementById('settings-gdrive').classList.toggle('hidden', tab !== 'gdrive');
+
+            document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            const activeBtn = document.getElementById(`settings-tab-${tab}`);
+            activeBtn.classList.add('active', 'border-primary', 'text-primary');
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+
+            if (tab === 'reports') renderReportMgmtList();
+            if (tab === 'gdrive') renderGDriveSyncList();
+        }
+
+        // --- New Store Wizard ---
+        function populateWizardManagerSelect() {
+            const select = document.getElementById('wizard-store-manager');
+            if (!select) return;
+            select.innerHTML = '<option value="">-- 暫不指派 --</option>';
+            staffList.forEach(staff => {
+                const display = staff.nickname ? `${staff.name} ${staff.nickname}` : staff.name;
+                select.innerHTML += `<option value="${staff.id}">${display} (${staff.role})</option>`;
+            });
+        }
+
+        function wizardAutoEmail() {
+            const code = document.getElementById('wizard-store-code').value.trim();
+            if (code) {
+                document.getElementById('wizard-store-email').value = `${code.toLowerCase()}.manager@company.com`;
+            }
+        }
+
+        function updateWizardStepUI() {
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`new-store-step-${i}`);
+                const contentEl = document.getElementById(`new-store-content-${i}`);
+                if (!stepEl || !contentEl) continue;
+
+                contentEl.classList.toggle('hidden', i !== wizardStep);
+
+                if (i < wizardStep) {
+                    stepEl.className = 'w-10 h-10 mx-auto rounded-full bg-green-500 text-white flex items-center justify-center font-bold mb-2';
+                    stepEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (i === wizardStep) {
+                    stepEl.className = 'w-10 h-10 mx-auto rounded-full bg-primary text-white flex items-center justify-center font-bold mb-2';
+                    stepEl.textContent = i;
+                } else {
+                    stepEl.className = 'w-10 h-10 mx-auto rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold mb-2';
+                    stepEl.textContent = i;
+                }
+            }
+            document.getElementById('wizard-prev').classList.toggle('hidden', wizardStep === 1);
+            document.getElementById('wizard-next').classList.toggle('hidden', wizardStep === 4);
+            document.getElementById('wizard-submit').classList.toggle('hidden', wizardStep !== 4);
+        }
+
+        function wizardNext() {
+            if (wizardStep === 1) {
+                const code = document.getElementById('wizard-store-code').value.trim();
+                const name = document.getElementById('wizard-store-name').value.trim();
+                if (!code || !name) {
+                    showToast('error', '請填寫必填欄位');
+                    return;
+                }
+            }
+            if (wizardStep < 4) {
+                wizardStep++;
+                updateWizardStepUI();
+                if (wizardStep === 4) updateWizardConfirmation();
+            }
+        }
+
+        function wizardPrev() {
+            if (wizardStep > 1) {
+                wizardStep--;
+                updateWizardStepUI();
+            }
+        }
+
+        function updateWizardConfirmation() {
+            const typeRadio = document.querySelector('input[name="new-store-type"]:checked');
+            const typeMap = { 'MED': '醫美診所', 'SPA': '岩盤浴', 'OTHER': '其他' };
+            document.getElementById('wizard-confirm-type').textContent = typeMap[typeRadio?.value] || '-';
+            document.getElementById('wizard-confirm-code').textContent = document.getElementById('wizard-store-code').value || '-';
+            document.getElementById('wizard-confirm-name').textContent = document.getElementById('wizard-store-name').value || '-';
+            document.getElementById('wizard-confirm-email').textContent = document.getElementById('wizard-store-email').value || '-';
+
+            const managerSelect = document.getElementById('wizard-store-manager');
+            document.getElementById('wizard-confirm-manager').textContent = managerSelect.value ? managerSelect.options[managerSelect.selectedIndex].text : '未指派';
+
+            const actions = [];
+            if (document.getElementById('wizard-gdrive-folder')?.checked) actions.push('建立資料夾');
+            if (document.getElementById('wizard-gdrive-access')?.checked) actions.push('授權 Email');
+            if (document.getElementById('wizard-n8n-notify')?.checked) actions.push('通知 n8n');
+            document.getElementById('wizard-confirm-gdrive').textContent = actions.length ? actions.join('、') : '無';
+        }
+
+        function wizardSubmit() {
+            showToast('syncing');
+            setTimeout(() => {
+                const code = document.getElementById('wizard-store-code').value.trim();
+                const name = document.getElementById('wizard-store-name').value.trim();
+                const email = document.getElementById('wizard-store-email').value.trim();
+                const typeRadio = document.querySelector('input[name="new-store-type"]:checked');
+
+                stores.push({
+                    code: code,
+                    name: name,
+                    roleEmail: email,
+                    primaryManager: null,
+                    authorizedUsers: []
+                });
+
+                // Reset wizard
+                wizardStep = 1;
+                document.getElementById('wizard-store-code').value = '';
+                document.getElementById('wizard-store-name').value = '';
+                document.getElementById('wizard-store-email').value = '';
+                updateWizardStepUI();
+
+                renderStores();
+                showToast('success', `門市「${name}」已建立！`);
+            }, 1000);
+        }
+
+        // --- Report Management ---
+        function renderReportMgmtList() {
+            const tbody = document.getElementById('report-mgmt-list');
+            if (!tbody) return;
+
+            let filtered = reportList;
+            if (currentReportMgmtFilter !== 'all') {
+                filtered = reportList.filter(r => r.category === currentReportMgmtFilter);
+            }
+
+            tbody.innerHTML = filtered.map((r, idx) => {
+                const colors = reportCategoryColors[r.category] || reportCategoryColors['系統'];
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 font-mono font-bold text-gray-800">${r.code}</td>
+                        <td class="px-4 py-3 text-gray-800">${r.name}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}">
+                                <i class="fa-solid ${colors.icon} mr-1"></i>${r.category}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3"><span class="text-green-600"><i class="fa-solid fa-circle-check mr-1"></i>啟用</span></td>
+                        <td class="px-4 py-3 text-right">
+                            <button class="text-primary hover:text-blue-700 mr-2"><i class="fa-solid fa-pen"></i></button>
+                            <button class="text-gray-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setReportMgmtFilter(filter) {
+            currentReportMgmtFilter = filter;
+            document.querySelectorAll('.report-mgmt-filter').forEach(btn => {
+                btn.classList.remove('active', 'bg-primary', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-600');
+            });
+            event.target.classList.add('active', 'bg-primary', 'text-white');
+            event.target.classList.remove('bg-white', 'text-gray-600');
+            renderReportMgmtList();
+        }
+
+        // --- Google Drive Sync ---
+        function renderGDriveSyncList() {
+            const container = document.getElementById('gdrive-sync-list');
+            if (!container) return;
+
+            const syncStatuses = ['ok', 'ok', 'ok', 'pending', 'ok', 'error', 'ok', 'pending'];
+            container.innerHTML = stores.slice(0, 8).map((store, idx) => {
+                const status = syncStatuses[idx] || 'ok';
+                const statusConfig = {
+                    'ok': { icon: 'fa-circle-check', color: 'text-green-500', bg: 'bg-green-50', label: '已同步' },
+                    'pending': { icon: 'fa-clock', color: 'text-yellow-500', bg: 'bg-yellow-50', label: '待同步' },
+                    'error': { icon: 'fa-circle-exclamation', color: 'text-red-500', bg: 'bg-red-50', label: '失敗' }
+                };
+                const s = statusConfig[status];
+                return `
+                    <div class="flex items-center justify-between px-4 py-2 ${s.bg}">
+                        <div class="flex items-center">
+                            <i class="fa-solid ${s.icon} ${s.color} mr-3"></i>
+                            <div>
+                                <div class="text-sm font-medium text-gray-800">${store.name}</div>
+                                <div class="text-xs text-gray-500">${store.code}</div>
+                            </div>
+                        </div>
+                        <span class="text-xs ${s.color}">${s.label}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function syncAllGDrive() {
+            showToast('syncing');
+            setTimeout(() => {
+                renderGDriveSyncList();
+                showToast('success', '所有門市已同步');
+            }, 2000);
+        }
+
+        // ========== DOCS TAB FUNCTIONS ==========
+        const docContents = {
+            'architecture': `
+# 全端架構設計
+
+## 技術棧
+
+### 後端
+- **框架**: Express.js + TypeScript
+- **ORM**: Prisma
+- **資料庫**: PostgreSQL
+- **認證**: JWT
+
+### 前端
+- **框架**: Vanilla JS + Tailwind CSS
+- **圖標**: Font Awesome
+
+## 資料庫模型
+
+\`\`\`
+Store (門市)
+├── code: 門市代碼 (BZ_MED)
+├── name: 門市名稱
+├── type: 類型 (MED/SPA/OTHER)
+├── roleEmail: Role Email
+├── managers[]: 門市經理
+└── authorizedUsers[]: 授權人員
+
+Report (報表)
+├── code: 報表代碼 (R001)
+├── name: 報表名稱
+├── category: 分類
+└── description: 說明
+
+Staff (人員)
+├── name: 姓名
+├── nickname: 暱稱
+├── email: Email
+└── role: 職位
+\`\`\`
+
+## API 端點
+
+| 方法 | 路徑 | 說明 |
+|------|------|------|
+| GET | /api/stores | 取得所有門市 |
+| POST | /api/stores | 新增門市 |
+| PUT | /api/stores/:id | 更新門市 |
+| DELETE | /api/stores/:id | 刪除門市 |
+| GET | /api/reports | 取得所有報表 |
+| POST | /api/reports | 新增報表 |
+`,
+            'permission': `
+# 權限邏輯說明
+
+## 權限類型
+
+### 1. 主要店經理 (Primary Manager)
+- 繼承門市的 Role Email
+- 擁有該門市所有報表的存取權限
+- 自動同步至 Google Drive
+
+### 2. 細部授權人員 (Granular)
+- 可指定特定報表的存取權限
+- 不繼承 Role Email
+- 需手動設定每份報表
+
+### 3. 群組管理者 (Group Manager)
+- 跨多間門市的管理權限
+- 可設定報表範圍 (Scopes)
+
+## 權限流向
+
+\`\`\`
+門市 (Store)
+│
+├── 主要店經理
+│   └── Role Email → Google Drive (編輯者)
+│
+├── 細部授權人員
+│   └── 個人 Email → 特定報表資料夾 (檢視者)
+│
+└── 群組管理者
+    └── 個人 Email → 多門市報表 (依 Scope)
+\`\`\`
+
+## 權限變更觸發
+
+1. 更換店經理 → 更新 Role Email 權限
+2. 新增授權人員 → 授權特定報表資料夾
+3. 移除授權人員 → 撤銷 Google Drive 權限
+`,
+            'dual-source': `
+# 雙來源報表架構
+
+## 問題背景
+
+系統需整合兩個報表來源：
+1. **舊版 N8N 訂閱式報表**：透過檔名解析歸檔
+2. **新版系統報表**：直接指向 Google Drive
+
+## 建議架構
+
+\`\`\`
+┌─────────────┐  ┌─────────────┐
+│ 舊版 N8N    │  │ 新版系統    │
+└──────┬──────┘  └──────┬──────┘
+       │                │
+       └────────┬───────┘
+                │
+                ▼
+       ┌────────────────┐
+       │ Central        │
+       │ Registry       │
+       │ (統一註冊中心) │
+       └────────┬───────┘
+                │
+                ▼
+       ┌────────────────┐
+       │ Google Drive   │
+       └────────────────┘
+\`\`\`
+
+## 核心表結構
+
+- **stores**: 門市註冊
+- **reports**: 報表註冊
+- **drive_folders**: 資料夾映射
+- **file_patterns**: 檔名解析規則
+- **file_uploads**: 上傳記錄
+`,
+            'unified-n8n': `
+# 統一 N8N 歸檔流程
+
+## 核心理念
+
+> 所有報表，無論來源，都統一透過 N8N 工作流進行檔名解析與歸檔
+
+## 架構圖
+
+\`\`\`
+舊版訂閱 ─────┐
+              │
+新版系統 ─────┼──→ 暫存區 ──→ N8N ──→ Google Drive
+              │
+手動上傳 ─────┘
+\`\`\`
+
+## 優點
+
+| 優點 | 說明 |
+|------|------|
+| 維護簡單 | 只有一套歸檔邏輯 |
+| 規則集中 | 檔名解析規則都在 N8N |
+| 完整追蹤 | 所有檔案經過同一流程 |
+| 低開發成本 | 新系統只需呼叫 Webhook |
+
+## N8N 工作流
+
+1. **Trigger**: 新檔案 / Webhook
+2. **解析**: 正則比對檔名
+3. **查詢**: Registry 驗證門市/報表
+4. **上傳**: Google Drive
+5. **記錄**: Audit Log
+`,
+            'rules': `
+# 系統規則說明
+
+## 報表清單 (28份)
+
+### 營運類 (9份)
+- R001 護理部消耗報表
+- R006 進銷貨明細
+- R009 手術追蹤報表
+- R016 諮詢師消耗額統計
+- R020 生美、醫美品項明細表
+- R021 非護理部手術消耗報表
+- R023 高耗材異常領用清單
+- R024 近半年銷售或消耗低於50報表
+- R028 中醫藥膳消耗統計
+
+### 人資類 (5份)
+- R003a 新進人員名單&離職報表
+- R003b 新人關懷名單
+- R011 離職人數統計表
+- R014 每月時數表
+- R025 醫師考勤明細
+
+### 財務類 (6份)
+- R004 員購報表
+- R012 電銷獎金經營客表
+- R013 電銷獎金總表
+- R017 諮詢師積分
+- R018 營養師獎金報表
+- R026 中醫諮詢師積分
+
+## 門市清單 (32間)
+
+### 醫美 (20間)
+板橋、忠孝、三峽、板橋健保、三重、新莊、林口、八德、新竹、古亭、南西、三民、大直、羅東、高雄、中壢(2)、桃園、台中、永和
+
+### 岩盤浴 (6間)
+板橋、忠孝、台中、羅東、中壢、桃園
+
+### 其他 (6間)
+青埔 SPA、台北 SPA、青埔彤顏、八德 SPA、古亭辦公室、總管理處
+`
+        };
+
+        let currentDocTab = 'architecture';
+
+        function switchDocTab(tab) {
+            currentDocTab = tab;
+            document.querySelectorAll('.doc-tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            const activeBtn = document.getElementById(`doc-tab-${tab}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+                activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            }
+            loadDocContent(tab);
+        }
+
+        function loadDocContent(tab) {
+            const container = document.getElementById('doc-content');
+            if (!container) return;
+
+            const content = docContents[tab] || '# 文檔載入中...';
+
+            // Simple markdown to HTML conversion
+            let html = content
+                .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold text-gray-800 mt-6 mb-2">$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-gray-900 mt-8 mb-3 pb-2 border-b border-gray-200">$1</h2>')
+                .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-gray-900 mb-4">$1</h1>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600">$1</code>')
+                .replace(/^- (.+)$/gm, '<li class="ml-4 text-gray-700">$1</li>')
+                .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-primary pl-4 italic text-gray-600 my-4">$1</blockquote>')
+                .replace(/\n\n/g, '</p><p class="mb-4 text-gray-700">')
+                .replace(/\| (.+) \|/g, (match) => {
+                    const cells = match.split('|').filter(c => c.trim());
+                    if (cells.some(c => c.includes('---'))) return '';
+                    const isHeader = match.includes('方法') || match.includes('優點') || match.includes('代碼');
+                    const tag = isHeader ? 'th' : 'td';
+                    const cellClass = isHeader ? 'px-4 py-2 bg-gray-100 font-bold text-left' : 'px-4 py-2 border-t';
+                    return '<tr>' + cells.map(c => `<${tag} class="${cellClass}">${c.trim()}</${tag}>`).join('') + '</tr>';
+                });
+
+            // Wrap tables
+            html = html.replace(/(<tr>.*?<\/tr>)+/gs, '<table class="w-full border border-gray-200 rounded-lg overflow-hidden my-4">$&</table>');
+
+            // Code blocks
+            html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto my-4 text-sm font-mono">$1</pre>');
+
+            container.innerHTML = `<div class="prose prose-sm max-w-none">${html}</div>`;
+        }
+
+        // ========== INIT ==========
         renderStores();
     </script>
 </body>
