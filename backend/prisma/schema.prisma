@@ -24,15 +24,6 @@ enum StoreType {
   OTHER       // 其他
 }
 
-enum StaffRole {
-  STORE_MANAGER     // 店長
-  AREA_MANAGER      // 區經理
-  SUPERVISOR        // 主管
-  SENIOR_EXECUTIVE  // 高階主管
-  SPECIALIST        // 專員
-  OTHER             // 其他
-}
-
 // ==================== 報表 ====================
 
 model Report {
@@ -45,33 +36,11 @@ model Report {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
-  templateReports    TemplateReport[]
-  storeAuthScopes    StoreAuthScope[]
-  groupManagerScopes GroupManagerScope[]
+  templateReports TemplateReport[]
+  storeAuthScopes StoreAuthScope[]
 
   @@index([category])
   @@index([code])
-}
-
-// ==================== 人員 ====================
-
-model Staff {
-  id        String    @id @default(cuid())
-  staffCode String    @unique
-  name      String
-  nickname  String?
-  email     String?   @unique
-  role      StaffRole
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  managedStores    StoreManager[]
-  authorizedStores StoreAuthUser[]
-  groupManagers    GroupManager[]
-
-  @@index([role])
-  @@index([name])
 }
 
 // ==================== 門市 ====================
@@ -88,47 +57,42 @@ model Store {
 
   managers        StoreManager[]
   authorizedUsers StoreAuthUser[]
-  groupStores     GroupStore[]
 
   @@index([type])
   @@index([code])
 }
 
 model StoreManager {
-  id        String    @id @default(cuid())
-  storeId   String
-  staffId   String
-  isPrimary Boolean   @default(true)
-  startDate DateTime  @default(now())
-  endDate   DateTime?
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  storeId     String
+  managerName String
+  isPrimary   Boolean   @default(true)
+  startDate   DateTime  @default(now())
+  endDate     DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
-  @@unique([storeId, staffId, isPrimary])
+  @@unique([storeId, managerName, isPrimary])
   @@index([storeId])
-  @@index([staffId])
 }
 
 model StoreAuthUser {
-  id        String   @id @default(cuid())
-  storeId   String
-  staffId   String
-  roleDesc  String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  storeId     String
+  userName    String
+  roleDesc    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   store  Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  staff  Staff            @relation(fields: [staffId], references: [id], onDelete: Cascade)
   scopes StoreAuthScope[]
 
-  @@unique([storeId, staffId])
+  @@unique([storeId, userName])
   @@index([storeId])
-  @@index([staffId])
 }
 
 model StoreAuthScope {
@@ -140,62 +104,6 @@ model StoreAuthScope {
   report        Report        @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   @@unique([storeAuthUserId, reportId])
-}
-
-// ==================== 群組 ====================
-
-model Group {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  isAllStores Boolean  @default(false)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  stores   GroupStore[]
-  managers GroupManager[]
-
-  @@index([name])
-}
-
-model GroupStore {
-  id      String @id @default(cuid())
-  groupId String
-  storeId String
-
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  @@unique([groupId, storeId])
-}
-
-model GroupManager {
-  id        String   @id @default(cuid())
-  groupId   String
-  staffId   String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  group  Group               @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  staff  Staff               @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  scopes GroupManagerScope[]
-
-  @@unique([groupId, staffId])
-  @@index([groupId])
-  @@index([staffId])
-}
-
-model GroupManagerScope {
-  id             String @id @default(cuid())
-  groupManagerId String
-  reportId       String
-
-  groupManager GroupManager @relation(fields: [groupManagerId], references: [id], onDelete: Cascade)
-  report       Report       @relation(fields: [reportId], references: [id], onDelete: Cascade)
-
-  @@unique([groupManagerId, reportId])
 }
 
 // ==================== 報表組合 ====================

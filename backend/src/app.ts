@@ -9,9 +9,7 @@ import { requestLogger } from './middleware/logger';
 
 // 路由引入
 import reportRoutes from './modules/reports/report.routes';
-import staffRoutes from './modules/staff/staff.routes';
 import storeRoutes from './modules/stores/store.routes';
-import groupRoutes from './modules/groups/group.routes';
 import templateRoutes from './modules/templates/template.routes';
 import aiRoutes from './modules/ai/ai.routes';
 
@@ -49,9 +47,7 @@ app.use(requestLogger);
 const API_PREFIX = env.API_PREFIX || '/api';
 
 app.use(`${API_PREFIX}/reports`, reportRoutes);
-app.use(`${API_PREFIX}/staff`, staffRoutes);
 app.use(`${API_PREFIX}/stores`, storeRoutes);
-app.use(`${API_PREFIX}/groups`, groupRoutes);
 app.use(`${API_PREFIX}/templates`, templateRoutes);
 app.use(`${API_PREFIX}/ai`, aiRoutes);
 
@@ -67,9 +63,7 @@ app.get(API_PREFIX, (req, res) => {
     version: '1.0.0',
     endpoints: {
       reports: `${API_PREFIX}/reports`,
-      staff: `${API_PREFIX}/staff`,
       stores: `${API_PREFIX}/stores`,
-      groups: `${API_PREFIX}/groups`,
       templates: `${API_PREFIX}/templates`,
       ai: `${API_PREFIX}/ai`,
     },

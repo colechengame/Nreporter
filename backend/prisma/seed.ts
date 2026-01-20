@@ -1,4 +1,4 @@
-import { PrismaClient, ReportCategory, StoreType, StaffRole } from '@prisma/client';
+import { PrismaClient, ReportCategory, StoreType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -52,82 +52,44 @@ async function main() {
     });
   }
 
-  // ==================== 人員資料 ====================
-  console.log('👥 建立人員資料...');
-  const staffMembers = [
-    { staffCode: 'S001', name: '吳佳蓉', nickname: 'Tina', role: 'AREA_MANAGER' as StaffRole },
-    { staffCode: 'S002', name: '謝嫚珈', nickname: null, role: 'AREA_MANAGER' as StaffRole },
-    { staffCode: 'S003', name: '徐惠芳', nickname: 'Nana', role: 'AREA_MANAGER' as StaffRole },
-    { staffCode: 'S004', name: '吳弈澐', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S005', name: '林欣誼', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S006', name: '劉玉婷', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S007', name: '劉瑀樂', nickname: 'Gigi', role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S008', name: '劉婉如', nickname: 'Cathy', role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S009', name: '吳怡萩', nickname: 'Juby', role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S010', name: '黃毓芩', nickname: 'Winnie', role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S011', name: '許又婕', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S012', name: '黃翔琳', nickname: 'Kelly', role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S013', name: '黃曉盈', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S014', name: '黃依華', nickname: 'Makiyo', role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S015', name: '王千豪', nickname: 'Sogo', role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S016', name: '小潔', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S017', name: '吳淑玲', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S018', name: '林郁潔', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S019', name: '邱唐如', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S020', name: '協理', nickname: null, role: 'SENIOR_EXECUTIVE' as StaffRole },
-    { staffCode: 'S021', name: 'William', nickname: null, role: 'SENIOR_EXECUTIVE' as StaffRole },
-    { staffCode: 'S022', name: 'Arthur', nickname: null, role: 'SENIOR_EXECUTIVE' as StaffRole },
-    { staffCode: 'S023', name: '洪綵霙', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-    { staffCode: 'S024', name: '林函誼', nickname: null, role: 'SUPERVISOR' as StaffRole },
-    { staffCode: 'S025', name: '黃湘婷', nickname: null, role: 'STORE_MANAGER' as StaffRole },
-  ];
-
-  for (const staff of staffMembers) {
-    await prisma.staff.upsert({
-      where: { staffCode: staff.staffCode },
-      update: {},
-      create: staff,
-    });
-  }
-
   // ==================== 門市資料 ====================
   console.log('🏪 建立門市資料...');
   const stores = [
     // 醫美部門
-    { code: 'BZ_MED', name: '板橋光澤醫美', type: 'MED' as StoreType, roleEmail: 'dr.shine.manager1@gmail.com' },
-    { code: 'ZX_GZ', name: '忠孝光澤', type: 'MED' as StoreType, roleEmail: 'dr.shine.tp.manager@gmail.com' },
-    { code: 'SX_GZ', name: '三峽光澤診所', type: 'MED' as StoreType, roleEmail: 'dr.shine.ss207@gmail.com' },
-    { code: 'BZ_JB', name: '板橋光澤健保', type: 'MED' as StoreType, roleEmail: 'dr.shine.bm.Manager@gmail.com' },
-    { code: 'SC_GZ', name: '三重光澤', type: 'MED' as StoreType, roleEmail: 'dr.shine.scsc.manager@gmail.com' },
-    { code: 'XZ_GZ', name: '新莊光澤診所', type: 'MED' as StoreType, roleEmail: 'dr.shine.bm.Manager@gmail.com' },
-    { code: 'LK_TY', name: '林口彤顏診所', type: 'MED' as StoreType, roleEmail: 'dr.shine.lk.manager@gmail.com' },
-    { code: 'BD_JB', name: '八德健保診所', type: 'MED' as StoreType, roleEmail: 'dr.shine.tu.bmmanager@gmail.com' },
-    { code: 'HC_GZ', name: '新竹光澤診所', type: 'MED' as StoreType, roleEmail: 'dr.shine.tu.bmmanager@gmail.com' },
-    { code: 'GT_GZ', name: '古亭光澤', type: 'MED' as StoreType, roleEmail: 'dr.shine.gt.manager@gmail.com' },
-    { code: 'NX_GZ', name: '南西光澤診所', type: 'MED' as StoreType, roleEmail: 'dr.shine.tp2.manager@gmail.com' },
-    { code: 'SM_GZ', name: '三民光澤診所', type: 'MED' as StoreType, roleEmail: 'dr.shine.nj.manager@gmail.com' },
-    { code: 'DZ_GZ', name: '大直光澤診所', type: 'MED' as StoreType, roleEmail: 'dr.shine.nj.manager@gmail.com' },
-    { code: 'LD_GZ', name: '羅東光澤', type: 'MED' as StoreType, roleEmail: 'dr.shine.ld.Manager@gmail.com' },
-    { code: 'KS_MED', name: '高雄醫美', type: 'MED' as StoreType, roleEmail: 'dr.shine.ksm01@gmail.com' },
-    { code: 'ZL_TY', name: '中壢彤顏醫美', type: 'MED' as StoreType, roleEmail: 'dr.shine.jl.manager@gmail.com' },
-    { code: 'ZL_TY_JB', name: '中壢彤顏健保', type: 'MED' as StoreType, roleEmail: 'dr.shine.jl.bmmanager@gmail.com' },
-    { code: 'TY_MED', name: '桃園醫美', type: 'MED' as StoreType, roleEmail: 'dr.shine.tu.manager1@gmail.com' },
-    { code: 'TC_GZ', name: '台中光澤診所', type: 'MED' as StoreType, roleEmail: 'dr.shine.ss312@gmail.com' },
-    { code: 'YH_TY', name: '永和彤顏診所', type: 'MED' as StoreType, roleEmail: 'dr.shine.kk72@gmail.com' },
+    { code: 'BZ_MED', name: '板橋光澤醫美', type: 'MED' as StoreType, roleEmail: 'store01.manager@example.com' },
+    { code: 'ZX_GZ', name: '忠孝光澤', type: 'MED' as StoreType, roleEmail: 'store02.manager@example.com' },
+    { code: 'SX_GZ', name: '三峽光澤診所', type: 'MED' as StoreType, roleEmail: 'store03.manager@example.com' },
+    { code: 'BZ_JB', name: '板橋光澤健保', type: 'MED' as StoreType, roleEmail: 'store04.manager@example.com' },
+    { code: 'SC_GZ', name: '三重光澤', type: 'MED' as StoreType, roleEmail: 'store05.manager@example.com' },
+    { code: 'XZ_GZ', name: '新莊光澤診所', type: 'MED' as StoreType, roleEmail: 'store06.manager@example.com' },
+    { code: 'LK_TY', name: '林口彤顏診所', type: 'MED' as StoreType, roleEmail: 'store07.manager@example.com' },
+    { code: 'BD_JB', name: '八德健保診所', type: 'MED' as StoreType, roleEmail: 'store08.manager@example.com' },
+    { code: 'HC_GZ', name: '新竹光澤診所', type: 'MED' as StoreType, roleEmail: 'store09.manager@example.com' },
+    { code: 'GT_GZ', name: '古亭光澤', type: 'MED' as StoreType, roleEmail: 'store10.manager@example.com' },
+    { code: 'NX_GZ', name: '南西光澤診所', type: 'MED' as StoreType, roleEmail: 'store11.manager@example.com' },
+    { code: 'SM_GZ', name: '三民光澤診所', type: 'MED' as StoreType, roleEmail: 'store12.manager@example.com' },
+    { code: 'DZ_GZ', name: '大直光澤診所', type: 'MED' as StoreType, roleEmail: 'store13.manager@example.com' },
+    { code: 'LD_GZ', name: '羅東光澤', type: 'MED' as StoreType, roleEmail: 'store14.manager@example.com' },
+    { code: 'KS_MED', name: '高雄醫美', type: 'MED' as StoreType, roleEmail: 'store15.manager@example.com' },
+    { code: 'ZL_TY', name: '中壢彤顏醫美', type: 'MED' as StoreType, roleEmail: 'store16.manager@example.com' },
+    { code: 'ZL_TY_JB', name: '中壢彤顏健保', type: 'MED' as StoreType, roleEmail: 'store17.manager@example.com' },
+    { code: 'TY_MED', name: '桃園醫美', type: 'MED' as StoreType, roleEmail: 'store18.manager@example.com' },
+    { code: 'TC_GZ', name: '台中光澤診所', type: 'MED' as StoreType, roleEmail: 'store19.manager@example.com' },
+    { code: 'YH_TY', name: '永和彤顏診所', type: 'MED' as StoreType, roleEmail: 'store20.manager@example.com' },
     // 岩盤浴部門
-    { code: 'BZ_SPA', name: '板橋岩盤浴', type: 'SPA' as StoreType, roleEmail: 'dr.shine.manager1@gmail.com' },
-    { code: 'ZX_SPA', name: '忠孝岩盤浴', type: 'SPA' as StoreType, roleEmail: 'dr.shine.tp.manager@gmail.com' },
-    { code: 'TC_SPA', name: '台中岩盤浴', type: 'SPA' as StoreType, roleEmail: 'dr.shine.ss320@gmail.com' },
-    { code: 'LD_SPA', name: '羅東岩盤浴', type: 'SPA' as StoreType, roleEmail: 'dr.shine.ld.Manager@gmail.com' },
-    { code: 'ZL_SPA', name: '中壢岩盤浴', type: 'SPA' as StoreType, roleEmail: 'natashaqiu1113@gmail.com' },
-    { code: 'TY_SPA', name: '桃園岩盤浴', type: 'SPA' as StoreType, roleEmail: 'dr.shine.kk72@gmail.com' },
+    { code: 'BZ_SPA', name: '板橋岩盤浴', type: 'SPA' as StoreType, roleEmail: 'spa01.manager@example.com' },
+    { code: 'ZX_SPA', name: '忠孝岩盤浴', type: 'SPA' as StoreType, roleEmail: 'spa02.manager@example.com' },
+    { code: 'TC_SPA', name: '台中岩盤浴', type: 'SPA' as StoreType, roleEmail: 'spa03.manager@example.com' },
+    { code: 'LD_SPA', name: '羅東岩盤浴', type: 'SPA' as StoreType, roleEmail: 'spa04.manager@example.com' },
+    { code: 'ZL_SPA', name: '中壢岩盤浴', type: 'SPA' as StoreType, roleEmail: 'spa05.manager@example.com' },
+    { code: 'TY_SPA', name: '桃園岩盤浴', type: 'SPA' as StoreType, roleEmail: 'spa06.manager@example.com' },
     // 其他
-    { code: 'QP_SPA', name: '青埔岩盤浴', type: 'OTHER' as StoreType, roleEmail: 'qp_spa.manager@company.com' },
-    { code: 'TP_SPA', name: '台北岩盤浴', type: 'OTHER' as StoreType, roleEmail: 'tp_spa.manager@company.com' },
-    { code: 'QP_TY', name: '青埔彤顏', type: 'OTHER' as StoreType, roleEmail: 'qp_ty.manager@company.com' },
-    { code: 'BD_SPA', name: '八德岩盤浴', type: 'OTHER' as StoreType, roleEmail: 'bd_spa.manager@company.com' },
-    { code: 'GT_OFC', name: '古亭辦公室', type: 'OTHER' as StoreType, roleEmail: 'gt_ofc.manager@company.com' },
-    { code: 'HQ', name: '光澤(彤顏)診所總管理處', type: 'OTHER' as StoreType, roleEmail: 'hq.manager@company.com' },
+    { code: 'QP_SPA', name: '青埔岩盤浴', type: 'OTHER' as StoreType, roleEmail: 'qp_spa.manager@example.com' },
+    { code: 'TP_SPA', name: '台北岩盤浴', type: 'OTHER' as StoreType, roleEmail: 'tp_spa.manager@example.com' },
+    { code: 'QP_TY', name: '青埔彤顏', type: 'OTHER' as StoreType, roleEmail: 'qp_ty.manager@example.com' },
+    { code: 'BD_SPA', name: '八德岩盤浴', type: 'OTHER' as StoreType, roleEmail: 'bd_spa.manager@example.com' },
+    { code: 'GT_OFC', name: '古亭辦公室', type: 'OTHER' as StoreType, roleEmail: 'gt_ofc.manager@example.com' },
+    { code: 'HQ', name: '光澤(彤顏)診所總管理處', type: 'OTHER' as StoreType, roleEmail: 'hq.manager@example.com' },
   ];
 
   for (const store of stores) {
