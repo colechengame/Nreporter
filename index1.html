@@ -62,24 +62,6 @@
         /* === Mobile-only RWD === */
         @media (max-width: 639px) {
             body { padding-bottom: 3.5rem; }
-            /* Mobile compact table cards */
-            .mobile-compact thead { display: none; }
-            .mobile-compact tbody { display: flex; flex-direction: column; }
-            .mobile-compact tr {
-                display: flex; flex-wrap: wrap; align-items: center;
-                padding: 8px 12px; border-bottom: 1px solid #f3f4f6;
-                gap: 0;
-            }
-            .mobile-compact td {
-                display: block; padding: 2px 0 !important;
-                border: none !important; background: transparent !important;
-                width: 100% !important; text-align: left !important;
-            }
-            .mobile-compact td:nth-child(1) { order: 1; width: 100% !important; }
-            .mobile-compact td:nth-child(2) { order: 2; width: 100% !important; }
-            .mobile-compact td:nth-child(3) { order: 4; width: 100% !important; }
-            .mobile-compact td:nth-child(4) { order: 3; width: auto !important; }
-            /* Bottom nav */
             .m-bnav { box-shadow: 0 -2px 10px rgba(0,0,0,0.06); }
             .m-bnav-active { color: #0F4C81; font-weight: 700; }
         }
@@ -94,9 +76,34 @@
                 <div class="flex items-center">
                     <span class="font-bold text-sm sm:text-2xl"><i class="fa-solid fa-shield-halved mr-1 sm:mr-2"></i><span class="hidden sm:inline">N-Report 權限中控台</span><span class="sm:hidden">N-Report</span></span>
                     <span class="ml-2 sm:ml-4 px-2 py-0.5 rounded text-xs bg-blue-800 text-blue-200 border border-blue-700 hidden sm:inline-block">Unified Access Control</span>
+                    <!-- 體系視角選擇器 -->
+                    <div class="ml-2 sm:ml-4 relative">
+                        <button onclick="toggleSystemDropdown()" id="system-dropdown-btn" class="flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-xs sm:text-sm">
+                            <i id="system-icon" class="fa-solid fa-globe mr-1 sm:mr-2"></i>
+                            <span id="system-name" class="hidden sm:inline">全部體系</span>
+                            <i class="fa-solid fa-chevron-down ml-1 sm:ml-2 text-xs"></i>
+                        </button>
+                        <div id="system-dropdown" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
+                            <button onclick="setBusinessSystem('all')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center system-option" data-system="all">
+                                <i class="fa-solid fa-globe w-5 text-slate-600"></i>
+                                <span class="ml-2">全部體系</span>
+                                <i class="fa-solid fa-check ml-auto text-primary hidden"></i>
+                            </button>
+                            <button onclick="setBusinessSystem('guangze')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center system-option" data-system="guangze">
+                                <i class="fa-solid fa-syringe w-5 text-pink-500"></i>
+                                <span class="ml-2">光澤體系</span>
+                                <i class="fa-solid fa-check ml-auto text-primary hidden"></i>
+                            </button>
+                            <button onclick="setBusinessSystem('tcm')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center system-option" data-system="tcm">
+                                <i class="fa-solid fa-leaf w-5 text-green-600"></i>
+                                <span class="ml-2">中醫體系</span>
+                                <i class="fa-solid fa-check ml-auto text-primary hidden"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-2 sm:space-x-4 text-sm">
-                    <div class="hidden md:flex items-center space-x-3 mr-4">
+                    <div id="header-stats" class="hidden md:flex items-center space-x-3 mr-4">
                         <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
                             <i class="fa-solid fa-syringe mr-1.5 text-pink-300"></i>醫美 <span class="font-bold ml-1">20</span>
                         </span>
@@ -111,7 +118,6 @@
                     <button onclick="openAIModal()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-4 py-2 rounded-full font-bold shadow-md transition transform hover:scale-105 hidden sm:flex items-center border border-white/20">
                         <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> AI 助手
                     </button>
-                    <!-- Mobile: compact AI button -->
                     <button onclick="openAIModal()" class="sm:hidden bg-violet-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                     </button>
@@ -131,11 +137,20 @@
                 <button onclick="switchTab('store')" id="tab-store" class="border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
                     <i class="fa-solid fa-store mr-2"></i> 門市與細部權限 (Store & Granular)
                 </button>
+                <button onclick="switchTab('group')" id="tab-group" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
+                    <i class="fa-solid fa-layer-group mr-2"></i> 多店/區域管理 (Group)
+                </button>
                 <button onclick="switchTab('template')" id="tab-template" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
                     <i class="fa-solid fa-clipboard-list mr-2"></i> 報表組合 (Templates)
                 </button>
+                <button onclick="switchTab('staff')" id="tab-staff" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
+                    <i class="fa-solid fa-users-gear mr-2"></i> 人員管理 (Staff)
+                </button>
                 <button onclick="switchTab('settings')" id="tab-settings" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
                     <i class="fa-solid fa-screwdriver-wrench mr-2"></i> 系統設定
+                </button>
+                <button onclick="switchTab('docs')" id="tab-docs" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors">
+                    <i class="fa-solid fa-book mr-2"></i> 技術文檔
                 </button>
             </nav>
         </div>
@@ -154,7 +169,7 @@
                             <i class="fa-solid fa-plus mr-2"></i> 新展店設定
                         </button>
                     </div>
-                    <!-- Mobile: compact search + filter row -->
+                    <!-- Mobile: compact search + filter -->
                     <div class="flex gap-2 items-center sm:hidden mb-2">
                         <div class="relative flex-1">
                             <i class="fa-solid fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
@@ -227,6 +242,62 @@
             </div>
         </div>
 
+        <!-- VIEW 2: 群組管理 (Group View) -->
+        <div id="view-group" class="hidden animate-fade-in">
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-3 py-2 sm:px-6 sm:py-5 bg-gray-50 border-b border-gray-200">
+                    <!-- Desktop header -->
+                    <div class="hidden sm:flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-xl leading-6 font-bold text-gray-900">區域管理群組</h3>
+                            <p class="mt-1 max-w-2xl text-base text-gray-500">設定跨店管理者的權限範圍。</p>
+                        </div>
+                        <button onclick="openModal('new-group')" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded text-base shadow transition flex items-center">
+                            <i class="fa-solid fa-plus mr-2"></i> 新增管理群組
+                        </button>
+                    </div>
+                    <!-- Mobile header -->
+                    <div class="flex gap-2 items-center sm:hidden">
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                            <input type="text" id="group-search-m" placeholder="搜尋群組..."
+                                   class="w-full pl-8 pr-2 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-primary focus:border-primary"
+                                   oninput="document.getElementById('group-search').value=this.value;filterGroups()">
+                        </div>
+                        <button onclick="openModal('new-group')" class="bg-primary text-white px-2 py-1.5 rounded text-xs flex-shrink-0">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <!-- Desktop search -->
+                    <div class="relative max-w-md hidden sm:block">
+                        <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="group-search" placeholder="搜尋群組名稱、管理者..."
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-base focus:ring-primary focus:border-primary"
+                               oninput="filterGroups()">
+                    </div>
+                </div>
+                <!-- Desktop table -->
+                <div class="border-t border-gray-200 hidden sm:block">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">群組名稱</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">包含門市</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider">管理者 & 權限</th>
+                                <th scope="col" class="px-6 py-3 text-right text-sm font-bold text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="group-list">
+                            <!-- JS Generated -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Mobile compact list -->
+                <div id="group-list-mobile" class="sm:hidden divide-y divide-gray-100">
+                    <!-- JS Generated -->
+                </div>
+            </div>
+        </div>
 
         <!-- VIEW 3: 報表組合管理 (Template View) -->
         <div id="view-template" class="hidden animate-fade-in">
@@ -285,6 +356,62 @@
             </div>
         </div>
 
+        <!-- VIEW 4: 人員管理 (Staff View) -->
+        <div id="view-staff" class="hidden animate-fade-in">
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-3 py-2 sm:px-6 sm:py-5 bg-gray-50 border-b border-gray-200">
+                    <!-- Desktop header -->
+                    <div class="hidden sm:flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-xl leading-6 font-bold text-gray-900">人員暱稱管理</h3>
+                            <p class="mt-1 max-w-2xl text-base text-gray-500">設定人員的暱稱，方便在系統中快速識別。</p>
+                        </div>
+                        <button onclick="openModal('new-staff')" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded text-base shadow transition flex items-center">
+                            <i class="fa-solid fa-user-plus mr-2"></i> 新增人員
+                        </button>
+                    </div>
+                    <!-- Mobile header -->
+                    <div class="flex gap-2 items-center sm:hidden">
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                            <input type="text" id="staff-search-m" placeholder="搜尋人員..."
+                                   class="w-full pl-8 pr-2 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-teal-500 focus:border-teal-500"
+                                   oninput="document.getElementById('staff-search').value=this.value;filterStaff()">
+                        </div>
+                        <button onclick="openModal('new-staff')" class="bg-teal-600 text-white px-2 py-1.5 rounded text-xs flex-shrink-0">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </button>
+                    </div>
+                    <!-- Desktop search -->
+                    <div class="relative max-w-md hidden sm:block">
+                        <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="staff-search" placeholder="搜尋姓名、暱稱、職位..."
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-base focus:ring-teal-500 focus:border-teal-500"
+                               oninput="filterStaff()">
+                    </div>
+                </div>
+                <!-- Desktop table -->
+                <div class="border-t border-gray-200 hidden sm:block">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/4">姓名</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/4">暱稱</th>
+                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/4">職位</th>
+                                <th scope="col" class="px-6 py-3 text-right text-sm font-bold text-gray-500 uppercase tracking-wider w-24">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="staff-list">
+                            <!-- JS Generated -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Mobile compact list -->
+                <div id="staff-list-mobile" class="sm:hidden divide-y divide-gray-100">
+                    <!-- JS Generated -->
+                </div>
+            </div>
+        </div>
 
         <!-- VIEW 5: 系統設定 (Settings View) -->
         <div id="view-settings" class="hidden animate-fade-in">
@@ -588,6 +715,46 @@
             </div>
         </div>
 
+        <!-- VIEW 6: 技術文檔 (Docs View) -->
+        <div id="view-docs" class="hidden animate-fade-in">
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-3 py-3 sm:px-6 sm:py-5 bg-gradient-to-r from-indigo-700 to-purple-700 text-white">
+                    <h3 class="text-base sm:text-xl leading-6 font-bold flex items-center">
+                        <i class="fa-solid fa-book mr-1 sm:mr-2"></i>技術文檔
+                    </h3>
+                    <p class="mt-0.5 sm:mt-1 text-xs sm:text-sm text-indigo-200 hidden sm:block">系統架構說明與開發文件</p>
+                </div>
+                <!-- Doc Tabs -->
+                <div class="border-b border-gray-200 bg-gray-50">
+                    <nav class="flex px-2 sm:px-4 overflow-x-auto" aria-label="Doc Tabs">
+                        <button onclick="switchDocTab('architecture')" id="doc-tab-architecture" class="doc-tab-btn active px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap">
+                            <i class="fa-solid fa-sitemap mr-1"></i><span class="hidden sm:inline"> 全端</span>架構
+                        </button>
+                        <button onclick="switchDocTab('permission')" id="doc-tab-permission" class="doc-tab-btn px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            <i class="fa-solid fa-shield-halved mr-1"></i> 權限
+                        </button>
+                        <button onclick="switchDocTab('dual-source')" id="doc-tab-dual-source" class="doc-tab-btn px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            <i class="fa-solid fa-code-branch mr-1"></i><span class="hidden sm:inline"> 雙來源</span>
+                        </button>
+                        <button onclick="switchDocTab('unified-n8n')" id="doc-tab-unified-n8n" class="doc-tab-btn px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            <i class="fa-solid fa-diagram-project mr-1"></i> N8N
+                        </button>
+                        <button onclick="switchDocTab('rules')" id="doc-tab-rules" class="doc-tab-btn px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            <i class="fa-solid fa-list-check mr-1"></i> 規則
+                        </button>
+                    </nav>
+                </div>
+                <!-- Doc Content -->
+                <div class="p-3 sm:p-6">
+                    <div id="doc-content" class="prose prose-sm max-w-none">
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>載入文檔中...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -742,6 +909,103 @@
                                     </div>
                                 </div>
 
+                                <!-- FORM 4: 新群組 -->
+                                <div id="form-new-group" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">群組名稱</label>
+                                        <input type="text" id="group-name" placeholder="北區督導組" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">包含門市</label>
+                                        <label class="flex items-center space-x-2 p-2 bg-blue-50 rounded-md border border-blue-200 mb-2 cursor-pointer hover:bg-blue-100">
+                                            <input type="checkbox" id="new-group-all-stores" onchange="toggleAllStoresNew(this)" class="text-primary rounded">
+                                            <span class="text-sm font-bold text-blue-700"><i class="fa-solid fa-globe mr-1"></i>所有門市（全選）</span>
+                                        </label>
+                                        <div id="group-store-checkboxes" class="space-y-2 max-h-40 overflow-y-auto border rounded-md p-2">
+                                            <!-- 動態生成 -->
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">指定管理者</label>
+                                        <select id="group-manager-select" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                            <option value="Tina">Tina (區經理)</option>
+                                            <option value="甲君">甲君 (區督導)</option>
+                                            <option value="乙君">乙君 (儲備幹部)</option>
+                                            <option value="David">David (顧問)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">管理者可存取的報表</label>
+                                        <div class="mb-3 p-2 bg-indigo-50 rounded-md border border-indigo-200">
+                                            <label class="block text-xs font-bold text-indigo-700 mb-1"><i class="fa-solid fa-bolt mr-1"></i>快速套用組合</label>
+                                            <select id="group-template-select" onchange="applyReportTemplate('group')" class="block w-full border-indigo-300 rounded-md border p-1.5 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                                <option value="">-- 選擇報表組合 --</option>
+                                            </select>
+                                        </div>
+                                        <input type="text" id="group-report-search" placeholder="搜尋名稱、分類..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm mb-2 text-sm" oninput="filterReports('group')">
+                                        <div class="flex gap-2 mb-2">
+                                            <button type="button" onclick="selectAllReports('group')" class="text-sm text-blue-600 hover:text-blue-800">全選</button>
+                                            <button type="button" onclick="deselectAllReports('group')" class="text-sm text-gray-500 hover:text-gray-700">取消全選</button>
+                                        </div>
+                                        <div id="group-report-list" class="space-y-1 overflow-y-auto border rounded-md p-2">
+                                            <!-- 動態生成 -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- FORM 5: 編輯群組 -->
+                                <div id="form-edit-group" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">群組名稱</label>
+                                        <input type="text" id="edit-group-name" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">包含門市</label>
+                                        <label class="flex items-center space-x-2 p-2 bg-blue-50 rounded-md border border-blue-200 mb-2 cursor-pointer hover:bg-blue-100">
+                                            <input type="checkbox" id="edit-group-all-stores" onchange="toggleAllStoresEdit(this)" class="text-primary rounded">
+                                            <span class="text-sm font-bold text-blue-700"><i class="fa-solid fa-globe mr-1"></i>所有門市（全選）</span>
+                                        </label>
+                                        <div id="edit-group-store-checkboxes" class="space-y-2 max-h-40 overflow-y-auto border rounded-md p-2">
+                                            <!-- 動態生成 -->
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">現有管理者</label>
+                                        <div id="edit-group-managers-list" class="space-y-2">
+                                            <!-- 動態生成 -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- FORM 6: 新增群組管理者 -->
+                                <div id="form-group-manager" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">選擇人員</label>
+                                        <select id="add-group-manager-select" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                            <option value="Tina">Tina (區經理)</option>
+                                            <option value="甲君">甲君 (區督導)</option>
+                                            <option value="乙君">乙君 (儲備幹部)</option>
+                                            <option value="David">David (顧問)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">可存取的報表</label>
+                                        <div class="mb-3 p-2 bg-indigo-50 rounded-md border border-indigo-200">
+                                            <label class="block text-xs font-bold text-indigo-700 mb-1"><i class="fa-solid fa-bolt mr-1"></i>快速套用組合</label>
+                                            <select id="manager-template-select" onchange="applyReportTemplate('manager')" class="block w-full border-indigo-300 rounded-md border p-1.5 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                                <option value="">-- 選擇報表組合 --</option>
+                                            </select>
+                                        </div>
+                                        <input type="text" id="manager-report-search" placeholder="搜尋名稱、分類..." class="block w-full border-gray-300 rounded-md border p-2 shadow-sm mb-2 text-sm" oninput="filterReports('manager')">
+                                        <div class="flex gap-2 mb-2">
+                                            <button type="button" onclick="selectAllReports('manager')" class="text-sm text-blue-600 hover:text-blue-800">全選</button>
+                                            <button type="button" onclick="deselectAllReports('manager')" class="text-sm text-gray-500 hover:text-gray-700">取消全選</button>
+                                        </div>
+                                        <div id="manager-report-list" class="space-y-1 overflow-y-auto border rounded-md p-2">
+                                            <!-- 動態生成 -->
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- FORM 7: 新增報表組合 -->
                                 <div id="form-new-template" class="form-section hidden">
@@ -793,6 +1057,55 @@
                                     </div>
                                 </div>
 
+                                <!-- FORM 9: 新增人員 -->
+                                <div id="form-new-staff" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">姓名 <span class="text-red-500">*</span></label>
+                                        <input type="text" id="staff-name" placeholder="請輸入正式姓名" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">暱稱 <span class="text-gray-400 text-xs font-normal">(選填)</span></label>
+                                        <input type="text" id="staff-nickname" placeholder="例如：Tina、Gigi" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">職位</label>
+                                        <select id="staff-role" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                            <option value="店長">店長</option>
+                                            <option value="區經理">區經理</option>
+                                            <option value="主管">主管</option>
+                                            <option value="高階主管">高階主管</option>
+                                            <option value="專員">專員</option>
+                                            <option value="其他">其他</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- FORM 10: 編輯人員 -->
+                                <div id="form-edit-staff" class="form-section hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">人員 ID (不可修改)</label>
+                                        <input type="text" id="edit-staff-id" disabled class="block w-full border-gray-300 rounded-md border p-2 bg-gray-100 text-gray-500 cursor-not-allowed">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">姓名 <span class="text-red-500">*</span></label>
+                                        <input type="text" id="edit-staff-name" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">暱稱 <span class="text-gray-400 text-xs font-normal">(選填)</span></label>
+                                        <input type="text" id="edit-staff-nickname" placeholder="例如：Tina、Gigi" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">職位</label>
+                                        <select id="edit-staff-role" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm">
+                                            <option value="店長">店長</option>
+                                            <option value="區經理">區經理</option>
+                                            <option value="主管">主管</option>
+                                            <option value="高階主管">高階主管</option>
+                                            <option value="專員">專員</option>
+                                            <option value="其他">其他</option>
+                                        </select>
+                                    </div>
+                                </div>
 
                             </div>
                         </div>
@@ -818,19 +1131,25 @@
                 <i class="fa-solid fa-store text-base"></i>
                 <span class="text-[10px] mt-0.5">門市</span>
             </button>
+            <button onclick="switchTab('group')" id="bnav-group" class="flex flex-col items-center justify-center flex-1 h-full text-gray-400">
+                <i class="fa-solid fa-layer-group text-base"></i>
+                <span class="text-[10px] mt-0.5">群組</span>
+            </button>
             <button onclick="switchTab('template')" id="bnav-template" class="flex flex-col items-center justify-center flex-1 h-full text-gray-400">
                 <i class="fa-solid fa-clipboard-list text-base"></i>
                 <span class="text-[10px] mt-0.5">報表</span>
             </button>
-            <button onclick="openAIModal()" class="flex flex-col items-center justify-center flex-1 h-full text-violet-500">
-                <div class="w-10 h-10 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full flex items-center justify-center text-white shadow-lg -mt-4">
-                    <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
-                </div>
-                <span class="text-[10px] mt-0.5">AI</span>
+            <button onclick="switchTab('staff')" id="bnav-staff" class="flex flex-col items-center justify-center flex-1 h-full text-gray-400">
+                <i class="fa-solid fa-users-gear text-base"></i>
+                <span class="text-[10px] mt-0.5">人員</span>
             </button>
             <button onclick="switchTab('settings')" id="bnav-settings" class="flex flex-col items-center justify-center flex-1 h-full text-gray-400">
                 <i class="fa-solid fa-screwdriver-wrench text-base"></i>
                 <span class="text-[10px] mt-0.5">設定</span>
+            </button>
+            <button onclick="switchTab('docs')" id="bnav-docs" class="flex flex-col items-center justify-center flex-1 h-full text-gray-400">
+                <i class="fa-solid fa-book text-base"></i>
+                <span class="text-[10px] mt-0.5">文檔</span>
             </button>
         </div>
     </nav>
@@ -844,6 +1163,17 @@
 
     <script>
         // --- DATA MODEL ---
+
+        // 體系定義
+        const BUSINESS_SYSTEMS = {
+            all: { name: '全部體系', icon: 'fa-globe', color: 'text-white', bgColor: 'bg-slate-600' },
+            guangze: { name: '光澤體系', icon: 'fa-syringe', color: 'text-pink-300', bgColor: 'bg-pink-600' },
+            tcm: { name: '中醫體系', icon: 'fa-leaf', color: 'text-green-300', bgColor: 'bg-green-600' }
+        };
+
+        // 當前體系視角 (all = 最高管理員, guangze = 光澤體系, tcm = 中醫體系)
+        let currentBusinessSystem = 'all';
+
         // 報表清單 - 包含代碼、正式名稱、分類
         let reportList = [
             // === 營運類 ===
@@ -894,31 +1224,31 @@
 
         // 人員清單 - 包含正式名稱、暱稱、職位
         let staffList = [
-            { id: 'S001', name: '員工A', nickname: 'Alice', role: '區經理' },
-            { id: 'S002', name: '員工B', nickname: '', role: '區經理' },
-            { id: 'S003', name: '員工C', nickname: 'Carol', role: '區經理' },
-            { id: 'S004', name: '員工D', nickname: '', role: '店長' },
-            { id: 'S005', name: '員工E', nickname: '', role: '店長' },
-            { id: 'S006', name: '員工F', nickname: '', role: '店長' },
-            { id: 'S007', name: '員工G', nickname: 'Grace', role: '店長' },
-            { id: 'S008', name: '員工H', nickname: 'Helen', role: '店長' },
-            { id: 'S009', name: '員工I', nickname: 'Ivy', role: '店長' },
-            { id: 'S010', name: '員工J', nickname: 'Jenny', role: '店長' },
-            { id: 'S011', name: '員工K', nickname: '', role: '店長' },
-            { id: 'S012', name: '員工L', nickname: 'Linda', role: '店長' },
-            { id: 'S013', name: '員工M', nickname: '', role: '店長' },
-            { id: 'S014', name: '員工N', nickname: 'Nancy', role: '店長' },
-            { id: 'S015', name: '員工O', nickname: 'Oscar', role: '店長' },
-            { id: 'S016', name: '員工P', nickname: '', role: '店長' },
-            { id: 'S017', name: '員工Q', nickname: '', role: '店長' },
-            { id: 'S018', name: '員工R', nickname: '', role: '店長' },
-            { id: 'S019', name: '員工S', nickname: '', role: '店長' },
-            { id: 'S020', name: '主管A', nickname: '', role: '高階主管' },
-            { id: 'S021', name: '主管B', nickname: '', role: '高階主管' },
-            { id: 'S022', name: '主管C', nickname: '', role: '高階主管' },
-            { id: 'S023', name: '員工T', nickname: '', role: '店長' },
-            { id: 'S024', name: '員工U', nickname: '', role: '主管' },
-            { id: 'S025', name: '員工V', nickname: '', role: '店長' }
+            { id: 'S001', name: '吳佳蓉', nickname: 'Tina', role: '區經理' },
+            { id: 'S002', name: '謝嫚珈', nickname: '', role: '區經理' },
+            { id: 'S003', name: '徐惠芳', nickname: 'Nana', role: '區經理' },
+            { id: 'S004', name: '吳弈澐', nickname: '', role: '店長' },
+            { id: 'S005', name: '林欣誼', nickname: '', role: '店長' },
+            { id: 'S006', name: '劉玉婷', nickname: '', role: '店長' },
+            { id: 'S007', name: '劉瑀樂', nickname: 'Gigi', role: '店長' },
+            { id: 'S008', name: '劉婉如', nickname: 'Cathy', role: '店長' },
+            { id: 'S009', name: '吳怡萩', nickname: 'Juby', role: '店長' },
+            { id: 'S010', name: '黃毓芩', nickname: 'Winnie', role: '店長' },
+            { id: 'S011', name: '許又婕', nickname: '', role: '店長' },
+            { id: 'S012', name: '黃翔琳', nickname: 'Kelly', role: '店長' },
+            { id: 'S013', name: '黃曉盈', nickname: '', role: '店長' },
+            { id: 'S014', name: '黃依華', nickname: 'Makiyo', role: '店長' },
+            { id: 'S015', name: '王千豪', nickname: 'Sogo', role: '店長' },
+            { id: 'S016', name: '小潔', nickname: '', role: '店長' },
+            { id: 'S017', name: '吳淑玲', nickname: '', role: '店長' },
+            { id: 'S018', name: '林郁潔', nickname: '', role: '店長' },
+            { id: 'S019', name: '邱唐如', nickname: '', role: '店長' },
+            { id: 'S020', name: '協理', nickname: '', role: '高階主管' },
+            { id: 'S021', name: 'William', nickname: '', role: '高階主管' },
+            { id: 'S022', name: 'Arthur', nickname: '', role: '高階主管' },
+            { id: 'S023', name: '洪綵霙', nickname: '', role: '店長' },
+            { id: 'S024', name: '林函誼', nickname: '', role: '主管' },
+            { id: 'S025', name: '黃湘婷', nickname: '', role: '店長' }
         ];
 
         // --- 報表組合 (Report Templates) ---
@@ -963,43 +1293,89 @@
 
         let stores = [
             // === 醫美部門 ===
-            { code: 'N1_MED', name: '北一區星辰醫美', roleEmail: 'store01.manager@example.com', primaryManager: { name: '員工A Alice', status: 'active' }, authorizedUsers: [] },
-            { code: 'C0_MED', name: '中央區星辰診所', roleEmail: 'store02.manager@example.com', primaryManager: { name: '員工D', status: 'active' }, authorizedUsers: [{ name: '員工A Alice', role: '多店管理', scopes: [] }] },
-            { code: 'W1_MED', name: '西區星辰診所', roleEmail: 'store03.manager@example.com', primaryManager: { name: '員工P', status: 'active' }, authorizedUsers: [{ name: '員工A Alice', role: '多店管理', scopes: [] }] },
-            { code: 'N1_HC', name: '北一區星辰健康門診', roleEmail: 'store04.manager@example.com', primaryManager: { name: '員工B', status: 'active' }, authorizedUsers: [] },
-            { code: 'N2_MED', name: '北二區星辰診所', roleEmail: 'store05.manager@example.com', primaryManager: { name: '員工E', status: 'active' }, authorizedUsers: [{ name: '員工B', role: '多店管理', scopes: [] }] },
-            { code: 'N3_MED', name: '北三區星辰診所', roleEmail: 'store06.manager@example.com', primaryManager: { name: '員工B', status: 'active' }, authorizedUsers: [] },
-            { code: 'NW_MED', name: '西北區晨曦診所', roleEmail: 'store07.manager@example.com', primaryManager: { name: '員工F', status: 'active' }, authorizedUsers: [{ name: '員工B', role: '多店管理', scopes: [] }] },
-            { code: 'E1_HC', name: '東區健康門診', roleEmail: 'store08.manager@example.com', primaryManager: { name: '員工C Carol', status: 'active' }, authorizedUsers: [] },
-            { code: 'S1_MED', name: '南一區星辰診所', roleEmail: 'store09.manager@example.com', primaryManager: { name: '員工C Carol', status: 'active' }, authorizedUsers: [] },
-            { code: 'C1_MED', name: '中一區星辰診所', roleEmail: 'store10.manager@example.com', primaryManager: { name: '員工G Grace', status: 'active' }, authorizedUsers: [] },
-            { code: 'C2_MED', name: '中二區星辰診所', roleEmail: 'store11.manager@example.com', primaryManager: { name: '員工H Helen', status: 'active' }, authorizedUsers: [] },
-            { code: 'C3_MED', name: '中三區星辰診所', roleEmail: 'store12.manager@example.com', primaryManager: { name: '員工I Ivy', status: 'active' }, authorizedUsers: [] },
-            { code: 'NE_MED', name: '東北區星辰診所', roleEmail: 'store13.manager@example.com', primaryManager: { name: '員工I Ivy', status: 'active' }, authorizedUsers: [] },
-            { code: 'SE_MED', name: '東南區星辰診所', roleEmail: 'store14.manager@example.com', primaryManager: { name: '員工J Jenny', status: 'active' }, authorizedUsers: [] },
-            { code: 'S2_MED', name: '南區醫美診所', roleEmail: 'store15.manager@example.com', primaryManager: { name: '員工K', status: 'active' }, authorizedUsers: [] },
-            { code: 'SW_MED', name: '西南區晨曦醫美', roleEmail: 'store16.manager@example.com', primaryManager: { name: '員工L Linda', status: 'active' }, authorizedUsers: [] },
-            { code: 'SW_HC', name: '西南區晨曦健康門診', roleEmail: 'store17.manager@example.com', primaryManager: { name: '員工Q', status: 'active' }, authorizedUsers: [] },
-            { code: 'W2_MED', name: '西二區醫美診所', roleEmail: 'store18.manager@example.com', primaryManager: { name: '員工M', status: 'active' }, authorizedUsers: [] },
-            { code: 'CT_MED', name: '中區星辰診所', roleEmail: 'store19.manager@example.com', primaryManager: { name: '員工N Nancy', status: 'active' }, authorizedUsers: [] },
-            { code: 'N4_MED', name: '北四區晨曦診所', roleEmail: 'store20.manager@example.com', primaryManager: { name: '員工O Oscar', status: 'active' }, authorizedUsers: [] },
-            // === 養生館部門 ===
-            { code: 'N1_SPA', name: '北一區養生館', roleEmail: 'spa01.manager@example.com', primaryManager: { name: '員工A Alice', status: 'active' }, authorizedUsers: [{ name: '員工T', role: '店長', scopes: [] }] },
-            { code: 'C0_SPA', name: '中央區養生館', roleEmail: 'spa02.manager@example.com', primaryManager: { name: '員工D', status: 'active' }, authorizedUsers: [{ name: '員工U', role: '主管', scopes: [] }] },
-            { code: 'CT_SPA', name: '中區養生館', roleEmail: 'spa03.manager@example.com', primaryManager: { name: '員工R', status: 'active' }, authorizedUsers: [] },
-            { code: 'SE_SPA', name: '東南區養生館', roleEmail: 'spa04.manager@example.com', primaryManager: { name: '員工J Jenny', status: 'active' }, authorizedUsers: [{ name: '員工V', role: '店長', scopes: [] }] },
-            { code: 'SW_SPA', name: '西南區養生館', roleEmail: 'spa05.manager@example.com', primaryManager: { name: '員工S', status: 'active' }, authorizedUsers: [] },
-            { code: 'W2_SPA', name: '西二區養生館', roleEmail: 'spa06.manager@example.com', primaryManager: { name: '員工O Oscar', status: 'active' }, authorizedUsers: [] },
+            { code: 'BZ_MED', name: '板橋光澤醫美', roleEmail: 'dr.shine.manager1@gmail.com', primaryManager: { name: '吳佳蓉 Tina', status: 'active' }, authorizedUsers: [] },
+            { code: 'ZX_GZ', name: '忠孝光澤', roleEmail: 'dr.shine.tp.manager@gmail.com', primaryManager: { name: '吳弈澐', status: 'active' }, authorizedUsers: [{ name: '吳佳蓉 Tina', role: '多店管理', scopes: [] }] },
+            { code: 'SX_GZ', name: '三峽光澤診所', roleEmail: 'dr.shine.ss207@gmail.com', primaryManager: { name: '小潔', status: 'active' }, authorizedUsers: [{ name: '吳佳蓉 Tina', role: '多店管理', scopes: [] }] },
+            { code: 'BZ_JB', name: '板橋光澤健保', roleEmail: 'dr.shine.bm.Manager@gmail.com', primaryManager: { name: '謝嫚珈', status: 'active' }, authorizedUsers: [] },
+            { code: 'SC_GZ', name: '三重光澤', roleEmail: 'dr.shine.scsc.manager@gmail.com', primaryManager: { name: '林欣誼', status: 'active' }, authorizedUsers: [{ name: '謝嫚珈', role: '多店管理', scopes: [] }] },
+            { code: 'XZ_GZ', name: '新莊光澤診所', roleEmail: 'dr.shine.bm.Manager@gmail.com', primaryManager: { name: '謝嫚珈', status: 'active' }, authorizedUsers: [] },
+            { code: 'LK_TY', name: '林口彤顏診所', roleEmail: 'dr.shine.lk.manager@gmail.com', primaryManager: { name: '劉玉婷', status: 'active' }, authorizedUsers: [{ name: '謝嫚珈', role: '多店管理', scopes: [] }] },
+            { code: 'BD_JB', name: '八德健保診所', roleEmail: 'dr.shine.tu.bmmanager@gmail.com', primaryManager: { name: '徐惠芳 Nana', status: 'active' }, authorizedUsers: [] },
+            { code: 'HC_GZ', name: '新竹光澤診所', roleEmail: 'dr.shine.tu.bmmanager@gmail.com', primaryManager: { name: '徐惠芳 Nana', status: 'active' }, authorizedUsers: [] },
+            { code: 'GT_GZ', name: '古亭光澤', roleEmail: 'dr.shine.gt.manager@gmail.com', primaryManager: { name: '劉瑀樂 Gigi', status: 'active' }, authorizedUsers: [] },
+            { code: 'NX_GZ', name: '南西光澤診所', roleEmail: 'dr.shine.tp2.manager@gmail.com', primaryManager: { name: '劉婉如 Cathy', status: 'active' }, authorizedUsers: [] },
+            { code: 'SM_GZ', name: '三民光澤診所', roleEmail: 'dr.shine.nj.manager@gmail.com', primaryManager: { name: '吳怡萩 Juby', status: 'active' }, authorizedUsers: [] },
+            { code: 'DZ_GZ', name: '大直光澤診所', roleEmail: 'dr.shine.nj.manager@gmail.com', primaryManager: { name: '吳怡萩 Juby', status: 'active' }, authorizedUsers: [] },
+            { code: 'LD_GZ', name: '羅東光澤', roleEmail: 'dr.shine.ld.Manager@gmail.com', primaryManager: { name: '黃毓芩 Winnie', status: 'active' }, authorizedUsers: [] },
+            { code: 'KS_MED', name: '高雄醫美', roleEmail: 'dr.shine.ksm01@gmail.com', primaryManager: { name: '許又婕', status: 'active' }, authorizedUsers: [] },
+            { code: 'ZL_TY', name: '中壢彤顏醫美', roleEmail: 'dr.shine.jl.manager@gmail.com', primaryManager: { name: '黃翔琳 Kelly', status: 'active' }, authorizedUsers: [] },
+            { code: 'ZL_TY_JB', name: '中壢彤顏健保', roleEmail: 'dr.shine.jl.bmmanager@gmail.com', primaryManager: { name: '吳淑玲', status: 'active' }, authorizedUsers: [] },
+            { code: 'TY_MED', name: '桃園醫美', roleEmail: 'dr.shine.tu.manager1@gmail.com', primaryManager: { name: '黃曉盈', status: 'active' }, authorizedUsers: [] },
+            { code: 'TC_GZ', name: '台中光澤診所', roleEmail: 'dr.shine.ss312@gmail.com', primaryManager: { name: '黃依華 Makiyo', status: 'active' }, authorizedUsers: [] },
+            { code: 'YH_TY', name: '永和彤顏診所', roleEmail: 'dr.shine.kk72@gmail.com', primaryManager: { name: '王千豪 Sogo', status: 'active' }, authorizedUsers: [] },
+            // === 岩盤浴部門 ===
+            { code: 'BZ_SPA', name: '板橋岩盤浴', roleEmail: 'dr.shine.manager1@gmail.com', primaryManager: { name: '吳佳蓉 Tina', status: 'active' }, authorizedUsers: [{ name: '洪綵霙', role: '店長', scopes: [] }] },
+            { code: 'ZX_SPA', name: '忠孝岩盤浴', roleEmail: 'dr.shine.tp.manager@gmail.com', primaryManager: { name: '吳弈澐', status: 'active' }, authorizedUsers: [{ name: '林函誼', role: '主管', scopes: [] }] },
+            { code: 'TC_SPA', name: '台中岩盤浴', roleEmail: 'dr.shine.ss320@gmail.com', primaryManager: { name: '林郁潔', status: 'active' }, authorizedUsers: [] },
+            { code: 'LD_SPA', name: '羅東岩盤浴', roleEmail: 'dr.shine.ld.Manager@gmail.com', primaryManager: { name: '黃毓芩 Winnie', status: 'active' }, authorizedUsers: [{ name: '黃湘婷', role: '店長', scopes: [] }] },
+            { code: 'ZL_SPA', name: '中壢岩盤浴', roleEmail: 'natashaqiu1113@gmail.com', primaryManager: { name: '邱唐如', status: 'active' }, authorizedUsers: [] },
+            { code: 'TY_SPA', name: '桃園岩盤浴', roleEmail: 'dr.shine.kk72@gmail.com', primaryManager: { name: '王千豪 Sogo', status: 'active' }, authorizedUsers: [] },
             // === 其他 ===
-            { code: 'W3_SPA', name: '西三區養生館', roleEmail: 'w3_spa.manager@example.com', primaryManager: null, authorizedUsers: [] },
-            { code: 'CC_SPA', name: '市中心養生館', roleEmail: 'cc_spa.manager@example.com', primaryManager: null, authorizedUsers: [] },
-            { code: 'W3_MED', name: '西三區晨曦診所', roleEmail: 'w3_med.manager@example.com', primaryManager: null, authorizedUsers: [] },
-            { code: 'E1_SPA', name: '東區養生館', roleEmail: 'e1_spa.manager@example.com', primaryManager: null, authorizedUsers: [] },
-            { code: 'C1_OFC', name: '中一區辦公室', roleEmail: 'c1_ofc.manager@example.com', primaryManager: null, authorizedUsers: [] },
-            { code: 'HQ', name: '星辰集團總管理處', roleEmail: 'hq.manager@example.com', primaryManager: null, authorizedUsers: [] }
+            { code: 'QP_SPA', name: '青埔岩盤浴', roleEmail: 'qp_spa.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            { code: 'TP_SPA', name: '台北岩盤浴', roleEmail: 'tp_spa.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            { code: 'QP_TY', name: '青埔彤顏', roleEmail: 'qp_ty.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            { code: 'BD_SPA', name: '八德岩盤浴', roleEmail: 'bd_spa.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            { code: 'GT_OFC', name: '古亭辦公室', roleEmail: 'gt_ofc.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            { code: 'HQ', name: '光澤(彤顏)診所總管理處', roleEmail: 'hq.manager@company.com', primaryManager: null, authorizedUsers: [] },
+            // === 中醫體系 (TCM) ===
+            { code: 'NJ_TCM', name: '南京京都堂', roleEmail: 'tcm.nj.manager@company.com', primaryManager: { name: '南京店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'ZL_TCM', name: '中壢京都堂', roleEmail: 'tcm.zl.manager@company.com', primaryManager: { name: '中壢店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'TC_TCM', name: '台中京都堂', roleEmail: 'tcm.tc.manager@company.com', primaryManager: { name: '台中店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'LK_TCM', name: '林口京都堂', roleEmail: 'tcm.lk.manager@company.com', primaryManager: { name: '林口店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'GT_TCM', name: '古亭京都堂', roleEmail: 'tcm.gt.manager@company.com', primaryManager: { name: '古亭店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'SC_LST', name: '三重麗水堂', roleEmail: 'tcm.sc.manager@company.com', primaryManager: { name: '三重店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'XD_TCM', name: '新店京都堂', roleEmail: 'tcm.xd.manager@company.com', primaryManager: { name: '新店店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'BZ_TCM', name: '板橋京都堂', roleEmail: 'tcm.bz.manager@company.com', primaryManager: { name: '板橋店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'XZ_TCM', name: '新莊京都堂', roleEmail: 'tcm.xz.manager@company.com', primaryManager: { name: '新莊店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'TCM_HQ', name: '中醫總部', roleEmail: 'tcm.hq.manager@company.com', primaryManager: null, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'KL_JJT', name: '基隆京基堂', roleEmail: 'tcm.kl.manager@company.com', primaryManager: { name: '基隆店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'TP_TCM', name: '台北京都堂', roleEmail: 'tcm.tp.manager@company.com', primaryManager: { name: '台北店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'HC_TCM', name: '新竹京都堂', roleEmail: 'tcm.hc.manager@company.com', primaryManager: { name: '新竹店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'KS_HST', name: '高雄和申堂', roleEmail: 'tcm.ks.manager@company.com', primaryManager: { name: '高雄店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' }
         ];
 
-        let groups = [];
+        let groups = [
+            {
+                name: 'Tina 多店管理組',
+                stores: ['板橋光澤醫美', '忠孝光澤', '三峽光澤診所', '板橋岩盤浴', '忠孝岩盤浴'],
+                managers: [
+                    { name: '吳佳蓉 Tina', scopes: [] }
+                ]
+            },
+            {
+                name: '嫚珈 多店管理組',
+                stores: ['板橋光澤健保', '三重光澤', '新莊光澤診所', '林口彤顏診所'],
+                managers: [
+                    { name: '謝嫚珈', scopes: [] }
+                ]
+            },
+            {
+                name: 'Nana 多店管理組',
+                stores: ['八德健保診所', '新竹光澤診所'],
+                managers: [
+                    { name: '徐惠芳 Nana', scopes: [] }
+                ]
+            },
+            {
+                name: '全域副本收件人',
+                stores: ['(所有門市)'],
+                managers: [
+                    { name: '協理', scopes: [] },
+                    { name: 'William', scopes: [] },
+                    { name: 'Arthur', scopes: [] }
+                ]
+            }
+        ];
 
         let currentModalType = '';
         let currentIndex = -1;
@@ -1081,13 +1457,11 @@
                 }
 
                 const cat = getStoreCategory(store);
-                const catIcon = cat === 'spa'
-                    ? '<i class="fa-solid fa-spa text-amber-500 mr-1.5"></i>'
-                    : cat === 'med'
-                        ? '<i class="fa-solid fa-syringe text-pink-500 mr-1.5"></i>'
-                        : '<i class="fa-solid fa-building text-gray-400 mr-1.5"></i>';
+                let catIcon = '<i class="fa-solid fa-building text-gray-400 mr-1.5"></i>';
+                if (cat === 'spa') catIcon = '<i class="fa-solid fa-spa text-amber-500 mr-1.5"></i>';
+                else if (cat === 'med') catIcon = '<i class="fa-solid fa-syringe text-pink-500 mr-1.5"></i>';
+                else if (cat === 'tcm') catIcon = '<i class="fa-solid fa-leaf text-green-600 mr-1.5"></i>';
 
-                // Desktop row
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition store-row">
                         <td class="px-6 py-4 align-top">
@@ -1148,6 +1522,95 @@
             });
         }
 
+        function renderGroups() {
+            const tbody = document.getElementById('group-list');
+            const mobileList = document.getElementById('group-list-mobile');
+            tbody.innerHTML = '';
+            mobileList.innerHTML = '';
+            const filteredGroups = getFilteredGroups();
+
+            if (filteredGroups.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fa-solid fa-search text-4xl text-gray-300 mb-3"></i>
+                            <p class="font-medium">找不到符合條件的群組</p>
+                            <p class="text-sm">請嘗試其他搜尋條件</p>
+                        </td>
+                    </tr>`;
+                mobileList.innerHTML = `<div class="py-8 text-center text-gray-400 text-xs"><i class="fa-solid fa-layer-group text-2xl mb-2 block"></i>找不到符合條件的群組</div>`;
+                return;
+            }
+
+            filteredGroups.forEach((group) => {
+                const index = groups.indexOf(group);
+                let mgrHtml = '';
+                if (group.managers.length === 0) {
+                    mgrHtml = '<span class="text-xs text-gray-400">尚未指派管理者</span>';
+                } else {
+                    mgrHtml = group.managers.map((m, mIdx) => {
+                        return `
+                            <div class="flex items-center text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100 group">
+                                <i class="fa-solid fa-user-shield text-gray-400 mr-2"></i>
+                                <span class="font-medium mr-2">${m.name}</span>
+                                <div class="flex flex-wrap gap-1 mr-auto">${formatReportBadges(m.scopes, 3)}</div>
+                                <button onclick="removeGroupManager(${index}, ${mIdx})" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition ml-2" title="移除管理者">
+                                    <i class="fa-solid fa-times"></i>
+                                </button>
+                            </div>`;
+                    }).join('');
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-base text-gray-900">${group.name}</div>
+                            <div class="text-xs text-gray-500 mt-1">${group.stores.length} 間門市</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-wrap gap-1">
+                                ${group.stores.map(s=>`<span class="bg-gray-100 px-2 py-0.5 rounded text-xs border">${s}</span>`).join('')}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="space-y-1">${mgrHtml}</div>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button onclick="openModal('group-manager', ${index})" class="text-gray-500 hover:text-primary font-bold border border-gray-300 hover:bg-gray-50 px-2 py-1 rounded text-xs transition" title="新增管理者">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                </button>
+                                <button onclick="openModal('edit-group', ${index})" class="text-gray-500 hover:text-primary font-bold border border-gray-300 hover:bg-gray-50 px-2 py-1 rounded text-xs transition" title="編輯群組">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="deleteGroup(${index})" class="text-gray-500 hover:text-red-600 font-bold border border-gray-300 hover:bg-red-50 hover:border-red-300 px-2 py-1 rounded text-xs transition" title="刪除群組">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                // Mobile compact row
+                const mgrNames = group.managers.length > 0 ? group.managers.map(m => m.name).join(', ') : '未指派';
+                mobileList.innerHTML += `
+                    <div class="px-3 py-2 active:bg-gray-50" onclick="openModal('edit-group', ${index})">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                <i class="fa-solid fa-layer-group text-primary text-xs"></i>
+                                <span class="text-xs font-bold text-gray-900 truncate">${group.name}</span>
+                                <span class="bg-gray-100 text-gray-500 px-1 rounded text-[9px] flex-shrink-0">${group.stores.length}店</span>
+                            </div>
+                            <div class="flex items-center gap-1 flex-shrink-0 ml-2">
+                                <button onclick="event.stopPropagation();openModal('group-manager', ${index})" class="text-gray-400 hover:text-primary p-1 text-xs"><i class="fa-solid fa-user-plus"></i></button>
+                                <button onclick="event.stopPropagation();openModal('edit-group', ${index})" class="text-gray-400 hover:text-primary p-1 text-xs"><i class="fa-solid fa-pen"></i></button>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-gray-400 mt-0.5 truncate"><i class="fa-solid fa-user-shield mr-0.5"></i>${mgrNames}</div>
+                    </div>
+                `;
+            });
+        }
 
         function renderReportTemplates() {
             const tbody = document.getElementById('template-list');
@@ -1182,6 +1645,7 @@
                     categorySummary = '包含所有分類';
                 } else {
                     reportBadgesHtml = formatReportBadges(template.reports, 4);
+                    // 計算分類摘要
                     const catCounts = {};
                     template.reports.forEach(code => {
                         const cat = getReportCategory(code);
@@ -1190,7 +1654,6 @@
                     categorySummary = Object.entries(catCounts).map(([cat, count]) => `${cat}${count}`).join('、');
                 }
 
-                // Desktop row
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-6 py-4">
@@ -1243,32 +1706,219 @@
         // --- FILTER & SEARCH ---
         let currentStoreFilter = 'all';
         let currentStoreSearch = '';
+        let currentGroupSearch = '';
+
+        // 取得門市所屬體系
+        function getStoreBusinessSystem(store) {
+            // 如果有明確指定 businessSystem 屬性，直接使用
+            if (store.businessSystem) return store.businessSystem;
+            // 否則判斷：中醫體系的關鍵字
+            const code = store.code.toUpperCase();
+            const name = store.name;
+            if (code.includes('TCM') || code.includes('LST') || code.includes('JJT') || code.includes('HST') ||
+                name.includes('京都堂') || name.includes('麗水堂') || name.includes('京基堂') || name.includes('和申堂')) {
+                return 'tcm';
+            }
+            // 默認為光澤體系
+            return 'guangze';
+        }
 
         function getStoreCategory(store) {
             const code = store.code.toUpperCase();
+            const businessSystem = getStoreBusinessSystem(store);
+
+            // 中醫體系的分類
+            if (businessSystem === 'tcm') {
+                if (code.includes('HQ') || store.name.includes('總部')) return 'other';
+                return 'tcm'; // 中醫門市
+            }
+
+            // 光澤體系的分類
             if (code.includes('SPA')) return 'spa';
             if (code.includes('MED') || code.includes('GZ') || code.includes('TY') || code.includes('JB')) return 'med';
             return 'other';
         }
 
         function updateStoreCounts() {
-            let countAll = 0, countMed = 0, countSpa = 0, countOther = 0;
-            stores.forEach(store => {
+            // 根據當前體系視角過濾門市
+            const visibleStores = stores.filter(store => {
+                if (currentBusinessSystem === 'all') return true;
+                return getStoreBusinessSystem(store) === currentBusinessSystem;
+            });
+
+            let countAll = 0, countMed = 0, countSpa = 0, countOther = 0, countTcm = 0;
+            visibleStores.forEach(store => {
                 const cat = getStoreCategory(store);
                 countAll++;
                 if (cat === 'med') countMed++;
                 else if (cat === 'spa') countSpa++;
+                else if (cat === 'tcm') countTcm++;
                 else countOther++;
             });
             document.getElementById('count-all').textContent = countAll;
-            document.getElementById('count-med').textContent = countMed;
-            document.getElementById('count-spa').textContent = countSpa;
+
+            // 根據體系視角顯示不同的計數
+            if (currentBusinessSystem === 'tcm') {
+                document.getElementById('count-med').textContent = countTcm;
+                document.getElementById('count-spa').textContent = '0';
+            } else if (currentBusinessSystem === 'guangze') {
+                document.getElementById('count-med').textContent = countMed;
+                document.getElementById('count-spa').textContent = countSpa;
+            } else {
+                // 全部視角
+                document.getElementById('count-med').textContent = countMed;
+                document.getElementById('count-spa').textContent = countSpa;
+            }
             document.getElementById('count-other').textContent = countOther;
             // Mobile counters
             document.getElementById('count-all-m').textContent = countAll;
-            document.getElementById('count-med-m').textContent = countMed;
-            document.getElementById('count-spa-m').textContent = countSpa;
+            if (currentBusinessSystem === 'tcm') {
+                document.getElementById('count-med-m').textContent = countTcm;
+                document.getElementById('count-spa-m').textContent = '0';
+            } else if (currentBusinessSystem === 'guangze') {
+                document.getElementById('count-med-m').textContent = countMed;
+                document.getElementById('count-spa-m').textContent = countSpa;
+            } else {
+                document.getElementById('count-med-m').textContent = countMed;
+                document.getElementById('count-spa-m').textContent = countSpa;
+            }
             document.getElementById('count-other-m').textContent = countOther;
+        }
+
+        // --- 體系視角切換 ---
+        function toggleSystemDropdown() {
+            const dropdown = document.getElementById('system-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // 點擊外部關閉下拉選單
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('system-dropdown');
+            const btn = document.getElementById('system-dropdown-btn');
+            if (dropdown && btn && !btn.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function setBusinessSystem(system) {
+            currentBusinessSystem = system;
+            const systemInfo = BUSINESS_SYSTEMS[system];
+
+            // 更新按鈕顯示
+            document.getElementById('system-name').textContent = systemInfo.name;
+            const iconEl = document.getElementById('system-icon');
+            iconEl.className = `fa-solid ${systemInfo.icon} mr-2`;
+
+            // 更新下拉選單選中狀態
+            document.querySelectorAll('.system-option').forEach(opt => {
+                const checkIcon = opt.querySelector('.fa-check');
+                if (opt.dataset.system === system) {
+                    checkIcon.classList.remove('hidden');
+                } else {
+                    checkIcon.classList.add('hidden');
+                }
+            });
+
+            // 關閉下拉選單
+            document.getElementById('system-dropdown').classList.add('hidden');
+
+            // 更新篩選按鈕標籤
+            updateFilterButtonLabels();
+
+            // 重置部門篩選為全部
+            currentStoreFilter = 'all';
+            document.querySelectorAll('.store-filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('filter-all').classList.add('active');
+            const mFilterAll = document.getElementById('filter-all-m');
+            if (mFilterAll) mFilterAll.classList.add('active');
+
+            // 重新渲染
+            renderStores();
+            updateHeaderStats();
+        }
+
+        function updateFilterButtonLabels() {
+            const medBtn = document.getElementById('filter-med');
+            const spaBtn = document.getElementById('filter-spa');
+            const medBtnM = document.getElementById('filter-med-m');
+            const spaBtnM = document.getElementById('filter-spa-m');
+
+            if (currentBusinessSystem === 'tcm') {
+                medBtn.innerHTML = '<i class="fa-solid fa-leaf mr-1 text-green-600"></i>中醫 <span class="ml-1 text-xs bg-green-100 text-green-600 px-1.5 rounded" id="count-med">0</span>';
+                spaBtn.style.display = 'none';
+                if (medBtnM) medBtnM.innerHTML = '<i class="fa-solid fa-leaf mr-0.5 text-green-600"></i>中醫<span class="ml-0.5 bg-green-100 text-green-600 px-1 rounded" id="count-med-m">0</span>';
+                if (spaBtnM) spaBtnM.style.display = 'none';
+            } else if (currentBusinessSystem === 'guangze') {
+                medBtn.innerHTML = '<i class="fa-solid fa-syringe mr-1 text-pink-500"></i>醫美 <span class="ml-1 text-xs bg-pink-100 text-pink-600 px-1.5 rounded" id="count-med">0</span>';
+                spaBtn.style.display = '';
+                spaBtn.innerHTML = '<i class="fa-solid fa-spa mr-1 text-amber-500"></i>岩盤浴 <span class="ml-1 text-xs bg-amber-100 text-amber-600 px-1.5 rounded" id="count-spa">0</span>';
+                if (medBtnM) { medBtnM.innerHTML = '<i class="fa-solid fa-syringe mr-0.5 text-pink-500"></i>醫美<span class="ml-0.5 bg-pink-100 text-pink-600 px-1 rounded" id="count-med-m">0</span>'; }
+                if (spaBtnM) { spaBtnM.style.display = ''; spaBtnM.innerHTML = '<i class="fa-solid fa-spa mr-0.5 text-amber-500"></i>養生<span class="ml-0.5 bg-amber-100 text-amber-600 px-1 rounded" id="count-spa-m">0</span>'; }
+            } else {
+                medBtn.innerHTML = '<i class="fa-solid fa-syringe mr-1 text-pink-500"></i>醫美 <span class="ml-1 text-xs bg-pink-100 text-pink-600 px-1.5 rounded" id="count-med">0</span>';
+                spaBtn.style.display = '';
+                spaBtn.innerHTML = '<i class="fa-solid fa-spa mr-1 text-amber-500"></i>岩盤浴 <span class="ml-1 text-xs bg-amber-100 text-amber-600 px-1.5 rounded" id="count-spa">0</span>';
+                if (medBtnM) { medBtnM.innerHTML = '<i class="fa-solid fa-syringe mr-0.5 text-pink-500"></i>醫美<span class="ml-0.5 bg-pink-100 text-pink-600 px-1 rounded" id="count-med-m">0</span>'; }
+                if (spaBtnM) { spaBtnM.style.display = ''; spaBtnM.innerHTML = '<i class="fa-solid fa-spa mr-0.5 text-amber-500"></i>養生<span class="ml-0.5 bg-amber-100 text-amber-600 px-1 rounded" id="count-spa-m">0</span>'; }
+            }
+        }
+
+        function updateHeaderStats() {
+            // 更新頂部導航列的統計數字
+            const visibleStores = stores.filter(store => {
+                if (currentBusinessSystem === 'all') return true;
+                return getStoreBusinessSystem(store) === currentBusinessSystem;
+            });
+
+            let countMed = 0, countSpa = 0, countTcm = 0;
+            visibleStores.forEach(store => {
+                const cat = getStoreCategory(store);
+                if (cat === 'med') countMed++;
+                else if (cat === 'spa') countSpa++;
+                else if (cat === 'tcm') countTcm++;
+            });
+
+            // 更新頂部統計 (如果元素存在)
+            const headerStats = document.getElementById('header-stats');
+            if (headerStats) {
+                if (currentBusinessSystem === 'tcm') {
+                    headerStats.innerHTML = `
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-leaf mr-1.5 text-green-300"></i>中醫 <span class="font-bold ml-1">${countTcm}</span>
+                        </span>
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-file-lines mr-1.5 text-cyan-300"></i>報表 <span class="font-bold ml-1">${reportList.length}</span>
+                        </span>
+                    `;
+                } else if (currentBusinessSystem === 'guangze') {
+                    headerStats.innerHTML = `
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-syringe mr-1.5 text-pink-300"></i>醫美 <span class="font-bold ml-1">${countMed}</span>
+                        </span>
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-spa mr-1.5 text-amber-300"></i>岩盤浴 <span class="font-bold ml-1">${countSpa}</span>
+                        </span>
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-file-lines mr-1.5 text-cyan-300"></i>報表 <span class="font-bold ml-1">${reportList.length}</span>
+                        </span>
+                    `;
+                } else {
+                    headerStats.innerHTML = `
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-syringe mr-1.5 text-pink-300"></i>醫美 <span class="font-bold ml-1">${countMed}</span>
+                        </span>
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-spa mr-1.5 text-amber-300"></i>岩盤浴 <span class="font-bold ml-1">${countSpa}</span>
+                        </span>
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-leaf mr-1.5 text-green-300"></i>中醫 <span class="font-bold ml-1">${countTcm}</span>
+                        </span>
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-file-lines mr-1.5 text-cyan-300"></i>報表 <span class="font-bold ml-1">${reportList.length}</span>
+                        </span>
+                    `;
+                }
+            }
         }
 
         function setStoreFilter(filter) {
@@ -1289,6 +1939,11 @@
 
         function getFilteredStores() {
             return stores.filter(store => {
+                // 體系視角篩選
+                if (currentBusinessSystem !== 'all') {
+                    const storeSystem = getStoreBusinessSystem(store);
+                    if (storeSystem !== currentBusinessSystem) return false;
+                }
                 // 部門篩選
                 if (currentStoreFilter !== 'all') {
                     const cat = getStoreCategory(store);
@@ -1308,6 +1963,24 @@
             });
         }
 
+        function filterGroups() {
+            const desktopInput = document.getElementById('group-search');
+            const mobileInput = document.getElementById('group-search-m');
+            currentGroupSearch = (desktopInput.value || mobileInput.value).toLowerCase();
+            renderGroups();
+        }
+
+        function getFilteredGroups() {
+            if (!currentGroupSearch) return groups;
+            return groups.filter(group => {
+                const searchFields = [
+                    group.name,
+                    group.stores.join(' '),
+                    group.managers.map(m => m.name).join(' ')
+                ].join(' ').toLowerCase();
+                return searchFields.includes(currentGroupSearch);
+            });
+        }
 
         let currentTemplateSearch = '';
 
@@ -1332,7 +2005,123 @@
         }
 
         // --- STAFF FUNCTIONS ---
+        let currentStaffSearch = '';
 
+        function renderStaff() {
+            const tbody = document.getElementById('staff-list');
+            const mobileList = document.getElementById('staff-list-mobile');
+            tbody.innerHTML = '';
+            mobileList.innerHTML = '';
+            const filteredStaff = getFilteredStaff();
+
+            if (filteredStaff.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fa-solid fa-users text-4xl text-gray-300 mb-3"></i>
+                            <p class="font-medium">找不到符合條件的人員</p>
+                        </td>
+                    </tr>`;
+                mobileList.innerHTML = `<div class="py-8 text-center text-gray-400 text-xs"><i class="fa-solid fa-users text-2xl mb-2 block"></i>找不到符合條件的人員</div>`;
+                return;
+            }
+
+            filteredStaff.forEach((staff, idx) => {
+                const originalIdx = staffList.findIndex(s => s.id === staff.id);
+                const roleColors = {
+                    '區經理': 'bg-purple-100 text-purple-700 border-purple-200',
+                    '店長': 'bg-blue-100 text-blue-700 border-blue-200',
+                    '主管': 'bg-teal-100 text-teal-700 border-teal-200',
+                    '高階主管': 'bg-red-100 text-red-700 border-red-200',
+                    '專員': 'bg-green-100 text-green-700 border-green-200',
+                    '其他': 'bg-gray-100 text-gray-700 border-gray-200'
+                };
+                const roleClass = roleColors[staff.role] || roleColors['其他'];
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-colors';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-8 w-8 bg-teal-100 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-user text-teal-600 text-sm"></i>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-gray-900">${staff.name}</div>
+                                <div class="text-xs text-gray-400">${staff.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${staff.nickname
+                            ? `<span class="text-sm font-medium text-teal-600">${staff.nickname}</span>`
+                            : '<span class="text-xs text-gray-400">-</span>'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full border ${roleClass}">${staff.role}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="openModal('edit-staff', ${originalIdx})" class="text-primary hover:text-blue-800 mr-3" title="編輯">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="deleteStaff(${originalIdx})" class="text-red-500 hover:text-red-700" title="刪除">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+
+                // Mobile compact row
+                const displayName = staff.nickname ? `${staff.name} (${staff.nickname})` : staff.name;
+                mobileList.innerHTML += `
+                    <div class="px-3 py-2 active:bg-gray-50 flex items-center justify-between" onclick="openModal('edit-staff', ${originalIdx})">
+                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                            <div class="flex-shrink-0 h-7 w-7 bg-teal-100 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-user text-teal-600 text-[10px]"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-gray-900 truncate">${displayName}</div>
+                                <span class="text-[10px] ${roleClass} px-1 rounded-full border">${staff.role}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 flex-shrink-0 ml-2">
+                            <button onclick="event.stopPropagation();openModal('edit-staff', ${originalIdx})" class="text-primary hover:text-blue-800 p-1 text-xs"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="event.stopPropagation();deleteStaff(${originalIdx})" class="text-red-400 hover:text-red-600 p-1 text-xs"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterStaff() {
+            const desktopInput = document.getElementById('staff-search');
+            const mobileInput = document.getElementById('staff-search-m');
+            currentStaffSearch = (desktopInput.value || mobileInput.value).toLowerCase();
+            renderStaff();
+        }
+
+        function getFilteredStaff() {
+            if (!currentStaffSearch) return staffList;
+            return staffList.filter(staff => {
+                const searchFields = [
+                    staff.name,
+                    staff.nickname,
+                    staff.role,
+                    staff.id
+                ].join(' ').toLowerCase();
+                return searchFields.includes(currentStaffSearch);
+            });
+        }
+
+        function deleteStaff(index) {
+            const staff = staffList[index];
+            const displayName = staff.nickname ? `${staff.name} (${staff.nickname})` : staff.name;
+            if (confirm(`確定要刪除人員「${displayName}」嗎？`)) {
+                staffList.splice(index, 1);
+                renderStaff();
+                showToast('success', '人員已刪除');
+            }
+        }
 
         // --- REPORT FUNCTIONS ---
         function generateReportCheckboxes(containerId, namePrefix, checkedCodes = []) {
@@ -1727,6 +2516,29 @@
         }
 
         // --- GROUP ACTIONS ---
+        function deleteGroup(index) {
+            if (confirm(`確定要刪除群組「${groups[index].name}」嗎？\n此操作將移除所有管理者的群組權限。`)) {
+                showToast('syncing');
+                setTimeout(() => {
+                    groups.splice(index, 1);
+                    renderGroups();
+                    showToast('success', '群組已刪除！');
+                }, 500);
+            }
+        }
+
+        function removeGroupManager(groupIndex, managerIndex) {
+            const group = groups[groupIndex];
+            const manager = group.managers[managerIndex];
+            if (confirm(`確定要從「${group.name}」移除管理者「${manager.name}」嗎？`)) {
+                showToast('syncing');
+                setTimeout(() => {
+                    groups[groupIndex].managers.splice(managerIndex, 1);
+                    renderGroups();
+                    showToast('success', '管理者已移除！');
+                }, 500);
+            }
+        }
 
         function deleteReportTemplate(index) {
             const template = reportTemplates[index];
@@ -1743,19 +2555,25 @@
         // --- INTERACTION ---
         function switchTab(tab) {
             document.getElementById('view-store').classList.toggle('hidden', tab !== 'store');
+            document.getElementById('view-group').classList.toggle('hidden', tab !== 'group');
             document.getElementById('view-template').classList.toggle('hidden', tab !== 'template');
+            document.getElementById('view-staff').classList.toggle('hidden', tab !== 'staff');
             document.getElementById('view-settings').classList.toggle('hidden', tab !== 'settings');
+            document.getElementById('view-docs').classList.toggle('hidden', tab !== 'docs');
 
             // Desktop tabs
             const activeClass = "border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors";
             const inactiveClass = "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-base flex items-center transition-colors";
 
             document.getElementById('tab-store').className = tab === 'store' ? activeClass : inactiveClass;
+            document.getElementById('tab-group').className = tab === 'group' ? activeClass : inactiveClass;
             document.getElementById('tab-template').className = tab === 'template' ? activeClass : inactiveClass;
+            document.getElementById('tab-staff').className = tab === 'staff' ? activeClass : inactiveClass;
             document.getElementById('tab-settings').className = tab === 'settings' ? activeClass : inactiveClass;
+            document.getElementById('tab-docs').className = tab === 'docs' ? activeClass : inactiveClass;
 
             // Mobile bottom nav
-            ['store', 'template', 'settings'].forEach(t => {
+            ['store', 'group', 'template', 'staff', 'settings', 'docs'].forEach(t => {
                 const btn = document.getElementById('bnav-' + t);
                 if (btn) {
                     if (t === tab) {
@@ -1772,8 +2590,11 @@
             window.scrollTo(0, 0);
 
             if(tab === 'store') renderStores();
+            else if(tab === 'group') renderGroups();
             else if(tab === 'template') renderReportTemplates();
+            else if(tab === 'staff') renderStaff();
             else if(tab === 'settings') initSettingsTab();
+            else if(tab === 'docs') loadDocContent('architecture');
         }
 
         function autoGenEmail() {
@@ -2398,11 +3219,271 @@
             }, 2000);
         }
 
+        // ========== DOCS TAB FUNCTIONS ==========
+        const docContents = {
+            'architecture': `
+# 全端架構設計
 
+## 技術棧
 
+### 後端
+- **框架**: Express.js + TypeScript
+- **ORM**: Prisma
+- **資料庫**: PostgreSQL
+- **認證**: JWT
+
+### 前端
+- **框架**: Vanilla JS + Tailwind CSS
+- **圖標**: Font Awesome
+
+## 資料庫模型
+
+\`\`\`
+Store (門市)
+├── code: 門市代碼 (BZ_MED)
+├── name: 門市名稱
+├── type: 類型 (MED/SPA/OTHER)
+├── roleEmail: Role Email
+├── managers[]: 門市經理
+└── authorizedUsers[]: 授權人員
+
+Report (報表)
+├── code: 報表代碼 (R001)
+├── name: 報表名稱
+├── category: 分類
+└── description: 說明
+
+Staff (人員)
+├── name: 姓名
+├── nickname: 暱稱
+├── email: Email
+└── role: 職位
+\`\`\`
+
+## API 端點
+
+| 方法 | 路徑 | 說明 |
+|------|------|------|
+| GET | /api/stores | 取得所有門市 |
+| POST | /api/stores | 新增門市 |
+| PUT | /api/stores/:id | 更新門市 |
+| DELETE | /api/stores/:id | 刪除門市 |
+| GET | /api/reports | 取得所有報表 |
+| POST | /api/reports | 新增報表 |
+`,
+            'permission': `
+# 權限邏輯說明
+
+## 權限類型
+
+### 1. 主要店經理 (Primary Manager)
+- 繼承門市的 Role Email
+- 擁有該門市所有報表的存取權限
+- 自動同步至 Google Drive
+
+### 2. 細部授權人員 (Granular)
+- 可指定特定報表的存取權限
+- 不繼承 Role Email
+- 需手動設定每份報表
+
+### 3. 群組管理者 (Group Manager)
+- 跨多間門市的管理權限
+- 可設定報表範圍 (Scopes)
+
+## 權限流向
+
+\`\`\`
+門市 (Store)
+│
+├── 主要店經理
+│   └── Role Email → Google Drive (編輯者)
+│
+├── 細部授權人員
+│   └── 個人 Email → 特定報表資料夾 (檢視者)
+│
+└── 群組管理者
+    └── 個人 Email → 多門市報表 (依 Scope)
+\`\`\`
+
+## 權限變更觸發
+
+1. 更換店經理 → 更新 Role Email 權限
+2. 新增授權人員 → 授權特定報表資料夾
+3. 移除授權人員 → 撤銷 Google Drive 權限
+`,
+            'dual-source': `
+# 雙來源報表架構
+
+## 問題背景
+
+系統需整合兩個報表來源：
+1. **舊版 N8N 訂閱式報表**：透過檔名解析歸檔
+2. **新版系統報表**：直接指向 Google Drive
+
+## 建議架構
+
+\`\`\`
+┌─────────────┐  ┌─────────────┐
+│ 舊版 N8N    │  │ 新版系統    │
+└──────┬──────┘  └──────┬──────┘
+       │                │
+       └────────┬───────┘
+                │
+                ▼
+       ┌────────────────┐
+       │ Central        │
+       │ Registry       │
+       │ (統一註冊中心) │
+       └────────┬───────┘
+                │
+                ▼
+       ┌────────────────┐
+       │ Google Drive   │
+       └────────────────┘
+\`\`\`
+
+## 核心表結構
+
+- **stores**: 門市註冊
+- **reports**: 報表註冊
+- **drive_folders**: 資料夾映射
+- **file_patterns**: 檔名解析規則
+- **file_uploads**: 上傳記錄
+`,
+            'unified-n8n': `
+# 統一 N8N 歸檔流程
+
+## 核心理念
+
+> 所有報表，無論來源，都統一透過 N8N 工作流進行檔名解析與歸檔
+
+## 架構圖
+
+\`\`\`
+舊版訂閱 ─────┐
+              │
+新版系統 ─────┼──→ 暫存區 ──→ N8N ──→ Google Drive
+              │
+手動上傳 ─────┘
+\`\`\`
+
+## 優點
+
+| 優點 | 說明 |
+|------|------|
+| 維護簡單 | 只有一套歸檔邏輯 |
+| 規則集中 | 檔名解析規則都在 N8N |
+| 完整追蹤 | 所有檔案經過同一流程 |
+| 低開發成本 | 新系統只需呼叫 Webhook |
+
+## N8N 工作流
+
+1. **Trigger**: 新檔案 / Webhook
+2. **解析**: 正則比對檔名
+3. **查詢**: Registry 驗證門市/報表
+4. **上傳**: Google Drive
+5. **記錄**: Audit Log
+`,
+            'rules': `
+# 系統規則說明
+
+## 報表清單 (28份)
+
+### 營運類 (9份)
+- R001 護理部消耗報表
+- R006 進銷貨明細
+- R009 手術追蹤報表
+- R016 諮詢師消耗額統計
+- R020 生美、醫美品項明細表
+- R021 非護理部手術消耗報表
+- R023 高耗材異常領用清單
+- R024 近半年銷售或消耗低於50報表
+- R028 中醫藥膳消耗統計
+
+### 人資類 (5份)
+- R003a 新進人員名單&離職報表
+- R003b 新人關懷名單
+- R011 離職人數統計表
+- R014 每月時數表
+- R025 醫師考勤明細
+
+### 財務類 (6份)
+- R004 員購報表
+- R012 電銷獎金經營客表
+- R013 電銷獎金總表
+- R017 諮詢師積分
+- R018 營養師獎金報表
+- R026 中醫諮詢師積分
+
+## 門市清單 (32間)
+
+### 醫美 (20間)
+板橋、忠孝、三峽、板橋健保、三重、新莊、林口、八德、新竹、古亭、南西、三民、大直、羅東、高雄、中壢(2)、桃園、台中、永和
+
+### 岩盤浴 (6間)
+板橋、忠孝、台中、羅東、中壢、桃園
+
+### 其他 (6間)
+青埔 SPA、台北 SPA、青埔彤顏、八德 SPA、古亭辦公室、總管理處
+`
+        };
+
+        let currentDocTab = 'architecture';
+
+        function switchDocTab(tab) {
+            currentDocTab = tab;
+            document.querySelectorAll('.doc-tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            const activeBtn = document.getElementById(`doc-tab-${tab}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+                activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            }
+            loadDocContent(tab);
+        }
+
+        function loadDocContent(tab) {
+            const container = document.getElementById('doc-content');
+            if (!container) return;
+
+            const content = docContents[tab] || '# 文檔載入中...';
+
+            // Simple markdown to HTML conversion
+            let html = content
+                .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold text-gray-800 mt-6 mb-2">$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-gray-900 mt-8 mb-3 pb-2 border-b border-gray-200">$1</h2>')
+                .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-gray-900 mb-4">$1</h1>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600">$1</code>')
+                .replace(/^- (.+)$/gm, '<li class="ml-4 text-gray-700">$1</li>')
+                .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-primary pl-4 italic text-gray-600 my-4">$1</blockquote>')
+                .replace(/\n\n/g, '</p><p class="mb-4 text-gray-700">')
+                .replace(/\| (.+) \|/g, (match) => {
+                    const cells = match.split('|').filter(c => c.trim());
+                    if (cells.some(c => c.includes('---'))) return '';
+                    const isHeader = match.includes('方法') || match.includes('優點') || match.includes('代碼');
+                    const tag = isHeader ? 'th' : 'td';
+                    const cellClass = isHeader ? 'px-4 py-2 bg-gray-100 font-bold text-left' : 'px-4 py-2 border-t';
+                    return '<tr>' + cells.map(c => `<${tag} class="${cellClass}">${c.trim()}</${tag}>`).join('') + '</tr>';
+                });
+
+            // Wrap tables
+            html = html.replace(/(<tr>.*?<\/tr>)+/gs, '<table class="w-full border border-gray-200 rounded-lg overflow-hidden my-4">$&</table>');
+
+            // Code blocks
+            html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto my-4 text-sm font-mono">$1</pre>');
+
+            container.innerHTML = `<div class="prose prose-sm max-w-none">${html}</div>`;
+        }
 
         // ========== INIT ==========
         renderStores();
+        updateHeaderStats();
+
+        // 初始化體系選擇器選中狀態
+        document.querySelector('.system-option[data-system="all"] .fa-check').classList.remove('hidden');
     </script>
 </body>
 </html>
