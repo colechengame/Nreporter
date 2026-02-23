@@ -94,6 +94,31 @@
                 <div class="flex items-center">
                     <span class="font-bold text-sm sm:text-2xl"><i class="fa-solid fa-shield-halved mr-1 sm:mr-2"></i><span class="hidden sm:inline">N-Report 權限中控台</span><span class="sm:hidden">N-Report</span></span>
                     <span class="ml-2 sm:ml-4 px-2 py-0.5 rounded text-xs bg-blue-800 text-blue-200 border border-blue-700 hidden sm:inline-block">Unified Access Control</span>
+                    <!-- 體系視角選擇器 -->
+                    <div class="ml-2 sm:ml-4 relative">
+                        <button onclick="toggleSystemDropdown()" id="system-dropdown-btn" class="flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-xs sm:text-sm">
+                            <i id="system-icon" class="fa-solid fa-globe mr-1 sm:mr-2"></i>
+                            <span id="system-name" class="hidden sm:inline">全部體系</span>
+                            <i class="fa-solid fa-chevron-down ml-1 sm:ml-2 text-xs"></i>
+                        </button>
+                        <div id="system-dropdown" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
+                            <button onclick="setBusinessSystem('all')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center system-option" data-system="all">
+                                <i class="fa-solid fa-globe w-5 text-slate-600"></i>
+                                <span class="ml-2">全部體系</span>
+                                <i class="fa-solid fa-check ml-auto text-primary hidden"></i>
+                            </button>
+                            <button onclick="setBusinessSystem('guangze')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center system-option" data-system="guangze">
+                                <i class="fa-solid fa-star w-5 text-yellow-500"></i>
+                                <span class="ml-2">星辰集團</span>
+                                <i class="fa-solid fa-check ml-auto text-primary hidden"></i>
+                            </button>
+                            <button onclick="setBusinessSystem('tcm')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center system-option" data-system="tcm">
+                                <i class="fa-solid fa-leaf w-5 text-green-600"></i>
+                                <span class="ml-2">中醫體系</span>
+                                <i class="fa-solid fa-check ml-auto text-primary hidden"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-2 sm:space-x-4 text-sm">
                     <div class="hidden md:flex items-center space-x-3 mr-4">
@@ -844,6 +869,17 @@
 
     <script>
         // --- DATA MODEL ---
+
+        // 體系定義
+        const BUSINESS_SYSTEMS = {
+            all: { name: '全部體系', icon: 'fa-globe', color: 'text-white', bgColor: 'bg-slate-600' },
+            guangze: { name: '星辰集團', icon: 'fa-star', color: 'text-yellow-300', bgColor: 'bg-indigo-600' },
+            tcm: { name: '中醫體系', icon: 'fa-leaf', color: 'text-green-300', bgColor: 'bg-green-600' }
+        };
+
+        // 當前體系視角 (all = 最高管理員, guangze = 星辰集團, tcm = 中醫體系)
+        let currentBusinessSystem = 'all';
+
         // 報表清單 - 包含代碼、正式名稱、分類
         let reportList = [
             // === 營運類 ===
@@ -894,31 +930,37 @@
 
         // 人員清單 - 包含正式名稱、暱稱、職位
         let staffList = [
-            { id: 'S001', name: '員工A', nickname: 'Alice', role: '區經理' },
-            { id: 'S002', name: '員工B', nickname: '', role: '區經理' },
-            { id: 'S003', name: '員工C', nickname: 'Carol', role: '區經理' },
-            { id: 'S004', name: '員工D', nickname: '', role: '店長' },
-            { id: 'S005', name: '員工E', nickname: '', role: '店長' },
-            { id: 'S006', name: '員工F', nickname: '', role: '店長' },
-            { id: 'S007', name: '員工G', nickname: 'Grace', role: '店長' },
-            { id: 'S008', name: '員工H', nickname: 'Helen', role: '店長' },
-            { id: 'S009', name: '員工I', nickname: 'Ivy', role: '店長' },
-            { id: 'S010', name: '員工J', nickname: 'Jenny', role: '店長' },
-            { id: 'S011', name: '員工K', nickname: '', role: '店長' },
-            { id: 'S012', name: '員工L', nickname: 'Linda', role: '店長' },
-            { id: 'S013', name: '員工M', nickname: '', role: '店長' },
-            { id: 'S014', name: '員工N', nickname: 'Nancy', role: '店長' },
-            { id: 'S015', name: '員工O', nickname: 'Oscar', role: '店長' },
-            { id: 'S016', name: '員工P', nickname: '', role: '店長' },
-            { id: 'S017', name: '員工Q', nickname: '', role: '店長' },
-            { id: 'S018', name: '員工R', nickname: '', role: '店長' },
-            { id: 'S019', name: '員工S', nickname: '', role: '店長' },
-            { id: 'S020', name: '主管A', nickname: '', role: '高階主管' },
-            { id: 'S021', name: '主管B', nickname: '', role: '高階主管' },
-            { id: 'S022', name: '主管C', nickname: '', role: '高階主管' },
-            { id: 'S023', name: '員工T', nickname: '', role: '店長' },
-            { id: 'S024', name: '員工U', nickname: '', role: '主管' },
-            { id: 'S025', name: '員工V', nickname: '', role: '店長' }
+            { id: 'S001', name: '員工A', nickname: 'Alice', role: '區經理', businessSystem: 'guangze' },
+            { id: 'S002', name: '員工B', nickname: '', role: '區經理', businessSystem: 'guangze' },
+            { id: 'S003', name: '員工C', nickname: 'Carol', role: '區經理', businessSystem: 'guangze' },
+            { id: 'S004', name: '員工D', nickname: '', role: '店長', businessSystem: 'guangze' },
+            { id: 'S005', name: '員工E', nickname: '', role: '店長', businessSystem: 'guangze' },
+            { id: 'S006', name: '員工F', nickname: '', role: '店長', businessSystem: 'guangze' },
+            { id: 'S007', name: '員工G', nickname: 'Grace', role: '店長', businessSystem: 'guangze' },
+            { id: 'S008', name: '員工H', nickname: 'Helen', role: '店長', businessSystem: 'guangze' },
+            { id: 'S009', name: '員工I', nickname: 'Ivy', role: '店長', businessSystem: 'guangze' },
+            { id: 'S010', name: '員工J', nickname: 'Jenny', role: '店長', businessSystem: 'guangze' },
+            { id: 'S011', name: '員工K', nickname: '', role: '店長', businessSystem: 'guangze' },
+            { id: 'S012', name: '員工L', nickname: 'Linda', role: '店長', businessSystem: 'guangze' },
+            { id: 'S013', name: '員工M', nickname: '', role: '店長', businessSystem: 'guangze' },
+            { id: 'S014', name: '員工N', nickname: 'Nancy', role: '店長', businessSystem: 'guangze' },
+            { id: 'S015', name: '員工O', nickname: 'Oscar', role: '店長', businessSystem: 'guangze' },
+            { id: 'S016', name: '員工P', nickname: '', role: '店長', businessSystem: 'guangze' },
+            { id: 'S017', name: '員工Q', nickname: '', role: '店長', businessSystem: 'guangze' },
+            { id: 'S018', name: '員工R', nickname: '', role: '店長', businessSystem: 'guangze' },
+            { id: 'S019', name: '員工S', nickname: '', role: '店長', businessSystem: 'guangze' },
+            { id: 'S020', name: '主管A', nickname: '', role: '高階主管', businessSystem: 'guangze' },
+            { id: 'S021', name: '主管B', nickname: '', role: '高階主管', businessSystem: 'guangze' },
+            { id: 'S022', name: '主管C', nickname: '', role: '高階主管', businessSystem: 'guangze' },
+            { id: 'S023', name: '員工T', nickname: '', role: '店長', businessSystem: 'guangze' },
+            { id: 'S024', name: '員工U', nickname: '', role: '主管', businessSystem: 'guangze' },
+            { id: 'S025', name: '員工V', nickname: '', role: '店長', businessSystem: 'guangze' },
+            // === 中醫體系人員 ===
+            { id: 'T001', name: '張醫師', nickname: 'Dr. Zhang', role: '院長', businessSystem: 'tcm' },
+            { id: 'T002', name: '李店長', nickname: '', role: '店長', businessSystem: 'tcm' },
+            { id: 'T003', name: '王諮詢', nickname: 'Consultant Wang', role: '諮詢師', businessSystem: 'tcm' },
+            { id: 'T004', name: '趙經理', nickname: '', role: '區經理', businessSystem: 'tcm' },
+            { id: 'T005', name: '孫主管', nickname: '', role: '高階主管', businessSystem: 'tcm' }
         ];
 
         // --- 報表組合 (Report Templates) ---
@@ -996,7 +1038,18 @@
             { code: 'W3_MED', name: '西三區晨曦診所', roleEmail: 'w3_med.manager@example.com', primaryManager: null, authorizedUsers: [] },
             { code: 'E1_SPA', name: '東區養生館', roleEmail: 'e1_spa.manager@example.com', primaryManager: null, authorizedUsers: [] },
             { code: 'C1_OFC', name: '中一區辦公室', roleEmail: 'c1_ofc.manager@example.com', primaryManager: null, authorizedUsers: [] },
-            { code: 'HQ', name: '星辰集團總管理處', roleEmail: 'hq.manager@example.com', primaryManager: null, authorizedUsers: [] }
+            { code: 'HQ', name: '星辰集團總管理處', roleEmail: 'hq.manager@example.com', primaryManager: null, authorizedUsers: [] },
+            // === 中醫體系 (TCM) ===
+            { code: 'NJ_TCM', name: '南京京都堂', roleEmail: 'tcm.nj.manager@company.com', primaryManager: { name: '南京店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'ZL_TCM', name: '中壢京都堂', roleEmail: 'tcm.zl.manager@company.com', primaryManager: { name: '中壢店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'TC_TCM', name: '台中京都堂', roleEmail: 'tcm.tc.manager@company.com', primaryManager: { name: '台中店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'LK_TCM', name: '林口京都堂', roleEmail: 'tcm.lk.manager@company.com', primaryManager: { name: '林口店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'GT_TCM', name: '古亭京都堂', roleEmail: 'tcm.gt.manager@company.com', primaryManager: { name: '古亭店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'SC_LST', name: '三重麗水堂', roleEmail: 'tcm.sc.manager@company.com', primaryManager: { name: '三重店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'XD_TCM', name: '新店京都堂', roleEmail: 'tcm.xd.manager@company.com', primaryManager: { name: '新店店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'BZ_TCM', name: '板橋京都堂', roleEmail: 'tcm.bz.manager@company.com', primaryManager: { name: '板橋店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'XZ_TCM', name: '新莊京都堂', roleEmail: 'tcm.xz.manager@company.com', primaryManager: { name: '新莊店長', status: 'active' }, authorizedUsers: [], businessSystem: 'tcm' },
+            { code: 'TCM_HQ', name: '中醫總部', roleEmail: 'tcm.hq.manager@company.com', primaryManager: null, authorizedUsers: [], businessSystem: 'tcm' }
         ];
 
         let groups = [];
@@ -1081,11 +1134,10 @@
                 }
 
                 const cat = getStoreCategory(store);
-                const catIcon = cat === 'spa'
-                    ? '<i class="fa-solid fa-spa text-amber-500 mr-1.5"></i>'
-                    : cat === 'med'
-                        ? '<i class="fa-solid fa-syringe text-pink-500 mr-1.5"></i>'
-                        : '<i class="fa-solid fa-building text-gray-400 mr-1.5"></i>';
+                let catIcon = '<i class="fa-solid fa-building text-gray-400 mr-1.5"></i>';
+                if (cat === 'spa') catIcon = '<i class="fa-solid fa-spa text-amber-500 mr-1.5"></i>';
+                else if (cat === 'med') catIcon = '<i class="fa-solid fa-syringe text-pink-500 mr-1.5"></i>';
+                else if (cat === 'tcm') catIcon = '<i class="fa-solid fa-leaf text-green-600 mr-1.5"></i>';
 
                 // Desktop row
                 tbody.innerHTML += `
@@ -1146,6 +1198,130 @@
                     </div>
                 `;
             });
+        }
+
+        function toggleSystemDropdown() {
+            const dropdown = document.getElementById('system-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // 點擊外部關閉下拉選單
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('system-dropdown');
+            const btn = document.getElementById('system-dropdown-btn');
+            if (dropdown && btn && !btn.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function setBusinessSystem(system) {
+            currentBusinessSystem = system;
+            const systemInfo = BUSINESS_SYSTEMS[system];
+
+            // 更新按鈕顯示
+            document.getElementById('system-name').textContent = systemInfo.name;
+            const iconEl = document.getElementById('system-icon');
+            iconEl.className = `fa-solid ${systemInfo.icon} mr-2`;
+
+            // 更新下拉選單選中狀態
+            document.querySelectorAll('.system-option').forEach(opt => {
+                const checkIcon = opt.querySelector('.fa-check');
+                if (opt.dataset.system === system) {
+                    checkIcon.classList.remove('hidden');
+                } else {
+                    checkIcon.classList.add('hidden');
+                }
+            });
+
+            // 關閉下拉選單
+            document.getElementById('system-dropdown').classList.add('hidden');
+
+            // 更新篩選按鈕標籤
+            updateFilterButtonLabels();
+
+            // 重置部門篩選為全部
+            currentStoreFilter = 'all';
+            document.querySelectorAll('.store-filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('filter-all').classList.add('active');
+            const mFilterAll = document.getElementById('filter-all-m');
+            if (mFilterAll) mFilterAll.classList.add('active');
+
+            // 重新渲染
+            renderStores();
+            updateHeaderStats();
+        }
+
+        function updateFilterButtonLabels() {
+            const medBtn = document.getElementById('filter-med');
+            const spaBtn = document.getElementById('filter-spa');
+            const medBtnM = document.getElementById('filter-med-m');
+            const spaBtnM = document.getElementById('filter-spa-m');
+
+            if (currentBusinessSystem === 'tcm') {
+                medBtn.innerHTML = '<i class="fa-solid fa-leaf mr-1 text-green-600"></i>中醫 <span class="ml-1 text-xs bg-green-100 text-green-600 px-1.5 rounded" id="count-med">0</span>';
+                spaBtn.style.display = 'none';
+                if (medBtnM) medBtnM.innerHTML = '<i class="fa-solid fa-leaf mr-0.5 text-green-600"></i>中醫<span class="ml-0.5 bg-green-100 text-green-600 px-1 rounded" id="count-med-m">0</span>';
+                if (spaBtnM) spaBtnM.style.display = 'none';
+            } else {
+                medBtn.innerHTML = '<i class="fa-solid fa-syringe mr-1 text-pink-500"></i>醫美 <span class="ml-1 text-xs bg-pink-100 text-pink-600 px-1.5 rounded" id="count-med">0</span>';
+                spaBtn.style.display = '';
+                spaBtn.innerHTML = '<i class="fa-solid fa-spa mr-1 text-amber-500"></i>岩盤浴 <span class="ml-1 text-xs bg-amber-100 text-amber-600 px-1.5 rounded" id="count-spa">0</span>';
+                if (medBtnM) { medBtnM.innerHTML = '<i class="fa-solid fa-syringe mr-0.5 text-pink-500"></i>醫美<span class="ml-0.5 bg-pink-100 text-pink-600 px-1 rounded" id="count-med-m">0</span>'; }
+                if (spaBtnM) { spaBtnM.style.display = ''; spaBtnM.innerHTML = '<i class="fa-solid fa-spa mr-0.5 text-amber-500"></i>養生<span class="ml-0.5 bg-amber-100 text-amber-600 px-1 rounded" id="count-spa-m">0</span>'; }
+            }
+        }
+
+        function updateHeaderStats() {
+            const visibleStores = stores.filter(store => {
+                if (currentBusinessSystem === 'all') return true;
+                return getStoreBusinessSystem(store) === currentBusinessSystem;
+            });
+
+            let countMed = 0, countSpa = 0, countTcm = 0;
+            visibleStores.forEach(store => {
+                const cat = getStoreCategory(store);
+                if (cat === 'med') countMed++;
+                else if (cat === 'spa') countSpa++;
+                else if (cat === 'tcm') countTcm++;
+            });
+
+            const statsContainer = document.querySelector('.hidden.md\\:flex.items-center.space-x-3.mr-4');
+            if (statsContainer) {
+                if (currentBusinessSystem === 'tcm') {
+                    statsContainer.innerHTML = `
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-leaf mr-1.5 text-green-300"></i>中醫 <span class="font-bold ml-1">${countTcm}</span>
+                        </span>
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-file-lines mr-1.5 text-cyan-300"></i>報表 <span class="font-bold ml-1">${reportList.length}</span>
+                        </span>
+                    `;
+                } else {
+                    statsContainer.innerHTML = `
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-syringe mr-1.5 text-pink-300"></i>醫美 <span class="font-bold ml-1">${countMed}</span>
+                        </span>
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-spa mr-1.5 text-amber-300"></i>岩盤浴 <span class="font-bold ml-1">${countSpa}</span>
+                        </span>
+                        <span class="flex items-center text-xs text-blue-200 bg-blue-800/50 px-2 py-1 rounded">
+                            <i class="fa-solid fa-file-lines mr-1.5 text-cyan-300"></i>報表 <span class="font-bold ml-1">${reportList.length}</span>
+                        </span>
+                    `;
+                }
+            }
+        }
+
+        // 取得門市所屬體系
+        function getStoreBusinessSystem(store) {
+            if (store.businessSystem) return store.businessSystem;
+            const code = store.code.toUpperCase();
+            const name = store.name;
+            if (code.includes('TCM') || code.includes('LST') || code.includes('JJT') || code.includes('HST') ||
+                name.includes('京都堂') || name.includes('麗水堂') || name.includes('京基堂') || name.includes('和申堂')) {
+                return 'tcm';
+            }
+            return 'guangze';
         }
 
 
@@ -1246,28 +1422,52 @@
 
         function getStoreCategory(store) {
             const code = store.code.toUpperCase();
+            const businessSystem = getStoreBusinessSystem(store);
+
+            if (businessSystem === 'tcm') {
+                if (code.includes('HQ') || store.name.includes('總部')) return 'other';
+                return 'tcm';
+            }
+
             if (code.includes('SPA')) return 'spa';
             if (code.includes('MED') || code.includes('GZ') || code.includes('TY') || code.includes('JB')) return 'med';
             return 'other';
         }
 
         function updateStoreCounts() {
-            let countAll = 0, countMed = 0, countSpa = 0, countOther = 0;
-            stores.forEach(store => {
+            const visibleStores = stores.filter(store => {
+                if (currentBusinessSystem === 'all') return true;
+                return getStoreBusinessSystem(store) === currentBusinessSystem;
+            });
+
+            let countAll = 0, countMed = 0, countSpa = 0, countOther = 0, countTcm = 0;
+            visibleStores.forEach(store => {
                 const cat = getStoreCategory(store);
                 countAll++;
                 if (cat === 'med') countMed++;
                 else if (cat === 'spa') countSpa++;
+                else if (cat === 'tcm') countTcm++;
                 else countOther++;
             });
             document.getElementById('count-all').textContent = countAll;
-            document.getElementById('count-med').textContent = countMed;
-            document.getElementById('count-spa').textContent = countSpa;
+            if (currentBusinessSystem === 'tcm') {
+                document.getElementById('count-med').textContent = countTcm;
+                document.getElementById('count-spa').textContent = '0';
+            } else {
+                document.getElementById('count-med').textContent = countMed;
+                document.getElementById('count-spa').textContent = countSpa;
+            }
             document.getElementById('count-other').textContent = countOther;
+            
             // Mobile counters
             document.getElementById('count-all-m').textContent = countAll;
-            document.getElementById('count-med-m').textContent = countMed;
-            document.getElementById('count-spa-m').textContent = countSpa;
+            if (currentBusinessSystem === 'tcm') {
+                document.getElementById('count-med-m').textContent = countTcm;
+                document.getElementById('count-spa-m').textContent = '0';
+            } else {
+                document.getElementById('count-med-m').textContent = countMed;
+                document.getElementById('count-spa-m').textContent = countSpa;
+            }
             document.getElementById('count-other-m').textContent = countOther;
         }
 
@@ -1289,6 +1489,11 @@
 
         function getFilteredStores() {
             return stores.filter(store => {
+                // 體系視角篩選
+                if (currentBusinessSystem !== 'all') {
+                    const storeSystem = getStoreBusinessSystem(store);
+                    if (storeSystem !== currentBusinessSystem) return false;
+                }
                 // 部門篩選
                 if (currentStoreFilter !== 'all') {
                     const cat = getStoreCategory(store);
@@ -1669,7 +1874,14 @@
         function populateStaffSelect(selectId, includeVacancy = false) {
             const select = document.getElementById(selectId);
             select.innerHTML = '';
-            staffList.forEach(staff => {
+            
+            // 根據當前體系視角過濾人員
+            const filteredStaff = staffList.filter(staff => {
+                if (currentBusinessSystem === 'all') return true;
+                return staff.businessSystem === currentBusinessSystem;
+            });
+
+            filteredStaff.forEach(staff => {
                 const displayName = staff.nickname ? `${staff.name} ${staff.nickname}` : staff.name;
                 select.innerHTML += `<option value="${staff.name}">${displayName} (${staff.role})</option>`;
             });
@@ -2213,7 +2425,14 @@
             const select = document.getElementById('wizard-store-manager');
             if (!select) return;
             select.innerHTML = '<option value="">-- 暫不指派 --</option>';
-            staffList.forEach(staff => {
+            
+            // 根據當前體系視角過濾人員
+            const filteredStaff = staffList.filter(staff => {
+                if (currentBusinessSystem === 'all') return true;
+                return staff.businessSystem === currentBusinessSystem;
+            });
+
+            filteredStaff.forEach(staff => {
                 const display = staff.nickname ? `${staff.name} ${staff.nickname}` : staff.name;
                 select.innerHTML += `<option value="${staff.id}">${display} (${staff.role})</option>`;
             });
