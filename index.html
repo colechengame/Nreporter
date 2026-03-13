@@ -171,88 +171,66 @@
 
         <!-- VIEW 1: 門市管理 (Store View) -->
         <div id="view-store" class="block animate-fade-in">
-            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div class="px-3 py-2 sm:px-6 sm:py-5 bg-gray-50 border-b border-gray-200">
-                    <!-- Desktop header -->
-                    <div class="hidden sm:flex justify-between items-center mb-4">
-                        <div>
-                            <h3 class="text-xl leading-6 font-bold text-gray-900">門市人員配置與授權</h3>
-                            <p class="mt-1 max-w-2xl text-base text-gray-500">設定門市角色信箱 (Role Email) 與負責人員。</p>
-                        </div>
-                        <button onclick="openModal('new-store')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-base shadow transition flex items-center">
-                            <i class="fa-solid fa-plus mr-2"></i> 新展店設定
-                        </button>
-                    </div>
-                    <!-- Mobile: compact search + filter row -->
-                    <div class="flex gap-2 items-center sm:hidden mb-2">
-                        <div class="relative flex-1">
-                            <i class="fa-solid fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                            <input type="text" id="store-search-m" placeholder="搜尋門市..."
-                                   class="w-full pl-8 pr-2 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-primary focus:border-primary"
+            <div class="bg-white shadow overflow-hidden sm:rounded-xl">
+                <!-- Toolbar -->
+                <div class="px-3 py-3 sm:px-5 sm:py-4 bg-white border-b border-gray-100">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="flex-1 relative">
+                            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                            <input type="text" id="store-search" placeholder="搜尋門市名稱、代碼、店經理..."
+                                   class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition bg-gray-50 focus:bg-white"
+                                   oninput="document.getElementById('store-search-m').value=this.value;filterStores()">
+                            <!-- Mobile mirror -->
+                            <input type="text" id="store-search-m" class="hidden"
                                    oninput="document.getElementById('store-search').value=this.value;filterStores()">
                         </div>
-                        <button onclick="openModal('new-store')" class="bg-green-600 text-white px-2 py-1.5 rounded text-xs flex-shrink-0">
+                        <button onclick="openNewStoreModal()" class="flex-shrink-0 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition flex items-center gap-1.5">
                             <i class="fa-solid fa-plus"></i>
+                            <span class="hidden sm:inline">新增門市</span>
                         </button>
                     </div>
-                    <div class="flex gap-1 sm:hidden overflow-x-auto pb-1">
-                        <button onclick="setStoreFilter('all')" id="filter-all-m" class="store-filter-btn active px-2.5 py-1 text-[10px] rounded-full border transition whitespace-nowrap">
-                            全部<span class="ml-0.5 bg-gray-200 text-gray-600 px-1 rounded" id="count-all-m">0</span>
+                    <!-- Filter pills -->
+                    <div class="flex gap-1.5 overflow-x-auto scrollbar-hide pb-0.5">
+                        <button onclick="setStoreFilter('all')" id="filter-all" class="store-filter-btn active flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded-full border transition whitespace-nowrap">
+                            全部 <span class="ml-0.5 text-[10px] bg-gray-200 text-gray-600 px-1.5 rounded-full" id="count-all">0</span>
                         </button>
-                        <button onclick="setStoreFilter('med')" id="filter-med-m" class="store-filter-btn px-2.5 py-1 text-[10px] rounded-full border transition whitespace-nowrap">
-                            <i class="fa-solid fa-syringe mr-0.5 text-pink-500"></i>醫美<span class="ml-0.5 bg-pink-100 text-pink-600 px-1 rounded" id="count-med-m">0</span>
+                        <button onclick="setStoreFilter('med')" id="filter-med" class="store-filter-btn flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded-full border transition whitespace-nowrap">
+                            <i class="fa-solid fa-syringe mr-1 text-pink-500"></i>醫美<span class="ml-0.5 text-[10px] bg-pink-100 text-pink-600 px-1.5 rounded-full" id="count-med">0</span>
                         </button>
-                        <button onclick="setStoreFilter('spa')" id="filter-spa-m" class="store-filter-btn px-2.5 py-1 text-[10px] rounded-full border transition whitespace-nowrap">
-                            <i class="fa-solid fa-spa mr-0.5 text-amber-500"></i>養生<span class="ml-0.5 bg-amber-100 text-amber-600 px-1 rounded" id="count-spa-m">0</span>
+                        <button onclick="setStoreFilter('spa')" id="filter-spa" class="store-filter-btn flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded-full border transition whitespace-nowrap">
+                            <i class="fa-solid fa-spa mr-1 text-amber-500"></i>岩盤浴<span class="ml-0.5 text-[10px] bg-amber-100 text-amber-600 px-1.5 rounded-full" id="count-spa">0</span>
                         </button>
-                        <button onclick="setStoreFilter('other')" id="filter-other-m" class="store-filter-btn px-2.5 py-1 text-[10px] rounded-full border transition whitespace-nowrap">
-                            其他<span class="ml-0.5 bg-gray-200 text-gray-600 px-1 rounded" id="count-other-m">0</span>
+                        <button onclick="setStoreFilter('other')" id="filter-other" class="store-filter-btn flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded-full border transition whitespace-nowrap">
+                            其他<span class="ml-0.5 text-[10px] bg-gray-200 text-gray-600 px-1.5 rounded-full" id="count-other">0</span>
                         </button>
-                    </div>
-                    <!-- Desktop search + filter -->
-                    <div class="hidden sm:flex flex-col sm:flex-row gap-3">
-                        <div class="relative flex-1">
-                            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="store-search" placeholder="搜尋門市名稱、代碼、店經理..."
-                                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-base focus:ring-primary focus:border-primary"
-                                   oninput="filterStores()">
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="setStoreFilter('all')" id="filter-all" class="store-filter-btn active px-4 py-2 text-sm rounded-lg border transition">
-                                全部 <span class="ml-1 text-xs bg-gray-200 text-gray-600 px-1.5 rounded" id="count-all">0</span>
-                            </button>
-                            <button onclick="setStoreFilter('med')" id="filter-med" class="store-filter-btn px-4 py-2 text-sm rounded-lg border transition">
-                                <i class="fa-solid fa-syringe mr-1 text-pink-500"></i>醫美 <span class="ml-1 text-xs bg-pink-100 text-pink-600 px-1.5 rounded" id="count-med">0</span>
-                            </button>
-                            <button onclick="setStoreFilter('spa')" id="filter-spa" class="store-filter-btn px-4 py-2 text-sm rounded-lg border transition">
-                                <i class="fa-solid fa-spa mr-1 text-amber-500"></i>岩盤浴 <span class="ml-1 text-xs bg-amber-100 text-amber-600 px-1.5 rounded" id="count-spa">0</span>
-                            </button>
-                            <button onclick="setStoreFilter('other')" id="filter-other" class="store-filter-btn px-4 py-2 text-sm rounded-lg border transition">
-                                其他 <span class="ml-1 text-xs bg-gray-200 text-gray-600 px-1.5 rounded" id="count-other">0</span>
-                            </button>
-                        </div>
+                        <!-- Mobile mirror filter IDs -->
+                        <span id="filter-all-m" class="hidden"></span>
+                        <span id="filter-med-m" class="hidden"></span>
+                        <span id="filter-spa-m" class="hidden"></span>
+                        <span id="filter-other-m" class="hidden"></span>
+                        <span id="count-all-m" class="hidden"></span>
+                        <span id="count-med-m" class="hidden"></span>
+                        <span id="count-spa-m" class="hidden"></span>
+                        <span id="count-other-m" class="hidden"></span>
                     </div>
                 </div>
-                <!-- Desktop table -->
-                <div class="border-t border-gray-200 hidden sm:block">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/5">門市資訊</th>
-                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/3">主要店經理 & Role Email</th>
-                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/3">其他授權人員 (Granular)</th>
-                                <th scope="col" class="px-6 py-3 text-left text-sm font-bold text-gray-500 uppercase tracking-wider w-1/10 text-right">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="store-list">
-                            <!-- JS Generated -->
-                        </tbody>
-                    </table>
+                <!-- Missing manager alert -->
+                <div id="missing-manager-alert" class="hidden mx-3 sm:mx-5 mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-0.5 flex-shrink-0"></i>
+                    <div class="text-xs">
+                        <span class="font-bold text-amber-800">有 <span id="missing-manager-count">0</span> 家門市尚未指派店經理：</span>
+                        <span class="text-amber-700" id="missing-manager-list"></span>
+                    </div>
                 </div>
-                <!-- Mobile compact list -->
-                <div id="store-list-mobile" class="sm:hidden divide-y divide-gray-100">
-                    <!-- JS Generated -->
+                <!-- Card Grid -->
+                <div class="p-3 sm:p-5">
+                    <div id="store-cards" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+                        <!-- JS Generated -->
+                    </div>
                 </div>
+                <!-- Legacy targets (hidden, keep for compat) -->
+                <tbody id="store-list" class="hidden"></tbody>
+                <div id="store-list-mobile" class="hidden"></div>
             </div>
         </div>
 
@@ -351,279 +329,93 @@
 
                 <!-- Settings: 新展店 -->
                 <div id="settings-new-store" class="settings-content p-3 sm:p-6">
-                    <div class="max-w-3xl mx-auto">
-                        <!-- Step Indicator -->
-                        <div class="flex justify-between mb-4 sm:mb-8">
-                            <div class="flex-1 text-center">
-                                <div id="new-store-step-1" class="w-8 h-8 sm:w-10 sm:h-10 mx-auto rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm sm:text-base mb-1 sm:mb-2">1</div>
-                                <span class="text-[10px] sm:text-xs text-gray-600">基本資料</span>
+                    <div class="max-w-xl mx-auto">
+                        <div class="text-center py-6 sm:py-10">
+                            <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <i class="fa-solid fa-store text-green-600 text-2xl"></i>
                             </div>
-                            <div class="flex-1 text-center">
-                                <div id="new-store-step-2" class="w-8 h-8 sm:w-10 sm:h-10 mx-auto rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-sm sm:text-base mb-1 sm:mb-2">2</div>
-                                <span class="text-[10px] sm:text-xs text-gray-400">人員指派</span>
-                            </div>
-                            <div class="flex-1 text-center">
-                                <div id="new-store-step-3" class="w-8 h-8 sm:w-10 sm:h-10 mx-auto rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-sm sm:text-base mb-1 sm:mb-2">3</div>
-                                <span class="text-[10px] sm:text-xs text-gray-400">Drive</span>
-                            </div>
-                            <div class="flex-1 text-center">
-                                <div id="new-store-step-4" class="w-8 h-8 sm:w-10 sm:h-10 mx-auto rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-sm sm:text-base mb-1 sm:mb-2">4</div>
-                                <span class="text-[10px] sm:text-xs text-gray-400">確認</span>
-                            </div>
-                        </div>
-
-                        <!-- Step 1 Content -->
-                        <div id="new-store-content-1" class="new-store-step">
-                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-magnifying-glass text-primary mr-2"></i>選取門市</h4>
-
-                            <!-- Hidden compat fields -->
-                            <input type="hidden" id="wizard-store-code">
-                            <input type="hidden" id="wizard-store-name">
-
-                            <!-- Combobox search -->
-                            <div class="mb-5">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">
-                                    門市 <span class="text-red-500">*</span>
-                                    <span class="text-[10px] font-normal text-gray-400 ml-1">companyID · dbo.OG_Company</span>
-                                </label>
-                                <div class="relative" id="wizard-search-container">
-                                    <div class="relative flex items-center">
-                                        <i class="fa-solid fa-magnifying-glass absolute left-3 text-gray-400 pointer-events-none text-sm"></i>
-                                        <input type="text" id="wizard-company-search"
-                                               placeholder="輸入門市名稱或代碼搜尋..."
-                                               autocomplete="off"
-                                               oninput="filterWizardCompanies()"
-                                               onfocus="openWizardDropdown()"
-                                               onkeydown="handleWizardSearchKey(event)"
-                                               class="w-full pl-9 pr-9 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition">
-                                        <button id="wizard-search-clear" onclick="clearWizardSearch()" class="hidden absolute right-3 text-gray-400 hover:text-gray-600 transition">
-                                            <i class="fa-solid fa-circle-xmark"></i>
-                                        </button>
-                                    </div>
-                                    <!-- Dropdown -->
-                                    <div id="wizard-company-dropdown"
-                                         class="hidden absolute z-30 w-full mt-1.5 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
-                                        <div id="wizard-dropdown-content"></div>
-                                    </div>
-                                </div>
-                                <!-- Selected chip -->
-                                <div id="wizard-selected-chip" class="hidden mt-2.5 flex items-center bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5 gap-2.5 animate-slide-down">
-                                    <i class="fa-solid fa-building-circle-check text-blue-500 flex-shrink-0"></i>
-                                    <span class="font-mono text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold flex-shrink-0" id="wizard-chip-code">-</span>
-                                    <span class="font-bold text-gray-800 text-sm flex-1 truncate" id="wizard-chip-name">-</span>
-                                    <span class="text-[10px] text-gray-400 font-mono hidden sm:block flex-shrink-0 truncate max-w-[150px]" id="wizard-chip-uuid">-</span>
-                                    <button onclick="clearWizardCompany()" class="text-blue-300 hover:text-red-500 transition flex-shrink-0 ml-auto" title="清除選取">
-                                        <i class="fa-solid fa-circle-xmark"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Config section (revealed after selection) -->
-                            <div id="wizard-config-section" class="hidden space-y-5 pt-4 border-t border-gray-100">
-                                <!-- storeType -->
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">
-                                        門市類型 <span class="text-red-500">*</span>
-                                        <span class="text-[10px] font-normal text-gray-400 ml-1">storeType</span>
-                                    </label>
-                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="new-store-type" value="醫美" class="hidden peer" checked>
-                                            <div class="border-2 border-gray-200 rounded-xl p-3 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
-                                                <i class="fa-solid fa-syringe text-xl text-pink-500 mb-1.5 block"></i>
-                                                <div class="font-bold text-gray-800 text-xs">醫美</div>
-                                            </div>
-                                        </label>
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="new-store-type" value="岩盤浴" class="hidden peer">
-                                            <div class="border-2 border-gray-200 rounded-xl p-3 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
-                                                <i class="fa-solid fa-spa text-xl text-amber-500 mb-1.5 block"></i>
-                                                <div class="font-bold text-gray-800 text-xs">岩盤浴</div>
-                                            </div>
-                                        </label>
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="new-store-type" value="中醫" class="hidden peer">
-                                            <div class="border-2 border-gray-200 rounded-xl p-3 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
-                                                <i class="fa-solid fa-leaf text-xl text-green-600 mb-1.5 block"></i>
-                                                <div class="font-bold text-gray-800 text-xs">中醫</div>
-                                            </div>
-                                        </label>
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="new-store-type" value="其他" class="hidden peer">
-                                            <div class="border-2 border-gray-200 rounded-xl p-3 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
-                                                <i class="fa-solid fa-building text-xl text-gray-500 mb-1.5 block"></i>
-                                                <div class="font-bold text-gray-800 text-xs">其他</div>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-                                <!-- groupName -->
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">
-                                        體系
-                                        <span class="text-[10px] font-normal text-gray-400 ml-1">groupName</span>
-                                    </label>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="new-store-group" value="西醫事業體" class="hidden peer" checked>
-                                            <div class="border-2 border-gray-200 rounded-xl px-3 py-2.5 flex items-center gap-2 peer-checked:border-indigo-500 peer-checked:bg-indigo-50 transition hover:border-gray-300">
-                                                <i class="fa-solid fa-star text-indigo-500 flex-shrink-0 text-sm"></i>
-                                                <span class="text-sm font-bold text-gray-700">西醫事業體</span>
-                                            </div>
-                                        </label>
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="new-store-group" value="岩盤浴事業體" class="hidden peer">
-                                            <div class="border-2 border-gray-200 rounded-xl px-3 py-2.5 flex items-center gap-2 peer-checked:border-amber-500 peer-checked:bg-amber-50 transition hover:border-gray-300">
-                                                <i class="fa-solid fa-spa text-amber-500 flex-shrink-0 text-sm"></i>
-                                                <span class="text-sm font-bold text-gray-700">岩盤浴事業體</span>
-                                            </div>
-                                        </label>
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="new-store-group" value="中醫事業體" class="hidden peer">
-                                            <div class="border-2 border-gray-200 rounded-xl px-3 py-2.5 flex items-center gap-2 peer-checked:border-green-600 peer-checked:bg-green-50 transition hover:border-gray-300">
-                                                <i class="fa-solid fa-leaf text-green-600 flex-shrink-0 text-sm"></i>
-                                                <span class="text-sm font-bold text-gray-700">中醫事業體</span>
-                                            </div>
-                                        </label>
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="new-store-group" value="台灣生美加盟事業體" class="hidden peer">
-                                            <div class="border-2 border-gray-200 rounded-xl px-3 py-2.5 flex items-center gap-2 peer-checked:border-rose-500 peer-checked:bg-rose-50 transition hover:border-gray-300">
-                                                <i class="fa-solid fa-handshake text-rose-500 flex-shrink-0 text-sm"></i>
-                                                <span class="text-sm font-bold text-gray-700">台灣生美加盟</span>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-                                <!-- roleEmail -->
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">
-                                        Rolemail
-                                        <span class="text-[10px] font-normal text-gray-400 ml-1">roleEmail</span>
-                                    </label>
-                                    <div class="flex rounded-xl overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition shadow-sm">
-                                        <span class="inline-flex items-center px-3 bg-gray-50 text-gray-400 text-sm border-r border-gray-300 flex-shrink-0">
-                                            <i class="fa-regular fa-envelope"></i>
-                                        </span>
-                                        <input type="email" id="wizard-store-email" placeholder="自動產生或手動輸入..."
-                                               class="flex-1 px-3 py-2 text-sm outline-none bg-white min-w-0">
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1.5"><i class="fa-solid fa-circle-info mr-1 text-blue-500"></i>此 Email 將用於 Google Drive 權限授權</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 2 Content -->
-                        <div id="new-store-content-2" class="new-store-step hidden">
-                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-user-tie text-primary mr-2"></i>店經理指派</h4>
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-5 flex items-start gap-2 text-sm text-blue-700">
-                                <i class="fa-solid fa-lightbulb mt-0.5 flex-shrink-0"></i>
-                                <span>可稍後從門市卡片指派，此步驟可直接跳過</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3 mb-4">
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-1.5">
-                                        員工編號
-                                        <span class="text-[10px] font-normal text-gray-400 ml-1">managerUserID</span>
-                                    </label>
-                                    <input type="text" id="wizard-manager-id" placeholder="例：EMP001"
-                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-1.5">姓名</label>
-                                    <input type="text" id="wizard-manager-name" placeholder="例：王小明"
-                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                </div>
-                            </div>
-                            <!-- summary card of step 1 selection -->
-                            <div class="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm">
-                                <div class="text-xs text-gray-400 font-bold mb-1.5 uppercase tracking-wide">步驟一設定摘要</div>
-                                <div class="flex flex-wrap gap-x-6 gap-y-1 text-gray-600">
-                                    <span><span class="text-gray-400">門市：</span><span class="font-bold" id="step2-summary-store">-</span></span>
-                                    <span><span class="text-gray-400">類型：</span><span class="font-bold" id="step2-summary-type">-</span></span>
-                                    <span><span class="text-gray-400">體系：</span><span class="font-bold" id="step2-summary-group">-</span></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 3 Content -->
-                        <div id="new-store-content-3" class="new-store-step hidden">
-                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-brands fa-google-drive text-blue-500 mr-2"></i>Google Drive 設定</h4>
-                            <div class="space-y-3">
-                                <label class="flex items-start p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
-                                    <input type="checkbox" id="wizard-gdrive-folder" checked class="mt-1 w-5 h-5 text-primary rounded">
-                                    <div class="ml-4">
-                                        <div class="font-bold text-gray-800"><i class="fa-solid fa-folder-plus text-blue-500 mr-2"></i>自動建立 Google Drive 資料夾</div>
-                                        <p class="text-sm text-gray-500">在「門市報表」下建立此門市的專屬資料夾</p>
-                                    </div>
-                                </label>
-                                <label class="flex items-start p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
-                                    <input type="checkbox" id="wizard-gdrive-access" checked class="mt-1 w-5 h-5 text-primary rounded">
-                                    <div class="ml-4">
-                                        <div class="font-bold text-gray-800"><i class="fa-solid fa-share-nodes text-green-500 mr-2"></i>自動授權 Role Email</div>
-                                        <p class="text-sm text-gray-500">將 Role Email 設為資料夾「編輯者」</p>
-                                    </div>
-                                </label>
-                                <label class="flex items-start p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
-                                    <input type="checkbox" id="wizard-n8n-notify" checked class="mt-1 w-5 h-5 text-primary rounded">
-                                    <div class="ml-4">
-                                        <div class="font-bold text-gray-800"><i class="fa-solid fa-bolt text-orange-500 mr-2"></i>通知 n8n 更新分派規則</div>
-                                        <p class="text-sm text-gray-500">觸發工作流將新門市加入報表分派名單</p>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Step 4 Content -->
-                        <div id="new-store-content-4" class="new-store-step hidden">
-                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-clipboard-check text-primary mr-2"></i>確認門市資料</h4>
-                            <div class="bg-gray-50 rounded-xl p-3 sm:p-6">
-                                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                                    <div>
-                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">門市代碼 · companyID</dt>
-                                        <dd id="wizard-confirm-code" class="font-mono font-bold text-gray-800 mt-0.5">-</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">門市名稱</dt>
-                                        <dd id="wizard-confirm-name" class="font-bold text-gray-800 mt-0.5">-</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">門市類型 · storeType</dt>
-                                        <dd id="wizard-confirm-type" class="font-bold text-gray-800 mt-0.5">-</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">體系 · groupName</dt>
-                                        <dd id="wizard-confirm-group" class="font-bold text-gray-800 mt-0.5">-</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">Rolemail · roleEmail</dt>
-                                        <dd id="wizard-confirm-email" class="font-mono text-sm text-gray-800 mt-0.5">-</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">店經理 · managerUserID</dt>
-                                        <dd id="wizard-confirm-manager" class="font-bold text-gray-800 mt-0.5">-</dd>
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">Drive 操作</dt>
-                                        <dd id="wizard-confirm-gdrive" class="text-sm text-gray-800 mt-0.5">-</dd>
-                                    </div>
-                                </dl>
-                            </div>
-                        </div>
-
-                        <!-- Navigation -->
-                        <div class="flex justify-between mt-8 pt-6 border-t border-gray-200">
-                            <button type="button" id="wizard-prev" onclick="wizardPrev()" class="px-6 py-2 text-gray-600 hover:text-gray-800 font-medium hidden">
-                                <i class="fa-solid fa-arrow-left mr-2"></i>上一步
+                            <h4 class="text-lg font-bold text-gray-800 mb-2">新展店設定</h4>
+                            <p class="text-sm text-gray-500 mb-6">從資料庫選取新門市，設定類型、體系與 Rolemail，完成後可在門市頁面指派店經理。</p>
+                            <button onclick="switchTab('store'); setTimeout(openNewStoreModal, 150);"
+                                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl text-sm font-bold shadow transition inline-flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i>開始新增門市
                             </button>
-                            <div class="flex-1"></div>
-                            <button type="button" id="wizard-next" onclick="wizardNext()" class="px-6 py-2 bg-primary hover:bg-blue-700 text-white font-bold rounded-lg shadow transition">
-                                下一步<i class="fa-solid fa-arrow-right ml-2"></i>
-                            </button>
-                            <button type="button" id="wizard-submit" onclick="wizardSubmit()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow transition hidden">
-                                <i class="fa-solid fa-check mr-2"></i>建立門市
-                            </button>
+                        </div>
+                        <div class="border-t border-gray-100 pt-5">
+                            <h5 class="text-sm font-bold text-gray-600 mb-3"><i class="fa-solid fa-lightbulb text-amber-500 mr-1.5"></i>作業流程</h5>
+                            <div class="space-y-2.5">
+                                <div class="flex items-start gap-3 text-sm text-gray-600">
+                                    <span class="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                                    <span>從 <code class="bg-gray-100 px-1 rounded text-xs">dbo.OG_Company</code> 搜尋並選取待設定的門市</span>
+                                </div>
+                                <div class="flex items-start gap-3 text-sm text-gray-600">
+                                    <span class="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                                    <span>設定 <code class="bg-gray-100 px-1 rounded text-xs">storeType</code> 類型、<code class="bg-gray-100 px-1 rounded text-xs">groupName</code> 體系與 <code class="bg-gray-100 px-1 rounded text-xs">roleEmail</code></span>
+                                </div>
+                                <div class="flex items-start gap-3 text-sm text-gray-600">
+                                    <span class="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                                    <span>在門市頁面指派 <code class="bg-gray-100 px-1 rounded text-xs">managerUserID</code> 店經理與授權人員</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    <!-- KEEP wizard IDs for backward-compat JS (hidden) -->
+                    <div class="hidden">
+                        <div id="new-store-step-1"></div>
+                        <div id="new-store-step-2"></div>
+                        <div id="new-store-step-3"></div>
+                        <div id="new-store-step-4"></div>
+                        <div id="new-store-content-1" class="new-store-step">
+                            <input type="hidden" id="wizard-store-code">
+                            <input type="hidden" id="wizard-store-name">
+                            <div id="wizard-search-container">
+                                <input type="text" id="wizard-company-search" autocomplete="off" oninput="filterWizardCompanies()" onfocus="openWizardDropdown()" onkeydown="handleWizardSearchKey(event)">
+                                <button id="wizard-search-clear" onclick="clearWizardSearch()"></button>
+                                <div id="wizard-company-dropdown"><div id="wizard-dropdown-content"></div></div>
+                            </div>
+                            <div id="wizard-selected-chip">
+                                <span id="wizard-chip-code"></span>
+                                <span id="wizard-chip-name"></span>
+                                <span id="wizard-chip-uuid"></span>
+                            </div>
+                            <div id="wizard-config-section">
+                                <input type="radio" name="new-store-type" value="醫美" checked>
+                                <input type="radio" name="new-store-type" value="岩盤浴">
+                                <input type="radio" name="new-store-type" value="中醫">
+                                <input type="radio" name="new-store-type" value="其他">
+                                <input type="radio" name="new-store-group" value="西醫事業體" checked>
+                                <input type="radio" name="new-store-group" value="岩盤浴事業體">
+                                <input type="radio" name="new-store-group" value="中醫事業體">
+                                <input type="radio" name="new-store-group" value="台灣生美加盟事業體">
+                                <input type="email" id="wizard-store-email">
+                            </div>
+                        </div>
+                        <div id="new-store-content-2" class="new-store-step hidden">
+                            <input type="text" id="wizard-manager-id">
+                            <input type="text" id="wizard-manager-name">
+                            <span id="step2-summary-store"></span>
+                            <span id="step2-summary-type"></span>
+                            <span id="step2-summary-group"></span>
+                        </div>
+                        <div id="new-store-content-3" class="new-store-step hidden">
+                            <input type="checkbox" id="wizard-gdrive-folder" checked>
+                            <input type="checkbox" id="wizard-gdrive-access" checked>
+                            <input type="checkbox" id="wizard-n8n-notify" checked>
+                        </div>
+                        <div id="new-store-content-4" class="new-store-step hidden">
+                            <span id="wizard-confirm-code"></span>
+                            <span id="wizard-confirm-name"></span>
+                            <span id="wizard-confirm-type"></span>
+                            <span id="wizard-confirm-group"></span>
+                            <span id="wizard-confirm-email"></span>
+                            <span id="wizard-confirm-manager"></span>
+                            <span id="wizard-confirm-gdrive"></span>
+                        </div>
+                        <button id="wizard-prev" onclick="wizardPrev()"></button>
+                        <button id="wizard-next" onclick="wizardNext()"></button>
+                        <button id="wizard-submit" onclick="wizardSubmit()"></button>
+                    </div>
+                    <!-- END compat hidden -->
                 </div>
 
                 <!-- Settings: 報表管理 -->
@@ -1034,6 +826,183 @@
         </div>
     </div>
 
+    <!-- 新增門市 Modal -->
+    <div id="ns-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeNewStoreModal()"></div>
+        <div class="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[90vh] flex flex-col animate-scale-in">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-4 py-3 sm:px-5 border-b border-gray-100 flex-shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-green-100 flex items-center justify-center">
+                        <i class="fa-solid fa-store text-green-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-gray-900 text-sm">新增門市</div>
+                        <div class="text-[10px] text-gray-400">StoreConfigCreate · dbo.OG_Company</div>
+                    </div>
+                </div>
+                <button onclick="closeNewStoreModal()" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <!-- Scrollable body -->
+            <div class="overflow-y-auto flex-1 px-4 py-4 sm:px-5 space-y-4">
+                <!-- Company combobox -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        門市 <span class="text-red-500">*</span>
+                        <span class="text-[10px] font-normal text-gray-400 ml-1">companyID</span>
+                    </label>
+                    <div class="relative" id="ns-search-container">
+                        <div class="relative flex items-center">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 text-gray-400 pointer-events-none text-sm"></i>
+                            <input type="text" id="ns-company-search"
+                                   placeholder="輸入門市名稱或代碼搜尋..."
+                                   autocomplete="off"
+                                   oninput="nsFilterCompanies()"
+                                   onfocus="nsOpenDropdown()"
+                                   onkeydown="nsHandleSearchKey(event)"
+                                   class="w-full pl-9 pr-9 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition">
+                            <button id="ns-search-clear" onclick="nsClearSearch()" class="hidden absolute right-3 text-gray-400 hover:text-gray-600 transition">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </button>
+                        </div>
+                        <div id="ns-company-dropdown" class="hidden absolute z-30 w-full mt-1.5 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-52 overflow-y-auto">
+                            <div id="ns-dropdown-content"></div>
+                        </div>
+                    </div>
+                    <!-- Selected chip -->
+                    <div id="ns-selected-chip" class="hidden mt-2.5 flex items-center bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5 gap-2.5 animate-slide-down">
+                        <i class="fa-solid fa-building-circle-check text-blue-500 flex-shrink-0"></i>
+                        <span class="font-mono text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold flex-shrink-0" id="ns-chip-code">-</span>
+                        <span class="font-bold text-gray-800 text-sm flex-1 truncate" id="ns-chip-name">-</span>
+                        <button onclick="nsClearCompany()" class="text-blue-300 hover:text-red-500 transition flex-shrink-0 ml-auto" title="清除">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- Config section (revealed after company selection) -->
+                <div id="ns-config-section" class="hidden space-y-4 pt-1">
+                    <!-- storeType -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            門市類型 <span class="text-red-500">*</span>
+                            <span class="text-[10px] font-normal text-gray-400 ml-1">storeType</span>
+                        </label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ns-store-type" value="醫美" class="hidden peer" checked>
+                                <div class="border-2 border-gray-200 rounded-xl p-2 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
+                                    <i class="fa-solid fa-syringe text-lg text-pink-500 mb-1 block"></i>
+                                    <div class="font-bold text-gray-800 text-xs">醫美</div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ns-store-type" value="岩盤浴" class="hidden peer">
+                                <div class="border-2 border-gray-200 rounded-xl p-2 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
+                                    <i class="fa-solid fa-spa text-lg text-amber-500 mb-1 block"></i>
+                                    <div class="font-bold text-gray-800 text-xs">岩盤浴</div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ns-store-type" value="中醫" class="hidden peer">
+                                <div class="border-2 border-gray-200 rounded-xl p-2 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
+                                    <i class="fa-solid fa-leaf text-lg text-green-600 mb-1 block"></i>
+                                    <div class="font-bold text-gray-800 text-xs">中醫</div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ns-store-type" value="其他" class="hidden peer">
+                                <div class="border-2 border-gray-200 rounded-xl p-2 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
+                                    <i class="fa-solid fa-building text-lg text-gray-500 mb-1 block"></i>
+                                    <div class="font-bold text-gray-800 text-xs">其他</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- groupName -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            體系
+                            <span class="text-[10px] font-normal text-gray-400 ml-1">groupName</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ns-store-group" value="西醫事業體" class="hidden peer" checked>
+                                <div class="border-2 border-gray-200 rounded-xl px-3 py-2 flex items-center gap-2 peer-checked:border-indigo-500 peer-checked:bg-indigo-50 transition hover:border-gray-300">
+                                    <i class="fa-solid fa-star text-indigo-500 text-sm flex-shrink-0"></i>
+                                    <span class="text-sm font-bold text-gray-700">西醫事業體</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ns-store-group" value="岩盤浴事業體" class="hidden peer">
+                                <div class="border-2 border-gray-200 rounded-xl px-3 py-2 flex items-center gap-2 peer-checked:border-amber-500 peer-checked:bg-amber-50 transition hover:border-gray-300">
+                                    <i class="fa-solid fa-spa text-amber-500 text-sm flex-shrink-0"></i>
+                                    <span class="text-sm font-bold text-gray-700">岩盤浴事業體</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ns-store-group" value="中醫事業體" class="hidden peer">
+                                <div class="border-2 border-gray-200 rounded-xl px-3 py-2 flex items-center gap-2 peer-checked:border-green-600 peer-checked:bg-green-50 transition hover:border-gray-300">
+                                    <i class="fa-solid fa-leaf text-green-600 text-sm flex-shrink-0"></i>
+                                    <span class="text-sm font-bold text-gray-700">中醫事業體</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ns-store-group" value="台灣生美加盟事業體" class="hidden peer">
+                                <div class="border-2 border-gray-200 rounded-xl px-3 py-2 flex items-center gap-2 peer-checked:border-rose-500 peer-checked:bg-rose-50 transition hover:border-gray-300">
+                                    <i class="fa-solid fa-handshake text-rose-500 text-sm flex-shrink-0"></i>
+                                    <span class="text-sm font-bold text-gray-700">台灣生美加盟</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- roleEmail -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">
+                            Rolemail
+                            <span class="text-[10px] font-normal text-gray-400 ml-1">roleEmail</span>
+                        </label>
+                        <div class="flex rounded-xl overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition">
+                            <span class="inline-flex items-center px-3 bg-gray-50 text-gray-400 text-sm border-r border-gray-300 flex-shrink-0">
+                                <i class="fa-regular fa-envelope"></i>
+                            </span>
+                            <input type="email" id="ns-store-email" placeholder="自動產生或手動輸入..."
+                                   class="flex-1 px-3 py-2 text-sm outline-none bg-white min-w-0">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-circle-info mr-1 text-blue-400"></i>此 Email 將用於 Google Drive 權限授權</p>
+                    </div>
+                    <!-- Manager (optional) -->
+                    <div class="border-t border-gray-100 pt-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="text-sm font-bold text-gray-700">店經理指派</div>
+                            <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">選填・可稍後設定</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">員工編號 <span class="font-normal text-gray-400 text-[10px]">managerUserID</span></label>
+                                <input type="text" id="ns-manager-id" placeholder="例：EMP001"
+                                       class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary bg-gray-50 focus:bg-white transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">姓名</label>
+                                <input type="text" id="ns-manager-name" placeholder="例：王小明"
+                                       class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary bg-gray-50 focus:bg-white transition">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="px-4 py-3 sm:px-5 border-t border-gray-100 flex gap-2 flex-shrink-0">
+                <button onclick="closeNewStoreModal()" class="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-50 transition">取消</button>
+                <button onclick="nsSubmit()" class="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold shadow transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i>建立門市
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <!-- Mobile Bottom Nav -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 sm:hidden z-40 m-bnav">
@@ -1294,153 +1263,151 @@
 
         // --- RENDER ---
         function renderStores() {
-            const tbody = document.getElementById('store-list');
-            const mobileList = document.getElementById('store-list-mobile');
-            tbody.innerHTML = '';
-            mobileList.innerHTML = '';
             updateStoreCounts();
+            const cardsContainer = document.getElementById('store-cards');
             const filteredStores = getFilteredStores();
 
+            // Missing manager alert
+            const missing = stores.filter(s => {
+                if (currentBusinessSystem !== 'all' && getStoreBusinessSystem(s) !== currentBusinessSystem) return false;
+                return !s.primaryManager;
+            });
+            const alertEl = document.getElementById('missing-manager-alert');
+            if (missing.length > 0) {
+                document.getElementById('missing-manager-count').textContent = missing.length;
+                document.getElementById('missing-manager-list').textContent = missing.map(s => s.name).join('、');
+                alertEl.classList.remove('hidden');
+            } else {
+                alertEl.classList.add('hidden');
+            }
+
             if (filteredStores.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                            <i class="fa-solid fa-search text-4xl text-gray-300 mb-3"></i>
-                            <p class="font-medium">找不到符合條件的門市</p>
-                            <p class="text-sm">請嘗試其他搜尋條件或篩選器</p>
-                        </td>
-                    </tr>`;
-                mobileList.innerHTML = `<div class="py-8 text-center text-gray-400 text-xs"><i class="fa-solid fa-search text-2xl mb-2 block"></i>找不到符合條件的門市</div>`;
+                cardsContainer.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-gray-400">
+                        <i class="fa-solid fa-search text-4xl mb-3 block text-gray-300"></i>
+                        <p class="font-medium text-gray-500">找不到符合條件的門市</p>
+                        <p class="text-sm mt-1">請嘗試其他搜尋條件或篩選器</p>
+                    </div>`;
                 return;
             }
 
-            filteredStores.forEach((store) => {
+            const catCfg = {
+                'med':   { grad: 'from-pink-500 to-rose-500',    icon: 'fa-syringe' },
+                'spa':   { grad: 'from-amber-500 to-orange-500', icon: 'fa-spa'     },
+                'tcm':   { grad: 'from-emerald-500 to-teal-600', icon: 'fa-leaf'    },
+                'other': { grad: 'from-slate-500 to-slate-600',  icon: 'fa-building' }
+            };
+
+            cardsContainer.innerHTML = filteredStores.map((store, i) => {
                 const index = stores.indexOf(store);
-                // Primary Manager UI
-                let primaryHtml = '';
-                if(store.primaryManager) {
-                    primaryHtml = `
-                        <div class="flex flex-col">
-                            <div class="flex items-center mb-1">
-                                <div class="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs mr-2 border-2 border-white shadow-sm ring-1 ring-gray-200">
-                                    ${store.primaryManager.name.substring(0,1)}
+                const cat = getStoreCategory(store);
+                const cfg = catCfg[cat] || catCfg['other'];
+
+                // Manager section
+                let mgrHtml;
+                if (store.primaryManager) {
+                    const empId = store.primaryManager.employeeId
+                        ? `<span class="font-mono text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">${store.primaryManager.employeeId}</span>`
+                        : '';
+                    mgrHtml = `
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">${store.primaryManager.name.charAt(0)}</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center flex-wrap gap-1">
+                                    <span class="font-bold text-gray-900 text-sm">${store.primaryManager.name}</span>
+                                    ${empId}
                                 </div>
-                                <div>
-                                    <div class="text-sm font-bold text-gray-900">${store.primaryManager.name}</div>
-                                    <div class="text-xs text-green-600"><i class="fa-solid fa-circle-check"></i> 權限生效</div>
-                                </div>
+                                <div class="text-[10px] text-green-600 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle-check"></i>權限生效</div>
                             </div>
-                            <div class="flex items-center ml-10">
-                                <span class="bg-gray-100 text-gray-600 text-[11px] px-2 py-0.5 rounded border border-gray-300 flex items-center font-mono group cursor-pointer hover:bg-gray-200" onclick="openModal('edit-store', ${index})" title="點擊編輯 Email">
-                                    <i class="fa-regular fa-envelope mr-1.5 text-gray-400"></i> ${store.roleEmail}
-                                </span>
-                            </div>
+                            <button onclick="openModal('primary', ${index})" class="flex-shrink-0 text-xs text-blue-600 border border-blue-200 hover:bg-blue-50 px-2 py-1 rounded-lg transition font-bold" title="移轉店經理">
+                                <i class="fa-solid fa-arrows-rotate mr-1"></i>移轉
+                            </button>
                         </div>`;
                 } else {
-                    primaryHtml = `
-                        <div class="flex flex-col">
-                             <div class="flex items-center">
-                                <span class="text-sm text-red-500 font-bold bg-red-50 px-2 py-1 rounded border border-red-200"><i class="fa-solid fa-triangle-exclamation mr-1"></i>未指派</span>
-                             </div>
-                             <div class="flex items-center mt-2">
-                                <span class="bg-gray-50 text-gray-400 text-[11px] px-2 py-0.5 rounded border border-gray-200 flex items-center font-mono group cursor-pointer hover:bg-gray-100" onclick="openModal('edit-store', ${index})" title="點擊編輯 Email">
-                                    <i class="fa-regular fa-envelope mr-1.5"></i> ${store.roleEmail}
-                                </span>
+                    mgrHtml = `
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-user-slash text-red-400 text-xs"></i>
                             </div>
+                            <div class="flex-1">
+                                <span class="text-sm text-red-500 font-bold">未指派店經理</span>
+                            </div>
+                            <button onclick="openModal('primary', ${index})" class="flex-shrink-0 text-xs text-green-700 border border-green-200 hover:bg-green-50 px-2 py-1 rounded-lg transition font-bold">
+                                <i class="fa-solid fa-user-plus mr-1"></i>指派
+                            </button>
                         </div>`;
                 }
 
-                // Granular Users UI
-                let granularHtml = '';
-                if(store.authorizedUsers.length === 0) granularHtml = '<span class="text-xs text-gray-400">無其他授權人員</span>';
-                else {
-                    granularHtml = '<div class="space-y-1">';
-                    store.authorizedUsers.forEach((u, uIdx) => {
+                // Rolemail
+                const roleEmailHtml = store.roleEmail
+                    ? `<div class="flex items-center gap-1.5 pl-10 mb-1">
+                           <i class="fa-regular fa-envelope text-gray-300 text-xs"></i>
+                           <span class="font-mono text-xs text-gray-400 truncate">${store.roleEmail}</span>
+                       </div>`
+                    : '';
+
+                // Authorized users
+                let authHtml = '';
+                if (store.authorizedUsers.length === 0) {
+                    authHtml = `<div class="text-xs text-gray-400 italic py-0.5">無其他授權人員</div>`;
+                } else {
+                    const shown = store.authorizedUsers.slice(0, 3);
+                    authHtml = shown.map((u, uIdx) => {
                         const idBadge = u.employeeId
-                            ? `<span class="text-[10px] font-mono bg-gray-200 text-gray-600 px-1 rounded mr-1.5 flex-shrink-0">${u.employeeId}</span>`
-                            : (u.role ? `<span class="text-xs text-gray-500 mr-1.5 flex-shrink-0">(${u.role})</span>` : '');
-                        const mailTag = u.mail
-                            ? `<span class="text-xs text-gray-400 mr-1 hidden lg:inline truncate max-w-[110px]">&lt;${u.mail}&gt;</span>`
-                            : '';
-                        granularHtml += `
-                            <div class="flex items-center text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100 group">
-                                ${idBadge}
-                                <span class="font-medium mr-1">${u.name}</span>
-                                ${mailTag}
-                                <div class="flex flex-wrap gap-1 mr-auto">${formatReportBadges(u.scopes, 3)}</div>
-                                <button onclick="removeAuthorizedUser(${index}, ${uIdx})" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition ml-2" title="移除人員">
-                                    <i class="fa-solid fa-times"></i>
-                                </button>
-                            </div>`;
-                    });
-                    granularHtml += '</div>';
+                            ? `<span class="font-mono text-[10px] bg-gray-200 text-gray-600 px-1 rounded flex-shrink-0">${u.employeeId}</span>`
+                            : (u.role ? `<span class="text-[10px] text-gray-400 flex-shrink-0">${u.role}</span>` : '');
+                        return `<div class="flex items-center gap-1.5 py-0.5 group">
+                            ${idBadge}
+                            <span class="text-xs font-medium text-gray-700 flex-1 truncate">${u.name}</span>
+                            <div class="flex gap-0.5 flex-shrink-0">${formatReportBadges(u.scopes, 2)}</div>
+                            <button onclick="removeAuthorizedUser(${index}, ${uIdx})" class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition text-xs ml-1 flex-shrink-0">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </div>`;
+                    }).join('');
+                    if (store.authorizedUsers.length > 3) {
+                        authHtml += `<div class="text-xs text-gray-400 mt-0.5">...還有 ${store.authorizedUsers.length - 3} 人</div>`;
+                    }
                 }
 
-                const cat = getStoreCategory(store);
-                let catIcon = '<i class="fa-solid fa-building text-gray-400 mr-1.5"></i>';
-                if (cat === 'spa') catIcon = '<i class="fa-solid fa-spa text-amber-500 mr-1.5"></i>';
-                else if (cat === 'med') catIcon = '<i class="fa-solid fa-syringe text-pink-500 mr-1.5"></i>';
-                else if (cat === 'tcm') catIcon = '<i class="fa-solid fa-leaf text-green-600 mr-1.5"></i>';
-
-                // Desktop row
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition store-row">
-                        <td class="px-6 py-4 align-top">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <div class="text-sm font-bold text-gray-900">${catIcon}${store.name}</div>
-                                    <div class="text-xs text-gray-500 font-mono bg-gray-100 px-1 rounded inline-block mt-1">${store.code}</div>
+                return `
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 flex flex-col">
+                        <!-- Card Header -->
+                        <div class="bg-gradient-to-r ${cfg.grad} px-4 py-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid ${cfg.icon} text-white text-sm"></i>
                                 </div>
-                                <button onclick="openModal('edit-store', ${index})" class="text-gray-400 hover:text-primary transition p-1" title="門市設定 & Email 維護">
-                                    <i class="fa-solid fa-gear"></i>
-                                </button>
+                                <div class="min-w-0">
+                                    <div class="text-white font-bold text-sm truncate">${store.name}</div>
+                                    <div class="font-mono text-white/70 text-[11px]">${store.code}</div>
+                                </div>
                             </div>
-                        </td>
-                        <td class="px-6 py-4 align-top border-l border-r border-gray-100 bg-blue-50/20">
-                            <div class="flex flex-col h-full justify-between">
-                                ${primaryHtml}
-                                <button onclick="openModal('primary', ${index})" class="text-sm text-blue-600 hover:text-blue-800 mt-2 text-left font-bold pl-10 flex items-center">
-                                    <i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> 權限移轉
-                                </button>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 align-top">
-                            ${granularHtml}
-                        </td>
-                        <td class="px-6 py-4 align-top text-right">
-                             <button onclick="openModal('granular', ${index})" class="text-gray-500 hover:text-primary font-bold border border-gray-300 hover:bg-gray-50 px-2 py-1 rounded text-xs transition">
-                                <i class="fa-solid fa-plus"></i> 加人
+                            <button onclick="openModal('edit-store', ${index})" class="text-white/70 hover:text-white transition p-1.5 rounded-lg hover:bg-white/20 flex-shrink-0" title="門市設定">
+                                <i class="fa-solid fa-gear text-sm"></i>
                             </button>
-                        </td>
-                    </tr>
-                `;
-
-                // Mobile compact row
-                const mgrName = store.primaryManager ? store.primaryManager.name : '未指派';
-                const mgrClass = store.primaryManager ? 'text-gray-700' : 'text-red-500';
-                const authCount = store.authorizedUsers.length;
-                mobileList.innerHTML += `
-                    <div class="px-3 py-2 active:bg-gray-50" onclick="openModal('edit-store', ${index})">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                                ${catIcon}
-                                <span class="text-xs font-bold text-gray-900 truncate">${store.name}</span>
-                                <span class="text-[10px] text-gray-400 font-mono flex-shrink-0">${store.code}</span>
+                        </div>
+                        <!-- Card Body -->
+                        <div class="p-3 flex-1 flex flex-col gap-2">
+                            <!-- Manager block -->
+                            <div class="bg-gray-50 rounded-xl p-2.5">
+                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">店經理</div>
+                                ${mgrHtml}
+                                ${roleEmailHtml}
                             </div>
-                            <div class="flex items-center gap-1 flex-shrink-0 ml-2">
-                                <button onclick="event.stopPropagation();openModal('granular', ${index})" class="text-gray-400 hover:text-primary p-1 text-xs"><i class="fa-solid fa-user-plus"></i></button>
-                                <button onclick="event.stopPropagation();openModal('edit-store', ${index})" class="text-gray-400 hover:text-primary p-1 text-xs"><i class="fa-solid fa-gear"></i></button>
+                            <!-- Auth users block -->
+                            <div class="bg-gray-50 rounded-xl p-2.5 flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">授權人員 <span class="font-normal text-gray-300">${store.authorizedUsers.length}</span></div>
+                                    <button onclick="openModal('granular', ${index})" class="text-xs text-primary hover:text-blue-700 font-bold flex items-center gap-1">
+                                        <i class="fa-solid fa-plus text-[10px]"></i>加入
+                                    </button>
+                                </div>
+                                ${authHtml}
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 mt-0.5 text-[10px]">
-                            <span class="${mgrClass}"><i class="fa-solid fa-user-tie mr-0.5"></i>${mgrName}</span>
-                            <span class="text-gray-300">|</span>
-                            <span class="text-gray-400 truncate"><i class="fa-regular fa-envelope mr-0.5"></i>${store.roleEmail}</span>
-                            ${authCount > 0 ? `<span class="bg-blue-100 text-blue-600 px-1 rounded text-[9px] flex-shrink-0">+${authCount}</span>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
+                    </div>`;
+            }).join('');
         }
 
         function toggleSystemDropdown() {
@@ -3280,11 +3247,192 @@
 
 
 
+        // ========== NEW STORE MODAL (ns-) ==========
+        let nsSelectedCompany = null;
+
+        function openNewStoreModal() {
+            nsSelectedCompany = null;
+            document.getElementById('ns-modal').classList.remove('hidden');
+            document.getElementById('ns-company-search').value = '';
+            document.getElementById('ns-search-clear').classList.add('hidden');
+            document.getElementById('ns-selected-chip').classList.add('hidden');
+            document.getElementById('ns-config-section').classList.add('hidden');
+            document.getElementById('ns-store-email').value = '';
+            document.getElementById('ns-manager-id').value = '';
+            document.getElementById('ns-manager-name').value = '';
+            const typeFirst = document.querySelector('input[name="ns-store-type"]');
+            if (typeFirst) typeFirst.checked = true;
+            const groupFirst = document.querySelector('input[name="ns-store-group"]');
+            if (groupFirst) groupFirst.checked = true;
+            setTimeout(() => document.getElementById('ns-company-search').focus(), 100);
+        }
+
+        function closeNewStoreModal() {
+            document.getElementById('ns-modal').classList.add('hidden');
+        }
+
+        function nsOpenDropdown() {
+            if (nsSelectedCompany) return;
+            nsFilterCompanies();
+        }
+
+        function nsFilterCompanies() {
+            const q = document.getElementById('ns-company-search').value.trim().toLowerCase();
+            document.getElementById('ns-search-clear').classList.toggle('hidden', !q);
+            const configuredCodes = new Set(stores.map(s => s.code));
+            const all = q
+                ? mockCompanyDB.filter(c => c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q))
+                : mockCompanyDB;
+            nsRenderDropdown(all, configuredCodes, q);
+            document.getElementById('ns-company-dropdown').classList.remove('hidden');
+        }
+
+        function nsRenderDropdown(results, configuredCodes, q) {
+            const container = document.getElementById('ns-dropdown-content');
+            if (results.length === 0) {
+                container.innerHTML = `<div class="px-4 py-4 text-sm text-gray-400 text-center"><i class="fa-solid fa-magnifying-glass-minus mr-2"></i>找不到符合的門市</div>`;
+                return;
+            }
+            const uncfg = results.filter(c => !configuredCodes.has(c.code));
+            const cfg   = results.filter(c =>  configuredCodes.has(c.code));
+            const hl = (t) => {
+                if (!q) return t;
+                return t.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>');
+            };
+            const renderItem = (c, isConfigured) => `
+                <button onclick="nsSelectCompany('${c.companyID}')"
+                        class="ns-dropdown-item w-full text-left px-4 py-2.5 hover:bg-blue-50 transition flex items-center gap-3 ${isConfigured ? 'opacity-50' : ''}">
+                    <i class="fa-solid ${isConfigured ? 'fa-circle-check text-green-400' : 'fa-building-circle-arrow-right text-blue-400'} flex-shrink-0 text-sm"></i>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-gray-800 text-sm truncate">${hl(c.name)}</div>
+                        <div class="font-mono text-xs text-gray-400">${hl(c.code)}</div>
+                    </div>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${isConfigured ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
+                        ${isConfigured ? '已設定' : '待設定'}
+                    </span>
+                </button>`;
+            let html = '';
+            if (!q) {
+                if (uncfg.length > 0) {
+                    html += `<div class="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-gray-100 sticky top-0">待設定 (${uncfg.length})</div>`;
+                    html += uncfg.map(c => renderItem(c, false)).join('');
+                }
+                if (cfg.length > 0) {
+                    html += `<div class="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-gray-100 border-t sticky top-0">已設定 (${cfg.length})</div>`;
+                    html += cfg.map(c => renderItem(c, true)).join('');
+                }
+            } else {
+                html = results.map(c => renderItem(c, configuredCodes.has(c.code))).join('');
+            }
+            container.innerHTML = html;
+        }
+
+        function nsSelectCompany(companyID) {
+            const company = mockCompanyDB.find(c => c.companyID === companyID);
+            if (!company) return;
+            nsSelectedCompany = company;
+            document.getElementById('ns-company-dropdown').classList.add('hidden');
+            document.getElementById('ns-company-search').value = '';
+            document.getElementById('ns-search-clear').classList.add('hidden');
+            document.getElementById('ns-chip-code').textContent = company.code;
+            document.getElementById('ns-chip-name').textContent = company.name;
+            document.getElementById('ns-selected-chip').classList.remove('hidden');
+            document.getElementById('ns-store-email').value = `${company.code.toLowerCase()}.manager@company.com`;
+            const cfgSection = document.getElementById('ns-config-section');
+            cfgSection.classList.remove('hidden');
+            cfgSection.classList.add('animate-slide-down');
+        }
+
+        function nsClearCompany() {
+            nsSelectedCompany = null;
+            document.getElementById('ns-selected-chip').classList.add('hidden');
+            document.getElementById('ns-config-section').classList.add('hidden');
+            document.getElementById('ns-store-email').value = '';
+            document.getElementById('ns-company-search').value = '';
+            document.getElementById('ns-company-search').focus();
+        }
+
+        function nsClearSearch() {
+            document.getElementById('ns-company-search').value = '';
+            document.getElementById('ns-search-clear').classList.add('hidden');
+            nsFilterCompanies();
+        }
+
+        function nsHandleSearchKey(e) {
+            const items = [...document.querySelectorAll('.ns-dropdown-item')];
+            const cur = items.findIndex(i => i.classList.contains('active-kbd'));
+            const activate = (idx) => {
+                items.forEach(i => i.classList.remove('active-kbd'));
+                if (items[idx]) { items[idx].classList.add('active-kbd'); items[idx].scrollIntoView({ block: 'nearest' }); }
+            };
+            if (e.key === 'ArrowDown') { e.preventDefault(); activate(cur < items.length - 1 ? cur + 1 : 0); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); activate(cur > 0 ? cur - 1 : items.length - 1); }
+            else if (e.key === 'Enter' && cur >= 0) { e.preventDefault(); items[cur].click(); }
+            else if (e.key === 'Escape') { document.getElementById('ns-company-dropdown').classList.add('hidden'); }
+        }
+
+        function nsSubmit() {
+            if (!nsSelectedCompany) {
+                showToast('error', '請先選取門市');
+                document.getElementById('ns-company-search').focus();
+                return;
+            }
+            const typeRadio = document.querySelector('input[name="ns-store-type"]:checked');
+            if (!typeRadio) {
+                showToast('error', '請選擇門市類型');
+                return;
+            }
+            showToast('syncing');
+            setTimeout(() => {
+                const company   = nsSelectedCompany;
+                const email     = document.getElementById('ns-store-email').value.trim();
+                const storeType = typeRadio.value;
+                const groupRadio= document.querySelector('input[name="ns-store-group"]:checked');
+                const groupName = groupRadio?.value || '';
+                const managerId = document.getElementById('ns-manager-id').value.trim();
+                const managerName= document.getElementById('ns-manager-name').value.trim();
+
+                stores.push({
+                    code: company.code,
+                    name: company.name,
+                    roleEmail: email,
+                    primaryManager: (managerId && managerName) ? { employeeId: managerId, name: managerName, status: 'active' } : null,
+                    authorizedUsers: []
+                });
+
+                // Auto-add to storeGroupAssociations
+                if (groupName) {
+                    let groupEntry = storeGroupAssociations.find(g => g.groupName === groupName);
+                    if (!groupEntry) {
+                        const iconMap  = { '西醫事業體':'fa-star','岩盤浴事業體':'fa-spa','中醫事業體':'fa-leaf','台灣生美加盟事業體':'fa-handshake' };
+                        const colorMap = { '西醫事業體':'indigo','岩盤浴事業體':'amber','中醫事業體':'green','台灣生美加盟事業體':'rose' };
+                        groupEntry = { groupName, icon: iconMap[groupName]||'fa-building', color: colorMap[groupName]||'slate', storeTypes: [] };
+                        storeGroupAssociations.push(groupEntry);
+                    }
+                    let typeEntry = groupEntry.storeTypes.find(t => t.typeName === storeType);
+                    if (!typeEntry) {
+                        const tIconMap  = { '醫美':'fa-syringe','岩盤浴':'fa-spa','中醫':'fa-leaf','其他':'fa-building' };
+                        const tColorMap = { '醫美':'pink','岩盤浴':'amber','中醫':'green','其他':'slate' };
+                        typeEntry = { typeName: storeType, icon: tIconMap[storeType]||'fa-store', color: tColorMap[storeType]||'slate', companyIds: [] };
+                        groupEntry.storeTypes.push(typeEntry);
+                    }
+                    typeEntry.companyIds.push(company.code);
+                }
+
+                closeNewStoreModal();
+                renderStores();
+                showToast('success', `門市「${company.name}」已加入 N-Report！`);
+            }, 800);
+        }
+
         // ========== INIT ==========
-        // Close wizard dropdown when clicking outside
+        // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('#wizard-search-container')) {
                 document.getElementById('wizard-company-dropdown')?.classList.add('hidden');
+            }
+            if (!e.target.closest('#ns-search-container')) {
+                document.getElementById('ns-company-dropdown')?.classList.add('hidden');
             }
         });
 
