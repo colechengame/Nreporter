@@ -339,6 +339,9 @@
                         <button onclick="switchSettingsTab('gdrive')" id="settings-tab-gdrive" class="settings-tab-btn px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700">
                             <i class="fa-brands fa-google-drive mr-1"></i> Drive
                         </button>
+                        <button onclick="switchSettingsTab('store-assoc')" id="settings-tab-store-assoc" class="settings-tab-btn px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                            <i class="fa-solid fa-diagram-project mr-1"></i><span class="hidden sm:inline"> 門市關聯</span><span class="sm:hidden">關聯</span>
+                        </button>
                     </nav>
                 </div>
 
@@ -550,6 +553,54 @@
                     </div>
                 </div>
 
+                <!-- Settings: 門市關聯 -->
+                <div id="settings-store-assoc" class="settings-content hidden p-3 sm:p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-diagram-project text-primary mr-2"></i>門市與集團關聯</h4>
+                            <p class="text-sm text-gray-500 mt-1">管理 集團(GroupName) → 分類(StoreType) → 門市(CompanyID) 層級</p>
+                        </div>
+                        <button onclick="openAddGroupPanel()" class="bg-primary hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow transition flex items-center">
+                            <i class="fa-solid fa-plus mr-1.5"></i>新增集團
+                        </button>
+                    </div>
+                    <!-- 新增集團 inline form -->
+                    <div id="add-group-panel" class="hidden mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h5 class="text-sm font-bold text-blue-800 mb-3"><i class="fa-solid fa-plus-circle mr-1"></i>新增集團</h5>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">集團名稱 <span class="text-red-500">*</span></label>
+                                <input type="text" id="new-group-name-input" placeholder="例：西醫" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">顏色主題</label>
+                                <select id="new-group-color-input" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
+                                    <option value="indigo">靛藍（星辰/醫美）</option>
+                                    <option value="green">綠色（中醫）</option>
+                                    <option value="amber">琥珀（養生）</option>
+                                    <option value="slate">灰色（其他）</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 mt-3">
+                            <button onclick="confirmAddGroup()" class="bg-primary hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-bold transition">確認新增</button>
+                            <button onclick="document.getElementById('add-group-panel').classList.add('hidden')" class="text-gray-500 hover:text-gray-700 px-4 py-1.5 rounded-lg text-sm border border-gray-300 transition">取消</button>
+                        </div>
+                    </div>
+                    <!-- 待關聯警示 -->
+                    <div id="unassoc-warning" class="hidden mb-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <p class="text-sm font-bold text-amber-800">有門市尚未完成關聯</p>
+                            <p class="text-xs text-amber-700 mt-0.5" id="unassoc-list">-</p>
+                        </div>
+                    </div>
+                    <!-- 關聯樹 -->
+                    <div id="store-assoc-tree" class="space-y-3">
+                        <!-- JS Generated -->
+                    </div>
+                </div>
+
                 <!-- Settings: Google Drive -->
                 <div id="settings-gdrive" class="settings-content hidden p-3 sm:p-6">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
@@ -709,28 +760,56 @@
 
                                 <!-- FORM 1: 指派主要店長 (Single) -->
                                 <div id="form-primary" class="form-section hidden">
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">選擇主要負責人</label>
-                                    <select id="primary-select" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary">
-                                        <option value="1001">王小明 (店長)</option>
-                                        <option value="3005">林函儀 (店長)</option>
-                                        <option value="9999">-- 暫時懸缺 --</option>
-                                    </select>
-                                    <div class="mt-4 bg-yellow-50 p-3 rounded-md border border-yellow-200">
-                                         <p class="text-xs text-yellow-700 font-bold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 注意：</p>
-                                         <p class="text-xs text-yellow-700">該人員將自動繼承目前的 Role Email。若要修改 Email 地址，請使用「門市設定」功能。</p>
+                                    <div class="mb-3 pb-3 border-b border-gray-100">
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" id="primary-vacant" class="w-4 h-4 rounded text-gray-500" onchange="togglePrimaryVacant(this.checked)">
+                                            <span class="text-sm text-gray-600">設為暫時懸缺（清除現有店經理）</span>
+                                        </label>
+                                    </div>
+                                    <div id="primary-input-fields">
+                                        <div class="grid grid-cols-2 gap-3 mb-3">
+                                            <div>
+                                                <label class="block text-sm font-bold text-gray-700 mb-1.5">員工編號 <span class="text-red-500">*</span></label>
+                                                <input type="text" id="primary-employee-id" placeholder="例：EMP001" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary text-sm">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-bold text-gray-700 mb-1.5">姓名 <span class="text-red-500">*</span></label>
+                                                <input type="text" id="primary-employee-name" placeholder="例：王小明" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary text-sm">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Rolemail <span class="text-red-500">*</span></label>
+                                            <div class="flex rounded-md shadow-sm">
+                                                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                                                    <i class="fa-regular fa-envelope"></i>
+                                                </span>
+                                                <input type="email" id="primary-rolemail" placeholder="store.manager@company.com" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-primary focus:border-primary sm:text-sm border-gray-300 border">
+                                            </div>
+                                            <p class="mt-1.5 text-xs text-blue-600"><i class="fa-solid fa-circle-info mr-1"></i>此為門市角色信箱，換店經理時將自動帶入。</p>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- FORM 2: 新增細部權限人員 (Granular) -->
                                 <div id="form-granular" class="form-section hidden">
+                                    <div class="grid grid-cols-2 gap-3 mb-3">
+                                        <div>
+                                            <label class="block text-sm font-bold text-gray-700 mb-1.5">員工編號 <span class="text-red-500">*</span></label>
+                                            <input type="text" id="granular-employee-id" placeholder="例：EMP002" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-bold text-gray-700 mb-1.5">姓名 <span class="text-red-500">*</span></label>
+                                            <input type="text" id="granular-employee-name" placeholder="例：李小華" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary text-sm">
+                                        </div>
+                                    </div>
                                     <div class="mb-4">
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">選擇員工/角色</label>
-                                        <select id="granular-select" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary">
-                                            <option value="甲君">甲君 (區督導)</option>
-                                            <option value="乙君">乙君 (儲備幹部)</option>
-                                            <option value="Tina">Tina (區經理)</option>
-                                            <option value="David">David (顧問)</option>
-                                        </select>
+                                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Mail</label>
+                                        <div class="flex rounded-md shadow-sm">
+                                            <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                                                <i class="fa-regular fa-envelope"></i>
+                                            </span>
+                                            <input type="email" id="granular-mail" placeholder="employee@company.com" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-primary focus:border-primary sm:text-sm border-gray-300 border">
+                                        </div>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-bold text-gray-700 mb-2">可存取的報表</label>
@@ -1054,6 +1133,29 @@
 
         let groups = [];
 
+        // 門市與集團關聯 (GroupName → StoreType → CompanyID)
+        let storeGroupAssociations = [
+            {
+                groupName: '西醫',
+                icon: 'fa-star',
+                color: 'indigo',
+                storeTypes: [
+                    { typeName: '醫美', icon: 'fa-syringe', color: 'pink', companyIds: ['N1_MED','C0_MED','W1_MED','N1_HC','N2_MED','N3_MED','NW_MED','E1_HC','S1_MED','C1_MED','C2_MED','C3_MED','NE_MED','SE_MED','S2_MED','SW_MED','SW_HC','W2_MED','CT_MED','N4_MED'] },
+                    { typeName: '岩盤浴', icon: 'fa-spa', color: 'amber', companyIds: ['N1_SPA','C0_SPA','CT_SPA','SE_SPA','SW_SPA','W2_SPA'] },
+                    { typeName: '後勤', icon: 'fa-building', color: 'slate', companyIds: ['HQ','C1_OFC'] }
+                ]
+            },
+            {
+                groupName: '中醫',
+                icon: 'fa-leaf',
+                color: 'green',
+                storeTypes: [
+                    { typeName: '診所', icon: 'fa-leaf', color: 'green', companyIds: ['NJ_TCM','ZL_TCM','TC_TCM','LK_TCM','GT_TCM','SC_LST','XD_TCM','BZ_TCM','XZ_TCM'] },
+                    { typeName: '後勤', icon: 'fa-building', color: 'slate', companyIds: ['TCM_HQ'] }
+                ]
+            }
+        ];
+
         let currentModalType = '';
         let currentIndex = -1;
         
@@ -1123,10 +1225,17 @@
                 else {
                     granularHtml = '<div class="space-y-1">';
                     store.authorizedUsers.forEach((u, uIdx) => {
+                        const idBadge = u.employeeId
+                            ? `<span class="text-[10px] font-mono bg-gray-200 text-gray-600 px-1 rounded mr-1.5 flex-shrink-0">${u.employeeId}</span>`
+                            : (u.role ? `<span class="text-xs text-gray-500 mr-1.5 flex-shrink-0">(${u.role})</span>` : '');
+                        const mailTag = u.mail
+                            ? `<span class="text-xs text-gray-400 mr-1 hidden lg:inline truncate max-w-[110px]">&lt;${u.mail}&gt;</span>`
+                            : '';
                         granularHtml += `
                             <div class="flex items-center text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100 group">
-                                <span class="font-medium mr-2">${u.name}</span>
-                                <span class="text-xs text-gray-500 mr-2">(${u.role})</span>
+                                ${idBadge}
+                                <span class="font-medium mr-1">${u.name}</span>
+                                ${mailTag}
                                 <div class="flex flex-wrap gap-1 mr-auto">${formatReportBadges(u.scopes, 3)}</div>
                                 <button onclick="removeAuthorizedUser(${index}, ${uIdx})" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition ml-2" title="移除人員">
                                     <i class="fa-solid fa-times"></i>
@@ -1960,6 +2069,202 @@
             allCheckbox.checked = allChecked;
         }
 
+        // --- PRIMARY MANAGER FORM HELPERS ---
+
+        function togglePrimaryVacant(isVacant) {
+            const fields = document.getElementById('primary-input-fields');
+            fields.classList.toggle('opacity-40', isVacant);
+            fields.classList.toggle('pointer-events-none', isVacant);
+        }
+
+        // --- STORE ASSOCIATION FUNCTIONS ---
+
+        function renderStoreAssociations() {
+            const tree = document.getElementById('store-assoc-tree');
+            if (!tree) return;
+
+            // Find unassociated stores
+            const allAssigned = new Set();
+            storeGroupAssociations.forEach(g => g.storeTypes.forEach(t => t.companyIds.forEach(id => allAssigned.add(id))));
+            const unassociated = stores.filter(s => !allAssigned.has(s.code));
+
+            const warning = document.getElementById('unassoc-warning');
+            if (unassociated.length > 0) {
+                warning.classList.remove('hidden');
+                document.getElementById('unassoc-list').textContent = unassociated.map(s => `${s.name}(${s.code})`).join('、');
+            } else {
+                warning.classList.add('hidden');
+            }
+
+            const gradMap = { indigo: 'from-indigo-600 to-indigo-700', green: 'from-green-600 to-green-700', amber: 'from-amber-500 to-amber-600', slate: 'from-slate-600 to-slate-700' };
+            const typeColorMap = {
+                pink:   'bg-pink-50 border-pink-200',
+                amber:  'bg-amber-50 border-amber-200',
+                green:  'bg-green-50 border-green-200',
+                slate:  'bg-gray-50 border-gray-200'
+            };
+            const iconColorMap = { pink: 'text-pink-500', amber: 'text-amber-500', green: 'text-green-600', slate: 'text-gray-500' };
+
+            if (storeGroupAssociations.length === 0) {
+                tree.innerHTML = `<div class="text-center py-10 text-gray-400"><i class="fa-solid fa-diagram-project text-5xl mb-3 block"></i>尚無集團定義，請點擊「新增集團」開始設定</div>`;
+                return;
+            }
+
+            tree.innerHTML = storeGroupAssociations.map((group, gIdx) => {
+                const bgGrad = gradMap[group.color] || gradMap.slate;
+                const storeTypesHtml = group.storeTypes.map((sType, tIdx) => {
+                    const typeBg = typeColorMap[sType.color] || typeColorMap.slate;
+                    const iconColor = iconColorMap[sType.color] || iconColorMap.slate;
+                    const chips = sType.companyIds.map((cid, cidx) => {
+                        const st = stores.find(s => s.code === cid);
+                        const label = st ? st.name : cid;
+                        return `<span class="inline-flex items-center bg-white border border-gray-200 rounded-full pl-2 pr-1 py-0.5 text-xs text-gray-700 gap-1 shadow-sm">
+                            <span class="font-mono text-gray-400 text-[10px]">${cid}</span>
+                            <span>${label !== cid ? label : ''}</span>
+                            <button onclick="removeCompanyFromType(${gIdx},${tIdx},${cidx})" class="text-gray-300 hover:text-red-500 transition" title="移除">
+                                <i class="fa-solid fa-times text-[10px]"></i>
+                            </button>
+                        </span>`;
+                    }).join('');
+
+                    return `<div class="border ${typeBg} rounded-lg p-3 mb-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="flex items-center gap-2 font-bold text-sm text-gray-700">
+                                <i class="fa-solid ${sType.icon} ${iconColor}"></i>${sType.typeName}
+                                <span class="text-xs font-normal text-gray-400">(${sType.companyIds.length} 間)</span>
+                            </span>
+                            <div class="flex gap-1">
+                                <button onclick="openAssignStorePanel(${gIdx},${tIdx})" class="text-xs bg-white border border-gray-300 hover:bg-gray-50 px-2 py-0.5 rounded text-gray-600 transition">
+                                    <i class="fa-solid fa-plus mr-1"></i>指派門市
+                                </button>
+                                <button onclick="removeStoreType(${gIdx},${tIdx})" class="text-xs text-red-400 hover:text-red-600 px-1.5 py-0.5 rounded transition" title="移除分類"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <!-- assign store inline panel -->
+                        <div id="assign-panel-${gIdx}-${tIdx}" class="hidden mb-2 bg-white border border-blue-200 rounded-lg p-2 flex gap-2 items-end">
+                            <div class="flex-1">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-1">選擇門市代碼</label>
+                                <select id="assign-select-${gIdx}-${tIdx}" class="w-full border border-gray-300 rounded px-2 py-1 text-sm"></select>
+                            </div>
+                            <button onclick="confirmAssignStore(${gIdx},${tIdx})" class="bg-primary text-white px-3 py-1 rounded text-sm font-bold flex-shrink-0">確認</button>
+                            <button onclick="document.getElementById('assign-panel-${gIdx}-${tIdx}').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 px-2 py-1 text-sm flex-shrink-0">✕</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">${chips || '<span class="text-xs text-gray-400">尚無門市</span>'}</div>
+                    </div>`;
+                }).join('');
+
+                return `<div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="bg-gradient-to-r ${bgGrad} px-4 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid ${group.icon} text-white"></i>
+                            <span class="font-bold text-white">${group.groupName}</span>
+                            <span class="text-white/60 text-xs">${group.storeTypes.reduce((a,t)=>a+t.companyIds.length,0)} 間門市</span>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="openAddStoreTypePanel(${gIdx})" class="bg-white/20 hover:bg-white/30 text-white px-2 py-1 rounded text-xs transition"><i class="fa-solid fa-plus mr-1"></i>新增分類</button>
+                            <button onclick="removeGroup(${gIdx})" class="bg-white/10 hover:bg-red-500/60 text-white/70 hover:text-white px-2 py-1 rounded text-xs transition" title="移除集團"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <!-- add store-type inline panel -->
+                    <div id="add-type-panel-${gIdx}" class="hidden bg-blue-50 border-b border-blue-200 px-4 py-3 flex gap-2 items-end">
+                        <div class="flex-1">
+                            <label class="block text-xs font-bold text-gray-600 mb-1">分類名稱</label>
+                            <input type="text" id="new-type-name-${gIdx}" placeholder="例：醫美" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">圖示色</label>
+                            <select id="new-type-color-${gIdx}" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                                <option value="pink">粉紅</option>
+                                <option value="amber">琥珀</option>
+                                <option value="green">綠色</option>
+                                <option value="slate">灰色</option>
+                            </select>
+                        </div>
+                        <button onclick="confirmAddStoreType(${gIdx})" class="bg-primary text-white px-3 py-1 rounded text-sm font-bold flex-shrink-0">新增</button>
+                        <button onclick="document.getElementById('add-type-panel-${gIdx}').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 px-2 py-1 text-sm flex-shrink-0">✕</button>
+                    </div>
+                    <div class="p-3 bg-white">
+                        ${storeTypesHtml || '<p class="text-xs text-gray-400 text-center py-2">尚無分類，請點擊「新增分類」</p>'}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openAddGroupPanel() {
+            document.getElementById('add-group-panel').classList.remove('hidden');
+            document.getElementById('new-group-name-input').focus();
+        }
+
+        function confirmAddGroup() {
+            const name = document.getElementById('new-group-name-input').value.trim();
+            const color = document.getElementById('new-group-color-input').value;
+            if (!name) return;
+            const iconMap = { indigo: 'fa-star', green: 'fa-leaf', amber: 'fa-spa', slate: 'fa-building-flag' };
+            storeGroupAssociations.push({ groupName: name, icon: iconMap[color] || 'fa-building-flag', color, storeTypes: [] });
+            document.getElementById('add-group-panel').classList.add('hidden');
+            document.getElementById('new-group-name-input').value = '';
+            renderStoreAssociations();
+        }
+
+        function openAddStoreTypePanel(gIdx) {
+            document.getElementById(`add-type-panel-${gIdx}`).classList.remove('hidden');
+            document.getElementById(`new-type-name-${gIdx}`).focus();
+        }
+
+        function confirmAddStoreType(gIdx) {
+            const typeName = document.getElementById(`new-type-name-${gIdx}`).value.trim();
+            const color = document.getElementById(`new-type-color-${gIdx}`).value;
+            if (!typeName) return;
+            const iconMap = { pink: 'fa-syringe', amber: 'fa-spa', green: 'fa-leaf', slate: 'fa-building' };
+            storeGroupAssociations[gIdx].storeTypes.push({ typeName, icon: iconMap[color] || 'fa-store', color, companyIds: [] });
+            renderStoreAssociations();
+        }
+
+        function openAssignStorePanel(gIdx, tIdx) {
+            const panel = document.getElementById(`assign-panel-${gIdx}-${tIdx}`);
+            const sel = document.getElementById(`assign-select-${gIdx}-${tIdx}`);
+            // Populate with unassigned stores
+            const allAssigned = new Set();
+            storeGroupAssociations.forEach(g => g.storeTypes.forEach(t => t.companyIds.forEach(id => allAssigned.add(id))));
+            const available = stores.filter(s => !allAssigned.has(s.code));
+            if (available.length === 0) {
+                showToast('warning', '所有門市皆已完成關聯');
+                return;
+            }
+            sel.innerHTML = available.map(s => `<option value="${s.code}">${s.code} - ${s.name}</option>`).join('');
+            panel.classList.remove('hidden');
+        }
+
+        function confirmAssignStore(gIdx, tIdx) {
+            const sel = document.getElementById(`assign-select-${gIdx}-${tIdx}`);
+            const code = sel.value;
+            if (code) {
+                storeGroupAssociations[gIdx].storeTypes[tIdx].companyIds.push(code);
+                renderStoreAssociations();
+            }
+        }
+
+        function removeCompanyFromType(gIdx, tIdx, cidx) {
+            storeGroupAssociations[gIdx].storeTypes[tIdx].companyIds.splice(cidx, 1);
+            renderStoreAssociations();
+        }
+
+        function removeStoreType(gIdx, tIdx) {
+            const name = storeGroupAssociations[gIdx].storeTypes[tIdx].typeName;
+            if (confirm(`確定移除分類「${name}」及其所有門市關聯？`)) {
+                storeGroupAssociations[gIdx].storeTypes.splice(tIdx, 1);
+                renderStoreAssociations();
+            }
+        }
+
+        function removeGroup(gIdx) {
+            const name = storeGroupAssociations[gIdx].groupName;
+            if (confirm(`確定移除集團「${name}」及其所有分類？`)) {
+                storeGroupAssociations.splice(gIdx, 1);
+                renderStoreAssociations();
+            }
+        }
+
         // --- GROUP ACTIONS ---
 
         function removeAuthorizedUser(storeIndex, userIndex) {
@@ -2042,26 +2347,21 @@
             if(type === 'primary') {
                 title.innerText = `指派 ${stores[index].name} 主要店經理`;
                 document.getElementById('form-primary').classList.remove('hidden');
-                populateStaffSelect('primary-select', true);
-                
-                // Pre-select current manager if available
+                // Reset vacant checkbox
+                document.getElementById('primary-vacant').checked = false;
+                document.getElementById('primary-input-fields').classList.remove('opacity-40', 'pointer-events-none');
+                // Pre-fill with existing manager data
                 const currentManager = stores[index].primaryManager;
-                if (currentManager) {
-                    const select = document.getElementById('primary-select');
-                    // Try to find the manager in the options
-                    for (let i = 0; i < select.options.length; i++) {
-                        // Option format: "Name (Role)" or "Name Nickname (Role)"
-                        // We match based on name inclusion because format might vary slightly
-                        if (select.options[i].text.includes(currentManager.name.split(' ')[0])) {
-                            select.selectedIndex = i;
-                            break;
-                        }
-                    }
-                }
+                document.getElementById('primary-employee-id').value = currentManager ? (currentManager.employeeId || '') : '';
+                document.getElementById('primary-employee-name').value = currentManager ? currentManager.name : '';
+                // Pre-fill Rolemail from store (transfer carries existing roleEmail)
+                document.getElementById('primary-rolemail').value = stores[index].roleEmail || '';
             } else if (type === 'granular') {
                 title.innerText = `新增人員至 ${stores[index].name}`;
                 document.getElementById('form-granular').classList.remove('hidden');
-                populateStaffSelect('granular-select');
+                document.getElementById('granular-employee-id').value = '';
+                document.getElementById('granular-employee-name').value = '';
+                document.getElementById('granular-mail').value = '';
                 document.getElementById('granular-report-search').value = '';
                 generateReportCheckboxes('granular-report-list', 'granular-scopes', []);
                 populateTemplateSelect('granular-template-select');
@@ -2188,17 +2488,25 @@
 
             setTimeout(() => {
                 if(currentModalType === 'primary') {
-                    const sel = document.getElementById('primary-select');
-                    const name = sel.options[sel.selectedIndex].text.split(' (')[0];
-                    if(sel.value === '9999') stores[currentIndex].primaryManager = null;
-                    else stores[currentIndex].primaryManager = { name: name, status: 'active' };
+                    const vacant = document.getElementById('primary-vacant').checked;
+                    if (vacant) {
+                        stores[currentIndex].primaryManager = null;
+                    } else {
+                        const employeeId = document.getElementById('primary-employee-id').value.trim();
+                        const name = document.getElementById('primary-employee-name').value.trim();
+                        const rolemail = document.getElementById('primary-rolemail').value.trim();
+                        if (employeeId && name) {
+                            stores[currentIndex].primaryManager = { employeeId, name, status: 'active' };
+                        }
+                        if (rolemail) stores[currentIndex].roleEmail = rolemail;
+                    }
                 } else if (currentModalType === 'granular') {
-                    const sel = document.getElementById('granular-select');
-                    const name = sel.options[sel.selectedIndex].text.split(' (')[0];
-                    const role = sel.options[sel.selectedIndex].text.split(' (')[1].replace(')','');
+                    const employeeId = document.getElementById('granular-employee-id').value.trim();
+                    const name = document.getElementById('granular-employee-name').value.trim();
+                    const mail = document.getElementById('granular-mail').value.trim();
                     const scopes = getSelectedReports('granular-scopes');
-                    if(scopes.length > 0) {
-                        stores[currentIndex].authorizedUsers.push({ name, role, scopes });
+                    if(employeeId && name && scopes.length > 0) {
+                        stores[currentIndex].authorizedUsers.push({ employeeId, name, mail, scopes });
                     }
                 } else if (currentModalType === 'new-store') {
                     const code = document.getElementById('store-code').value || 'NEW';
@@ -2457,6 +2765,7 @@
             document.getElementById('settings-new-store').classList.toggle('hidden', tab !== 'new-store');
             document.getElementById('settings-reports').classList.toggle('hidden', tab !== 'reports');
             document.getElementById('settings-gdrive').classList.toggle('hidden', tab !== 'gdrive');
+            document.getElementById('settings-store-assoc').classList.toggle('hidden', tab !== 'store-assoc');
 
             document.querySelectorAll('.settings-tab-btn').forEach(btn => {
                 btn.classList.remove('active', 'border-primary', 'text-primary');
@@ -2468,6 +2777,7 @@
 
             if (tab === 'reports') renderReportMgmtList();
             if (tab === 'gdrive') renderGDriveSyncList();
+            if (tab === 'store-assoc') renderStoreAssociations();
         }
 
         // --- New Store Wizard ---
