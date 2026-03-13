@@ -27,8 +27,12 @@
     <style>
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.3s ease-out; }
         .animate-scale-in { animation: scaleIn 0.2s ease-out; }
+        .animate-slide-down { animation: slideDown 0.2s ease-out; }
+        .wizard-dropdown-item.active-kbd { background-color: #eff6ff; }
+        mark { background-color: #fef08a; border-radius: 2px; padding: 0 1px; }
         
         .checkbox-card input:checked + div {
             border-color: #0F4C81;
@@ -370,72 +374,174 @@
 
                         <!-- Step 1 Content -->
                         <div id="new-store-content-1" class="new-store-step">
-                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-building text-primary mr-2"></i>門市基本資料</h4>
+                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-magnifying-glass text-primary mr-2"></i>選取門市</h4>
 
-                            <!-- Store Type -->
-                            <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-700 mb-3">門市類型 <span class="text-red-500">*</span></label>
-                                <div class="grid grid-cols-3 gap-2 sm:gap-4">
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="new-store-type" value="MED" class="hidden peer" checked>
-                                        <div class="border-2 border-gray-200 rounded-xl p-2 sm:p-4 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition">
-                                            <i class="fa-solid fa-syringe text-lg sm:text-2xl text-pink-500 mb-1 sm:mb-2"></i>
-                                            <div class="font-bold text-gray-800 text-xs sm:text-base">醫美</div>
-                                            <div class="text-[10px] sm:text-xs text-gray-500 hidden sm:block">光澤/彤顏</div>
-                                        </div>
-                                    </label>
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="new-store-type" value="SPA" class="hidden peer">
-                                        <div class="border-2 border-gray-200 rounded-xl p-2 sm:p-4 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition">
-                                            <i class="fa-solid fa-spa text-lg sm:text-2xl text-amber-500 mb-1 sm:mb-2"></i>
-                                            <div class="font-bold text-gray-800 text-xs sm:text-base">岩盤浴</div>
-                                            <div class="text-[10px] sm:text-xs text-gray-500 hidden sm:block">SPA 館</div>
-                                        </div>
-                                    </label>
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="new-store-type" value="OTHER" class="hidden peer">
-                                        <div class="border-2 border-gray-200 rounded-xl p-2 sm:p-4 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition">
-                                            <i class="fa-solid fa-building text-lg sm:text-2xl text-gray-500 mb-1 sm:mb-2"></i>
-                                            <div class="font-bold text-gray-800 text-xs sm:text-base">其他</div>
-                                            <div class="text-[10px] sm:text-xs text-gray-500 hidden sm:block">辦公室/總部</div>
-                                        </div>
-                                    </label>
+                            <!-- Hidden compat fields -->
+                            <input type="hidden" id="wizard-store-code">
+                            <input type="hidden" id="wizard-store-name">
+
+                            <!-- Combobox search -->
+                            <div class="mb-5">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">
+                                    門市 <span class="text-red-500">*</span>
+                                    <span class="text-[10px] font-normal text-gray-400 ml-1">companyID · dbo.OG_Company</span>
+                                </label>
+                                <div class="relative" id="wizard-search-container">
+                                    <div class="relative flex items-center">
+                                        <i class="fa-solid fa-magnifying-glass absolute left-3 text-gray-400 pointer-events-none text-sm"></i>
+                                        <input type="text" id="wizard-company-search"
+                                               placeholder="輸入門市名稱或代碼搜尋..."
+                                               autocomplete="off"
+                                               oninput="filterWizardCompanies()"
+                                               onfocus="openWizardDropdown()"
+                                               onkeydown="handleWizardSearchKey(event)"
+                                               class="w-full pl-9 pr-9 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition">
+                                        <button id="wizard-search-clear" onclick="clearWizardSearch()" class="hidden absolute right-3 text-gray-400 hover:text-gray-600 transition">
+                                            <i class="fa-solid fa-circle-xmark"></i>
+                                        </button>
+                                    </div>
+                                    <!-- Dropdown -->
+                                    <div id="wizard-company-dropdown"
+                                         class="hidden absolute z-30 w-full mt-1.5 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
+                                        <div id="wizard-dropdown-content"></div>
+                                    </div>
+                                </div>
+                                <!-- Selected chip -->
+                                <div id="wizard-selected-chip" class="hidden mt-2.5 flex items-center bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5 gap-2.5 animate-slide-down">
+                                    <i class="fa-solid fa-building-circle-check text-blue-500 flex-shrink-0"></i>
+                                    <span class="font-mono text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold flex-shrink-0" id="wizard-chip-code">-</span>
+                                    <span class="font-bold text-gray-800 text-sm flex-1 truncate" id="wizard-chip-name">-</span>
+                                    <span class="text-[10px] text-gray-400 font-mono hidden sm:block flex-shrink-0 truncate max-w-[150px]" id="wizard-chip-uuid">-</span>
+                                    <button onclick="clearWizardCompany()" class="text-blue-300 hover:text-red-500 transition flex-shrink-0 ml-auto" title="清除選取">
+                                        <i class="fa-solid fa-circle-xmark"></i>
+                                    </button>
                                 </div>
                             </div>
 
-                            <!-- Store Info -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
+                            <!-- Config section (revealed after selection) -->
+                            <div id="wizard-config-section" class="hidden space-y-5 pt-4 border-t border-gray-100">
+                                <!-- storeType -->
                                 <div>
-                                    <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">門市代碼 <span class="text-red-500">*</span></label>
-                                    <input type="text" id="wizard-store-code" placeholder="例如: BZ_MED" oninput="wizardAutoEmail()"
-                                           class="w-full border border-gray-300 rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                    <p class="text-[10px] sm:text-xs text-gray-500 mt-1">格式: 地區_類型</p>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                                        門市類型 <span class="text-red-500">*</span>
+                                        <span class="text-[10px] font-normal text-gray-400 ml-1">storeType</span>
+                                    </label>
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="new-store-type" value="醫美" class="hidden peer" checked>
+                                            <div class="border-2 border-gray-200 rounded-xl p-3 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
+                                                <i class="fa-solid fa-syringe text-xl text-pink-500 mb-1.5 block"></i>
+                                                <div class="font-bold text-gray-800 text-xs">醫美</div>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="new-store-type" value="岩盤浴" class="hidden peer">
+                                            <div class="border-2 border-gray-200 rounded-xl p-3 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
+                                                <i class="fa-solid fa-spa text-xl text-amber-500 mb-1.5 block"></i>
+                                                <div class="font-bold text-gray-800 text-xs">岩盤浴</div>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="new-store-type" value="中醫" class="hidden peer">
+                                            <div class="border-2 border-gray-200 rounded-xl p-3 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
+                                                <i class="fa-solid fa-leaf text-xl text-green-600 mb-1.5 block"></i>
+                                                <div class="font-bold text-gray-800 text-xs">中醫</div>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="new-store-type" value="其他" class="hidden peer">
+                                            <div class="border-2 border-gray-200 rounded-xl p-3 text-center peer-checked:border-primary peer-checked:bg-blue-50 transition hover:border-gray-300">
+                                                <i class="fa-solid fa-building text-xl text-gray-500 mb-1.5 block"></i>
+                                                <div class="font-bold text-gray-800 text-xs">其他</div>
+                                            </div>
+                                        </label>
+                                    </div>
                                 </div>
+                                <!-- groupName -->
                                 <div>
-                                    <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">門市名稱 <span class="text-red-500">*</span></label>
-                                    <input type="text" id="wizard-store-name" placeholder="例如: 板橋光澤醫美"
-                                           class="w-full border border-gray-300 rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                                        體系
+                                        <span class="text-[10px] font-normal text-gray-400 ml-1">groupName</span>
+                                    </label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="new-store-group" value="西醫事業體" class="hidden peer" checked>
+                                            <div class="border-2 border-gray-200 rounded-xl px-3 py-2.5 flex items-center gap-2 peer-checked:border-indigo-500 peer-checked:bg-indigo-50 transition hover:border-gray-300">
+                                                <i class="fa-solid fa-star text-indigo-500 flex-shrink-0 text-sm"></i>
+                                                <span class="text-sm font-bold text-gray-700">西醫事業體</span>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="new-store-group" value="岩盤浴事業體" class="hidden peer">
+                                            <div class="border-2 border-gray-200 rounded-xl px-3 py-2.5 flex items-center gap-2 peer-checked:border-amber-500 peer-checked:bg-amber-50 transition hover:border-gray-300">
+                                                <i class="fa-solid fa-spa text-amber-500 flex-shrink-0 text-sm"></i>
+                                                <span class="text-sm font-bold text-gray-700">岩盤浴事業體</span>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="new-store-group" value="中醫事業體" class="hidden peer">
+                                            <div class="border-2 border-gray-200 rounded-xl px-3 py-2.5 flex items-center gap-2 peer-checked:border-green-600 peer-checked:bg-green-50 transition hover:border-gray-300">
+                                                <i class="fa-solid fa-leaf text-green-600 flex-shrink-0 text-sm"></i>
+                                                <span class="text-sm font-bold text-gray-700">中醫事業體</span>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="new-store-group" value="台灣生美加盟事業體" class="hidden peer">
+                                            <div class="border-2 border-gray-200 rounded-xl px-3 py-2.5 flex items-center gap-2 peer-checked:border-rose-500 peer-checked:bg-rose-50 transition hover:border-gray-300">
+                                                <i class="fa-solid fa-handshake text-rose-500 flex-shrink-0 text-sm"></i>
+                                                <span class="text-sm font-bold text-gray-700">台灣生美加盟</span>
+                                            </div>
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">角色 Email (Role Email) <span class="text-red-500">*</span></label>
-                                <input type="email" id="wizard-store-email" placeholder="自動產生..."
-                                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-circle-info mr-1 text-blue-500"></i>此 Email 將用於 Google Drive 權限授權</p>
+                                <!-- roleEmail -->
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                                        Rolemail
+                                        <span class="text-[10px] font-normal text-gray-400 ml-1">roleEmail</span>
+                                    </label>
+                                    <div class="flex rounded-xl overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition shadow-sm">
+                                        <span class="inline-flex items-center px-3 bg-gray-50 text-gray-400 text-sm border-r border-gray-300 flex-shrink-0">
+                                            <i class="fa-regular fa-envelope"></i>
+                                        </span>
+                                        <input type="email" id="wizard-store-email" placeholder="自動產生或手動輸入..."
+                                               class="flex-1 px-3 py-2 text-sm outline-none bg-white min-w-0">
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1.5"><i class="fa-solid fa-circle-info mr-1 text-blue-500"></i>此 Email 將用於 Google Drive 權限授權</p>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Step 2 Content -->
                         <div id="new-store-content-2" class="new-store-step hidden">
-                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-user-tie text-primary mr-2"></i>人員指派</h4>
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                                <p class="text-sm text-blue-700"><i class="fa-solid fa-lightbulb mr-2"></i>您可以稍後再指派店經理</p>
+                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-user-tie text-primary mr-2"></i>店經理指派</h4>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-5 flex items-start gap-2 text-sm text-blue-700">
+                                <i class="fa-solid fa-lightbulb mt-0.5 flex-shrink-0"></i>
+                                <span>可稍後從門市卡片指派，此步驟可直接跳過</span>
                             </div>
-                            <div class="mb-4">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">指派主要店經理</label>
-                                <select id="wizard-store-manager" class="w-full border border-gray-300 rounded-lg px-4 py-2">
-                                    <option value="">-- 暫不指派 --</option>
-                                </select>
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1.5">
+                                        員工編號
+                                        <span class="text-[10px] font-normal text-gray-400 ml-1">managerUserID</span>
+                                    </label>
+                                    <input type="text" id="wizard-manager-id" placeholder="例：EMP001"
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1.5">姓名</label>
+                                    <input type="text" id="wizard-manager-name" placeholder="例：王小明"
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                </div>
+                            </div>
+                            <!-- summary card of step 1 selection -->
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm">
+                                <div class="text-xs text-gray-400 font-bold mb-1.5 uppercase tracking-wide">步驟一設定摘要</div>
+                                <div class="flex flex-wrap gap-x-6 gap-y-1 text-gray-600">
+                                    <span><span class="text-gray-400">門市：</span><span class="font-bold" id="step2-summary-store">-</span></span>
+                                    <span><span class="text-gray-400">類型：</span><span class="font-bold" id="step2-summary-type">-</span></span>
+                                    <span><span class="text-gray-400">體系：</span><span class="font-bold" id="step2-summary-group">-</span></span>
+                                </div>
                             </div>
                         </div>
 
@@ -473,28 +579,32 @@
                             <div class="bg-gray-50 rounded-xl p-3 sm:p-6">
                                 <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                     <div>
-                                        <dt class="text-sm text-gray-500">門市類型</dt>
-                                        <dd id="wizard-confirm-type" class="font-bold text-gray-800">-</dd>
+                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">門市代碼 · companyID</dt>
+                                        <dd id="wizard-confirm-code" class="font-mono font-bold text-gray-800 mt-0.5">-</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm text-gray-500">門市代碼</dt>
-                                        <dd id="wizard-confirm-code" class="font-mono font-bold text-gray-800">-</dd>
+                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">門市名稱</dt>
+                                        <dd id="wizard-confirm-name" class="font-bold text-gray-800 mt-0.5">-</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm text-gray-500">門市名稱</dt>
-                                        <dd id="wizard-confirm-name" class="font-bold text-gray-800">-</dd>
+                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">門市類型 · storeType</dt>
+                                        <dd id="wizard-confirm-type" class="font-bold text-gray-800 mt-0.5">-</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm text-gray-500">Role Email</dt>
-                                        <dd id="wizard-confirm-email" class="font-mono text-sm text-gray-800">-</dd>
+                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">體系 · groupName</dt>
+                                        <dd id="wizard-confirm-group" class="font-bold text-gray-800 mt-0.5">-</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm text-gray-500">店經理</dt>
-                                        <dd id="wizard-confirm-manager" class="font-bold text-gray-800">-</dd>
+                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">Rolemail · roleEmail</dt>
+                                        <dd id="wizard-confirm-email" class="font-mono text-sm text-gray-800 mt-0.5">-</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-sm text-gray-500">Drive 操作</dt>
-                                        <dd id="wizard-confirm-gdrive" class="text-sm text-gray-800">-</dd>
+                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">店經理 · managerUserID</dt>
+                                        <dd id="wizard-confirm-manager" class="font-bold text-gray-800 mt-0.5">-</dd>
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <dt class="text-xs text-gray-400 uppercase tracking-wide">Drive 操作</dt>
+                                        <dd id="wizard-confirm-gdrive" class="text-sm text-gray-800 mt-0.5">-</dd>
                                     </div>
                                 </dl>
                             </div>
@@ -2819,6 +2929,135 @@
             });
         }
 
+        // Mock dbo.OG_Company — 未設定門市 (待加入 N-Report 的)
+        const mockCompanyDB = [
+            { companyID: 'b3f8c2d1-0a11-4e23-9f10-aab100000001', code: 'E2_MED',  name: '東二區晨曦醫美' },
+            { companyID: 'a1e7d3f2-0b22-4f34-8e21-bbc200000002', code: 'N5_MED',  name: '北五區星辰診所' },
+            { companyID: 'c4d9e5f3-0c33-4a45-7d32-ccb300000003', code: 'W4_MED',  name: '西四區光澤醫美' },
+            { companyID: 'd2f0b6a4-0d44-4b56-6c43-ddc400000004', code: 'CT2_MED', name: '中二區彤顏診所' },
+            { companyID: 'e5a1c7b5-0e55-4c67-5b54-eec500000005', code: 'N6_HC',   name: '北六區健康門診' },
+            { companyID: 'f6b2d8c6-0f66-4d78-4a65-ffd600000006', code: 'S3_SPA',  name: '南三區養生館' },
+            { companyID: 'a7c3e9d7-1077-4e89-3976-aae700000007', code: 'XZ_SPA',  name: '新莊養生館' },
+            { companyID: 'b8d4f0e8-1188-4f90-2887-bbf800000008', code: 'LS_TCM',  name: '蘆洲京都堂' },
+            { companyID: 'c9e5a1f9-1299-40a1-1798-cc1900000009', code: 'ZX_TCM',  name: '中興京都堂' },
+            { companyID: 'd0f6b2a0-13aa-41b2-0609-dd2000000010', code: 'ML_TCM',  name: '民樂麗水堂' },
+            { companyID: 'e1a7c3b1-14bb-42c3-f510-ee3100000011', code: 'BD_OFC',  name: '板橋行政辦公室' },
+            { companyID: 'f2b8d4c2-15cc-43d4-e421-ff4200000012', code: 'TC_HQ',   name: '台中集團總部' },
+        ];
+
+        let wizardSelectedCompany = null;
+
+        // ---- Wizard Combobox ----
+        function openWizardDropdown() {
+            if (wizardSelectedCompany) return;
+            filterWizardCompanies();
+        }
+
+        function filterWizardCompanies() {
+            const q = document.getElementById('wizard-company-search').value.trim().toLowerCase();
+            document.getElementById('wizard-search-clear').classList.toggle('hidden', !q);
+            const configuredCodes = new Set(stores.map(s => s.code));
+            const all = q
+                ? mockCompanyDB.filter(c => c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q))
+                : mockCompanyDB;
+            renderWizardDropdown(all, configuredCodes, q);
+            document.getElementById('wizard-company-dropdown').classList.remove('hidden');
+        }
+
+        function renderWizardDropdown(results, configuredCodes, q) {
+            const container = document.getElementById('wizard-dropdown-content');
+            if (results.length === 0) {
+                container.innerHTML = `<div class="px-4 py-4 text-sm text-gray-400 text-center"><i class="fa-solid fa-magnifying-glass-minus mr-2"></i>找不到符合的門市</div>`;
+                return;
+            }
+            const uncfg = results.filter(c => !configuredCodes.has(c.code));
+            const cfg   = results.filter(c =>  configuredCodes.has(c.code));
+            const hl = (t) => {
+                if (!q) return t;
+                return t.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'),
+                    '<mark>$1</mark>');
+            };
+            const renderItem = (c, isConfigured) => `
+                <button onclick="selectWizardCompany('${c.companyID}')"
+                        class="wizard-dropdown-item w-full text-left px-4 py-2.5 hover:bg-blue-50 transition flex items-center gap-3 ${isConfigured ? 'opacity-50' : ''}">
+                    <i class="fa-solid ${isConfigured ? 'fa-circle-check text-green-400' : 'fa-building-circle-arrow-right text-blue-400'} flex-shrink-0 text-sm"></i>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-gray-800 text-sm truncate">${hl(c.name)}</div>
+                        <div class="font-mono text-xs text-gray-400">${hl(c.code)}</div>
+                    </div>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${isConfigured ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
+                        ${isConfigured ? '已設定' : '待設定'}
+                    </span>
+                </button>`;
+            let html = '';
+            if (!q) {
+                if (uncfg.length > 0) {
+                    html += `<div class="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-gray-100 sticky top-0">待設定門市 (${uncfg.length})</div>`;
+                    html += uncfg.map(c => renderItem(c, false)).join('');
+                }
+                if (cfg.length > 0) {
+                    html += `<div class="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-gray-100 border-t sticky top-0">已設定門市 (${cfg.length})</div>`;
+                    html += cfg.map(c => renderItem(c, true)).join('');
+                }
+            } else {
+                html = results.map(c => renderItem(c, configuredCodes.has(c.code))).join('');
+            }
+            container.innerHTML = html;
+        }
+
+        function selectWizardCompany(companyID) {
+            const company = mockCompanyDB.find(c => c.companyID === companyID);
+            if (!company) return;
+            wizardSelectedCompany = company;
+            document.getElementById('wizard-company-dropdown').classList.add('hidden');
+            document.getElementById('wizard-company-search').value = '';
+            document.getElementById('wizard-search-clear').classList.add('hidden');
+            // Show chip
+            document.getElementById('wizard-chip-code').textContent = company.code;
+            document.getElementById('wizard-chip-name').textContent = company.name;
+            document.getElementById('wizard-chip-uuid').textContent = company.companyID;
+            document.getElementById('wizard-selected-chip').classList.remove('hidden');
+            // Hidden compat fields
+            document.getElementById('wizard-store-code').value = company.code;
+            document.getElementById('wizard-store-name').value = company.name;
+            // Auto-fill roleEmail
+            document.getElementById('wizard-store-email').value = `${company.code.toLowerCase()}.manager@company.com`;
+            // Reveal config
+            const cfg = document.getElementById('wizard-config-section');
+            cfg.classList.remove('hidden');
+            cfg.classList.add('animate-slide-down');
+        }
+
+        function clearWizardCompany() {
+            wizardSelectedCompany = null;
+            document.getElementById('wizard-selected-chip').classList.add('hidden');
+            document.getElementById('wizard-config-section').classList.add('hidden');
+            document.getElementById('wizard-store-code').value = '';
+            document.getElementById('wizard-store-name').value = '';
+            document.getElementById('wizard-store-email').value = '';
+            document.getElementById('wizard-company-search').value = '';
+            document.getElementById('wizard-company-search').focus();
+        }
+
+        function clearWizardSearch() {
+            document.getElementById('wizard-company-search').value = '';
+            document.getElementById('wizard-search-clear').classList.add('hidden');
+            filterWizardCompanies();
+        }
+
+        function handleWizardSearchKey(e) {
+            const items = [...document.querySelectorAll('.wizard-dropdown-item')];
+            const cur = items.findIndex(i => i.classList.contains('active-kbd'));
+            const activate = (idx) => {
+                items.forEach(i => i.classList.remove('active-kbd'));
+                if (items[idx]) { items[idx].classList.add('active-kbd'); items[idx].scrollIntoView({ block: 'nearest' }); }
+            };
+            if (e.key === 'ArrowDown') { e.preventDefault(); activate(cur < items.length - 1 ? cur + 1 : 0); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); activate(cur > 0 ? cur - 1 : items.length - 1); }
+            else if (e.key === 'Enter' && cur >= 0) { e.preventDefault(); items[cur].click(); }
+            else if (e.key === 'Escape') { document.getElementById('wizard-company-dropdown').classList.add('hidden'); }
+        }
+
         function wizardAutoEmail() {
             const code = document.getElementById('wizard-store-code').value.trim();
             if (code) {
@@ -2852,12 +3091,21 @@
 
         function wizardNext() {
             if (wizardStep === 1) {
-                const code = document.getElementById('wizard-store-code').value.trim();
-                const name = document.getElementById('wizard-store-name').value.trim();
-                if (!code || !name) {
-                    showToast('error', '請填寫必填欄位');
+                if (!wizardSelectedCompany) {
+                    showToast('error', '請先選取門市');
+                    document.getElementById('wizard-company-search').focus();
                     return;
                 }
+                const typeRadio = document.querySelector('input[name="new-store-type"]:checked');
+                if (!typeRadio) {
+                    showToast('error', '請選擇門市類型');
+                    return;
+                }
+                // Populate step 2 summary
+                const groupRadio = document.querySelector('input[name="new-store-group"]:checked');
+                document.getElementById('step2-summary-store').textContent = `${wizardSelectedCompany.code} ${wizardSelectedCompany.name}`;
+                document.getElementById('step2-summary-type').textContent = typeRadio.value;
+                document.getElementById('step2-summary-group').textContent = groupRadio?.value || '-';
             }
             if (wizardStep < 4) {
                 wizardStep++;
@@ -2875,15 +3123,16 @@
 
         function updateWizardConfirmation() {
             const typeRadio = document.querySelector('input[name="new-store-type"]:checked');
-            const typeMap = { 'MED': '醫美診所', 'SPA': '岩盤浴', 'OTHER': '其他' };
-            document.getElementById('wizard-confirm-type').textContent = typeMap[typeRadio?.value] || '-';
-            document.getElementById('wizard-confirm-code').textContent = document.getElementById('wizard-store-code').value || '-';
-            document.getElementById('wizard-confirm-name').textContent = document.getElementById('wizard-store-name').value || '-';
+            const groupRadio = document.querySelector('input[name="new-store-group"]:checked');
+            document.getElementById('wizard-confirm-code').textContent = wizardSelectedCompany?.code || '-';
+            document.getElementById('wizard-confirm-name').textContent = wizardSelectedCompany?.name || '-';
+            document.getElementById('wizard-confirm-type').textContent = typeRadio?.value || '-';
+            document.getElementById('wizard-confirm-group').textContent = groupRadio?.value || '-';
             document.getElementById('wizard-confirm-email').textContent = document.getElementById('wizard-store-email').value || '-';
-
-            const managerSelect = document.getElementById('wizard-store-manager');
-            document.getElementById('wizard-confirm-manager').textContent = managerSelect.value ? managerSelect.options[managerSelect.selectedIndex].text : '未指派';
-
+            const managerId   = document.getElementById('wizard-manager-id').value.trim();
+            const managerName = document.getElementById('wizard-manager-name').value.trim();
+            document.getElementById('wizard-confirm-manager').textContent =
+                (managerId && managerName) ? `${managerName}（${managerId}）` : '未指派';
             const actions = [];
             if (document.getElementById('wizard-gdrive-folder')?.checked) actions.push('建立資料夾');
             if (document.getElementById('wizard-gdrive-access')?.checked) actions.push('授權 Email');
@@ -2894,28 +3143,58 @@
         function wizardSubmit() {
             showToast('syncing');
             setTimeout(() => {
-                const code = document.getElementById('wizard-store-code').value.trim();
-                const name = document.getElementById('wizard-store-name').value.trim();
-                const email = document.getElementById('wizard-store-email').value.trim();
-                const typeRadio = document.querySelector('input[name="new-store-type"]:checked');
+                const company = wizardSelectedCompany;
+                if (!company) return;
+                const email      = document.getElementById('wizard-store-email').value.trim();
+                const typeRadio  = document.querySelector('input[name="new-store-type"]:checked');
+                const groupRadio = document.querySelector('input[name="new-store-group"]:checked');
+                const managerId  = document.getElementById('wizard-manager-id').value.trim();
+                const managerName= document.getElementById('wizard-manager-name').value.trim();
+                const storeType  = typeRadio?.value || '其他';
+                const groupName  = groupRadio?.value || '';
 
                 stores.push({
-                    code: code,
-                    name: name,
+                    code: company.code,
+                    name: company.name,
                     roleEmail: email,
-                    primaryManager: null,
+                    primaryManager: (managerId && managerName) ? { employeeId: managerId, name: managerName, status: 'active' } : null,
                     authorizedUsers: []
                 });
 
+                // Auto-add to storeGroupAssociations
+                if (groupName) {
+                    let groupEntry = storeGroupAssociations.find(g => g.groupName === groupName);
+                    if (!groupEntry) {
+                        const iconMap = { '西醫事業體':'fa-star','岩盤浴事業體':'fa-spa','中醫事業體':'fa-leaf','台灣生美加盟事業體':'fa-handshake' };
+                        const colorMap = { '西醫事業體':'indigo','岩盤浴事業體':'amber','中醫事業體':'green','台灣生美加盟事業體':'rose' };
+                        groupEntry = { groupName, icon: iconMap[groupName]||'fa-building', color: colorMap[groupName]||'slate', storeTypes: [] };
+                        storeGroupAssociations.push(groupEntry);
+                    }
+                    let typeEntry = groupEntry.storeTypes.find(t => t.typeName === storeType);
+                    if (!typeEntry) {
+                        const tIconMap = { '醫美':'fa-syringe','岩盤浴':'fa-spa','中醫':'fa-leaf','其他':'fa-building' };
+                        const tColorMap = { '醫美':'pink','岩盤浴':'amber','中醫':'green','其他':'slate' };
+                        typeEntry = { typeName: storeType, icon: tIconMap[storeType]||'fa-store', color: tColorMap[storeType]||'slate', companyIds: [] };
+                        groupEntry.storeTypes.push(typeEntry);
+                    }
+                    typeEntry.companyIds.push(company.code);
+                }
+
                 // Reset wizard
+                wizardSelectedCompany = null;
                 wizardStep = 1;
+                document.getElementById('wizard-selected-chip').classList.add('hidden');
+                document.getElementById('wizard-config-section').classList.add('hidden');
+                document.getElementById('wizard-company-search').value = '';
                 document.getElementById('wizard-store-code').value = '';
                 document.getElementById('wizard-store-name').value = '';
                 document.getElementById('wizard-store-email').value = '';
+                document.getElementById('wizard-manager-id').value = '';
+                document.getElementById('wizard-manager-name').value = '';
                 updateWizardStepUI();
 
                 renderStores();
-                showToast('success', `門市「${name}」已建立！`);
+                showToast('success', `門市「${company.name}」已加入 N-Report！`);
             }, 1000);
         }
 
@@ -3002,6 +3281,13 @@
 
 
         // ========== INIT ==========
+        // Close wizard dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#wizard-search-container')) {
+                document.getElementById('wizard-company-dropdown')?.classList.add('hidden');
+            }
+        });
+
         renderStores();
     </script>
 </body>
