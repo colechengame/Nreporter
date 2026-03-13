@@ -1122,12 +1122,15 @@
                 if(store.authorizedUsers.length === 0) granularHtml = '<span class="text-xs text-gray-400">無其他授權人員</span>';
                 else {
                     granularHtml = '<div class="space-y-1">';
-                    store.authorizedUsers.forEach(u => {
+                    store.authorizedUsers.forEach((u, uIdx) => {
                         granularHtml += `
-                            <div class="flex items-center text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                            <div class="flex items-center text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100 group">
                                 <span class="font-medium mr-2">${u.name}</span>
                                 <span class="text-xs text-gray-500 mr-2">(${u.role})</span>
-                                <div class="flex flex-wrap gap-1">${formatReportBadges(u.scopes, 3)}</div>
+                                <div class="flex flex-wrap gap-1 mr-auto">${formatReportBadges(u.scopes, 3)}</div>
+                                <button onclick="removeAuthorizedUser(${index}, ${uIdx})" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition ml-2" title="移除人員">
+                                    <i class="fa-solid fa-times"></i>
+                                </button>
                             </div>`;
                     });
                     granularHtml += '</div>';
@@ -1259,15 +1262,26 @@
 
             if (currentBusinessSystem === 'tcm') {
                 medBtn.innerHTML = '<i class="fa-solid fa-leaf mr-1 text-green-600"></i>中醫 <span class="ml-1 text-xs bg-green-100 text-green-600 px-1.5 rounded" id="count-med">0</span>';
+                medBtn.setAttribute('onclick', "setStoreFilter('tcm')");
                 spaBtn.style.display = 'none';
-                if (medBtnM) medBtnM.innerHTML = '<i class="fa-solid fa-leaf mr-0.5 text-green-600"></i>中醫<span class="ml-0.5 bg-green-100 text-green-600 px-1 rounded" id="count-med-m">0</span>';
+                if (medBtnM) {
+                    medBtnM.innerHTML = '<i class="fa-solid fa-leaf mr-0.5 text-green-600"></i>中醫<span class="ml-0.5 bg-green-100 text-green-600 px-1 rounded" id="count-med-m">0</span>';
+                    medBtnM.setAttribute('onclick', "setStoreFilter('tcm')");
+                }
                 if (spaBtnM) spaBtnM.style.display = 'none';
             } else {
                 medBtn.innerHTML = '<i class="fa-solid fa-syringe mr-1 text-pink-500"></i>醫美 <span class="ml-1 text-xs bg-pink-100 text-pink-600 px-1.5 rounded" id="count-med">0</span>';
+                medBtn.setAttribute('onclick', "setStoreFilter('med')");
                 spaBtn.style.display = '';
                 spaBtn.innerHTML = '<i class="fa-solid fa-spa mr-1 text-amber-500"></i>岩盤浴 <span class="ml-1 text-xs bg-amber-100 text-amber-600 px-1.5 rounded" id="count-spa">0</span>';
-                if (medBtnM) { medBtnM.innerHTML = '<i class="fa-solid fa-syringe mr-0.5 text-pink-500"></i>醫美<span class="ml-0.5 bg-pink-100 text-pink-600 px-1 rounded" id="count-med-m">0</span>'; }
-                if (spaBtnM) { spaBtnM.style.display = ''; spaBtnM.innerHTML = '<i class="fa-solid fa-spa mr-0.5 text-amber-500"></i>養生<span class="ml-0.5 bg-amber-100 text-amber-600 px-1 rounded" id="count-spa-m">0</span>'; }
+                if (medBtnM) {
+                    medBtnM.innerHTML = '<i class="fa-solid fa-syringe mr-0.5 text-pink-500"></i>醫美<span class="ml-0.5 bg-pink-100 text-pink-600 px-1 rounded" id="count-med-m">0</span>';
+                    medBtnM.setAttribute('onclick', "setStoreFilter('med')");
+                }
+                if (spaBtnM) {
+                    spaBtnM.style.display = '';
+                    spaBtnM.innerHTML = '<i class="fa-solid fa-spa mr-0.5 text-amber-500"></i>養生<span class="ml-0.5 bg-amber-100 text-amber-600 px-1 rounded" id="count-spa-m">0</span>';
+                }
             }
         }
 
@@ -1474,9 +1488,17 @@
         function setStoreFilter(filter) {
             currentStoreFilter = filter;
             document.querySelectorAll('.store-filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`filter-${filter}`).classList.add('active');
-            const mBtn = document.getElementById(`filter-${filter}-m`);
+            
+            let btnId = `filter-${filter}`;
+            // Re-use the 'med' button for 'tcm' filter
+            if (filter === 'tcm') btnId = 'filter-med';
+            
+            const btn = document.getElementById(btnId);
+            if (btn) btn.classList.add('active');
+            
+            const mBtn = document.getElementById(`${btnId}-m`);
             if (mBtn) mBtn.classList.add('active');
+            
             renderStores();
         }
 
@@ -1940,6 +1962,19 @@
 
         // --- GROUP ACTIONS ---
 
+        function removeAuthorizedUser(storeIndex, userIndex) {
+            const store = stores[storeIndex];
+            const user = store.authorizedUsers[userIndex];
+            if (confirm(`確定要移除 ${store.name} 的授權人員「${user.name}」嗎？`)) {
+                showToast('syncing');
+                setTimeout(() => {
+                    store.authorizedUsers.splice(userIndex, 1);
+                    renderStores();
+                    showToast('success', '人員已移除！');
+                }, 500);
+            }
+        }
+
         function deleteReportTemplate(index) {
             const template = reportTemplates[index];
             if (confirm(`確定要刪除報表組合「${template.name}」嗎？`)) {
@@ -2008,6 +2043,21 @@
                 title.innerText = `指派 ${stores[index].name} 主要店經理`;
                 document.getElementById('form-primary').classList.remove('hidden');
                 populateStaffSelect('primary-select', true);
+                
+                // Pre-select current manager if available
+                const currentManager = stores[index].primaryManager;
+                if (currentManager) {
+                    const select = document.getElementById('primary-select');
+                    // Try to find the manager in the options
+                    for (let i = 0; i < select.options.length; i++) {
+                        // Option format: "Name (Role)" or "Name Nickname (Role)"
+                        // We match based on name inclusion because format might vary slightly
+                        if (select.options[i].text.includes(currentManager.name.split(' ')[0])) {
+                            select.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
             } else if (type === 'granular') {
                 title.innerText = `新增人員至 ${stores[index].name}`;
                 document.getElementById('form-granular').classList.remove('hidden');
