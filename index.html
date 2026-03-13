@@ -558,7 +558,7 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h4 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-diagram-project text-primary mr-2"></i>門市與集團關聯</h4>
-                            <p class="text-sm text-gray-500 mt-1">管理 集團(GroupName) → 分類(StoreType) → 門市(CompanyID) 層級</p>
+                            <p class="text-sm text-gray-500 mt-1">管理 <code class="bg-gray-100 px-1 rounded text-xs">groupName</code> 體系 → <code class="bg-gray-100 px-1 rounded text-xs">storeType</code> 類型 → <code class="bg-gray-100 px-1 rounded text-xs">companyID</code> 門市</p>
                         </div>
                         <button onclick="openAddGroupPanel()" class="bg-primary hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow transition flex items-center">
                             <i class="fa-solid fa-plus mr-1.5"></i>新增集團
@@ -769,7 +769,11 @@
                                     <div id="primary-input-fields">
                                         <div class="grid grid-cols-2 gap-3 mb-3">
                                             <div>
-                                                <label class="block text-sm font-bold text-gray-700 mb-1.5">員工編號 <span class="text-red-500">*</span></label>
+                                                <label class="block text-sm font-bold text-gray-700 mb-1.5">
+                                                    員工編號
+                                                    <span class="text-red-500">*</span>
+                                                    <span class="text-[10px] font-normal text-gray-400 ml-1">managerUserID</span>
+                                                </label>
                                                 <input type="text" id="primary-employee-id" placeholder="例：EMP001" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary text-sm">
                                             </div>
                                             <div>
@@ -778,7 +782,10 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-bold text-gray-700 mb-1.5">Rolemail <span class="text-red-500">*</span></label>
+                                            <label class="block text-sm font-bold text-gray-700 mb-1.5">
+                                                Rolemail
+                                                <span class="text-[10px] font-normal text-gray-400 ml-1">roleEmail</span>
+                                            </label>
                                             <div class="flex rounded-md shadow-sm">
                                                 <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
                                                     <i class="fa-regular fa-envelope"></i>
@@ -794,7 +801,10 @@
                                 <div id="form-granular" class="form-section hidden">
                                     <div class="grid grid-cols-2 gap-3 mb-3">
                                         <div>
-                                            <label class="block text-sm font-bold text-gray-700 mb-1.5">員工編號 <span class="text-red-500">*</span></label>
+                                            <label class="block text-sm font-bold text-gray-700 mb-1.5">
+                                                員工編號 <span class="text-red-500">*</span>
+                                                <span class="text-[10px] font-normal text-gray-400 ml-1">userID</span>
+                                            </label>
                                             <input type="text" id="granular-employee-id" placeholder="例：EMP002" class="block w-full border-gray-300 rounded-md border p-2 shadow-sm focus:ring-primary focus:border-primary text-sm">
                                         </div>
                                         <div>
@@ -1134,24 +1144,35 @@
         let groups = [];
 
         // 門市與集團關聯 (GroupName → StoreType → CompanyID)
+        // 門市與集團關聯
+        // groupName 對應 API storeType groupName: 西醫事業體/中醫事業體/岩盤浴事業體/台灣生美加盟事業體
+        // typeName  對應 API storeType:          醫美/中醫/岩盤浴/其他
+        // companyIds 對應 API companyID (dbo.OG_Company.ID uuid，前端以 code 代替)
         let storeGroupAssociations = [
             {
-                groupName: '西醫',
+                groupName: '西醫事業體',
                 icon: 'fa-star',
                 color: 'indigo',
                 storeTypes: [
                     { typeName: '醫美', icon: 'fa-syringe', color: 'pink', companyIds: ['N1_MED','C0_MED','W1_MED','N1_HC','N2_MED','N3_MED','NW_MED','E1_HC','S1_MED','C1_MED','C2_MED','C3_MED','NE_MED','SE_MED','S2_MED','SW_MED','SW_HC','W2_MED','CT_MED','N4_MED'] },
-                    { typeName: '岩盤浴', icon: 'fa-spa', color: 'amber', companyIds: ['N1_SPA','C0_SPA','CT_SPA','SE_SPA','SW_SPA','W2_SPA'] },
-                    { typeName: '後勤', icon: 'fa-building', color: 'slate', companyIds: ['HQ','C1_OFC'] }
+                    { typeName: '其他', icon: 'fa-building', color: 'slate', companyIds: ['HQ','C1_OFC'] }
                 ]
             },
             {
-                groupName: '中醫',
+                groupName: '岩盤浴事業體',
+                icon: 'fa-spa',
+                color: 'amber',
+                storeTypes: [
+                    { typeName: '岩盤浴', icon: 'fa-spa', color: 'amber', companyIds: ['N1_SPA','C0_SPA','CT_SPA','SE_SPA','SW_SPA','W2_SPA'] }
+                ]
+            },
+            {
+                groupName: '中醫事業體',
                 icon: 'fa-leaf',
                 color: 'green',
                 storeTypes: [
-                    { typeName: '診所', icon: 'fa-leaf', color: 'green', companyIds: ['NJ_TCM','ZL_TCM','TC_TCM','LK_TCM','GT_TCM','SC_LST','XD_TCM','BZ_TCM','XZ_TCM'] },
-                    { typeName: '後勤', icon: 'fa-building', color: 'slate', companyIds: ['TCM_HQ'] }
+                    { typeName: '中醫', icon: 'fa-leaf', color: 'green', companyIds: ['NJ_TCM','ZL_TCM','TC_TCM','LK_TCM','GT_TCM','SC_LST','XD_TCM','BZ_TCM','XZ_TCM'] },
+                    { typeName: '其他', icon: 'fa-building', color: 'slate', companyIds: ['TCM_HQ'] }
                 ]
             }
         ];
