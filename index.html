@@ -222,15 +222,25 @@
                         <span class="text-amber-700" id="missing-manager-list"></span>
                     </div>
                 </div>
-                <!-- Card Grid -->
-                <div class="p-3 sm:p-5">
-                    <div id="store-cards" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-                        <!-- JS Generated -->
-                    </div>
+                <!-- Store Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" id="store-table">
+                        <thead class="bg-gray-50 hidden sm:table-header-group">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-48">門市</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">店經理 / Rolemail</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">授權人員</th>
+                                <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider w-20">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="store-list" class="bg-white divide-y divide-gray-100">
+                            <!-- JS Generated -->
+                        </tbody>
+                    </table>
                 </div>
-                <!-- Legacy targets (hidden, keep for compat) -->
-                <tbody id="store-list" class="hidden"></tbody>
+                <!-- Legacy hidden compat -->
                 <div id="store-list-mobile" class="hidden"></div>
+                <div id="store-cards" class="hidden"></div>
             </div>
         </div>
 
@@ -302,7 +312,7 @@
                             <h3 class="text-base sm:text-xl leading-6 font-bold flex items-center">
                                 <i class="fa-solid fa-screwdriver-wrench mr-1 sm:mr-2"></i>系統設定
                             </h3>
-                            <p class="mt-0.5 sm:mt-1 max-w-2xl text-xs sm:text-sm text-slate-300 hidden sm:block">新展店設定、報表管理、Google Drive 整合</p>
+                            <p class="mt-0.5 sm:mt-1 max-w-2xl text-xs sm:text-sm text-slate-300 hidden sm:block">新展店設定、報表管理、門市關聯</p>
                         </div>
                         <button onclick="openSettingsInNewTab()" class="bg-white/20 hover:bg-white/30 text-white px-2 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm transition flex items-center">
                             <i class="fa-solid fa-up-right-from-square sm:mr-2"></i><span class="hidden sm:inline"> 新視窗開啟</span>
@@ -317,9 +327,6 @@
                         </button>
                         <button onclick="switchSettingsTab('reports')" id="settings-tab-reports" class="settings-tab-btn px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700">
                             <i class="fa-solid fa-file-lines mr-1"></i> 報表
-                        </button>
-                        <button onclick="switchSettingsTab('gdrive')" id="settings-tab-gdrive" class="settings-tab-btn px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700">
-                            <i class="fa-brands fa-google-drive mr-1"></i> Drive
                         </button>
                         <button onclick="switchSettingsTab('store-assoc')" id="settings-tab-store-assoc" class="settings-tab-btn px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700">
                             <i class="fa-solid fa-diagram-project mr-1"></i><span class="hidden sm:inline"> 門市關聯</span><span class="sm:hidden">關聯</span>
@@ -503,66 +510,6 @@
                     </div>
                 </div>
 
-                <!-- Settings: Google Drive -->
-                <div id="settings-gdrive" class="settings-content hidden p-3 sm:p-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                        <!-- Main Panel -->
-                        <div class="sm:col-span-2">
-                            <h4 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-brands fa-google-drive text-blue-500 mr-2"></i>同步狀態</h4>
-                            <!-- Stats -->
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
-                                <div class="bg-green-50 rounded-xl p-2 sm:p-4 text-center">
-                                    <div class="text-lg sm:text-2xl font-bold text-green-600" id="gdrive-sync-ok">28</div>
-                                    <div class="text-[10px] sm:text-xs text-green-700">同步成功</div>
-                                </div>
-                                <div class="bg-yellow-50 rounded-xl p-2 sm:p-4 text-center">
-                                    <div class="text-lg sm:text-2xl font-bold text-yellow-600" id="gdrive-sync-pending">3</div>
-                                    <div class="text-[10px] sm:text-xs text-yellow-700">待同步</div>
-                                </div>
-                                <div class="bg-red-50 rounded-xl p-2 sm:p-4 text-center">
-                                    <div class="text-lg sm:text-2xl font-bold text-red-600" id="gdrive-sync-error">1</div>
-                                    <div class="text-[10px] sm:text-xs text-red-700">失敗</div>
-                                </div>
-                                <div class="bg-blue-50 rounded-xl p-2 sm:p-4 text-center">
-                                    <div class="text-lg sm:text-2xl font-bold text-blue-600">32</div>
-                                    <div class="text-[10px] sm:text-xs text-blue-700">總門市</div>
-                                </div>
-                            </div>
-                            <!-- Store Sync List -->
-                            <div class="border rounded-lg overflow-hidden">
-                                <div class="bg-gray-50 px-4 py-2 border-b flex justify-between items-center">
-                                    <span class="font-bold text-sm text-gray-700">門市同步狀態</span>
-                                    <button onclick="syncAllGDrive()" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition">
-                                        <i class="fa-solid fa-rotate mr-1"></i>全部同步
-                                    </button>
-                                </div>
-                                <div id="gdrive-sync-list" class="max-h-64 overflow-y-auto divide-y divide-gray-100">
-                                    <!-- JS Generated -->
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Side Panel -->
-                        <div>
-                            <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">API 連線</h4>
-                            <div class="bg-white border rounded-lg p-4 mb-4 space-y-2">
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Google Drive</span>
-                                    <span class="text-green-600"><i class="fa-solid fa-circle-check mr-1"></i>已連接</span>
-                                </div>
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">n8n Webhook</span>
-                                    <span class="text-green-600"><i class="fa-solid fa-circle-check mr-1"></i>已連接</span>
-                                </div>
-                            </div>
-                            <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">同步日誌</h4>
-                            <div class="bg-white border rounded-lg p-4 text-xs space-y-1 max-h-48 overflow-y-auto" id="gdrive-logs">
-                                <div class="text-gray-400">14:32:15 <span class="text-green-600">板橋光澤醫美 同步完成</span></div>
-                                <div class="text-gray-400">14:31:48 <span class="text-green-600">建立資料夾: 新竹光澤</span></div>
-                                <div class="text-gray-400">14:30:22 <span class="text-red-600">三重光澤 同步失敗</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -1264,7 +1211,7 @@
         // --- RENDER ---
         function renderStores() {
             updateStoreCounts();
-            const cardsContainer = document.getElementById('store-cards');
+            const tbody = document.getElementById('store-list');
             const filteredStores = getFilteredStores();
 
             // Missing manager alert
@@ -1282,131 +1229,109 @@
             }
 
             if (filteredStores.length === 0) {
-                cardsContainer.innerHTML = `
-                    <div class="col-span-full py-16 text-center text-gray-400">
-                        <i class="fa-solid fa-search text-4xl mb-3 block text-gray-300"></i>
+                tbody.innerHTML = `
+                    <tr><td colspan="4" class="px-4 py-12 text-center text-gray-400">
+                        <i class="fa-solid fa-search text-3xl block mb-2 text-gray-300"></i>
                         <p class="font-medium text-gray-500">找不到符合條件的門市</p>
                         <p class="text-sm mt-1">請嘗試其他搜尋條件或篩選器</p>
-                    </div>`;
+                    </td></tr>`;
                 return;
             }
 
-            const catCfg = {
-                'med':   { grad: 'from-pink-500 to-rose-500',    icon: 'fa-syringe' },
-                'spa':   { grad: 'from-amber-500 to-orange-500', icon: 'fa-spa'     },
-                'tcm':   { grad: 'from-emerald-500 to-teal-600', icon: 'fa-leaf'    },
-                'other': { grad: 'from-slate-500 to-slate-600',  icon: 'fa-building' }
-            };
+            const catIcon = { med: 'fa-syringe text-pink-500', spa: 'fa-spa text-amber-500', tcm: 'fa-leaf text-green-600', other: 'fa-building text-gray-400' };
 
-            cardsContainer.innerHTML = filteredStores.map((store, i) => {
+            tbody.innerHTML = filteredStores.map((store) => {
                 const index = stores.indexOf(store);
                 const cat = getStoreCategory(store);
-                const cfg = catCfg[cat] || catCfg['other'];
+                const icon = catIcon[cat] || catIcon.other;
 
-                // Manager section
-                let mgrHtml;
+                // Manager cell
+                let mgrCell;
                 if (store.primaryManager) {
                     const empId = store.primaryManager.employeeId
-                        ? `<span class="font-mono text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">${store.primaryManager.employeeId}</span>`
+                        ? `<span class="font-mono text-[10px] bg-gray-100 text-gray-500 px-1 rounded">${store.primaryManager.employeeId}</span>`
                         : '';
-                    mgrHtml = `
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">${store.primaryManager.name.charAt(0)}</div>
-                            <div class="flex-1 min-w-0">
+                    mgrCell = `
+                        <div class="flex items-start gap-2">
+                            <div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">${store.primaryManager.name.charAt(0)}</div>
+                            <div class="min-w-0">
                                 <div class="flex items-center flex-wrap gap-1">
-                                    <span class="font-bold text-gray-900 text-sm">${store.primaryManager.name}</span>
+                                    <span class="text-sm font-bold text-gray-900">${store.primaryManager.name}</span>
                                     ${empId}
                                 </div>
-                                <div class="text-[10px] text-green-600 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle-check"></i>權限生效</div>
+                                <div class="text-[10px] text-green-600"><i class="fa-solid fa-circle-check mr-0.5"></i>權限生效</div>
+                                ${store.roleEmail ? `<div class="font-mono text-[11px] text-gray-400 mt-0.5 truncate max-w-[180px]">${store.roleEmail}</div>` : ''}
                             </div>
-                            <button onclick="openModal('primary', ${index})" class="flex-shrink-0 text-xs text-blue-600 border border-blue-200 hover:bg-blue-50 px-2 py-1 rounded-lg transition font-bold" title="移轉店經理">
-                                <i class="fa-solid fa-arrows-rotate mr-1"></i>移轉
-                            </button>
-                        </div>`;
+                        </div>
+                        <button onclick="openModal('primary', ${index})" class="mt-1.5 ml-9 text-xs text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-arrows-rotate"></i>移轉
+                        </button>`;
                 } else {
-                    mgrHtml = `
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                                <i class="fa-solid fa-user-slash text-red-400 text-xs"></i>
-                            </div>
-                            <div class="flex-1">
-                                <span class="text-sm text-red-500 font-bold">未指派店經理</span>
-                            </div>
-                            <button onclick="openModal('primary', ${index})" class="flex-shrink-0 text-xs text-green-700 border border-green-200 hover:bg-green-50 px-2 py-1 rounded-lg transition font-bold">
-                                <i class="fa-solid fa-user-plus mr-1"></i>指派
-                            </button>
-                        </div>`;
+                    mgrCell = `
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>未指派</span>
+                        </div>
+                        ${store.roleEmail ? `<div class="font-mono text-[11px] text-gray-400 mt-1 truncate max-w-[200px]">${store.roleEmail}</div>` : ''}
+                        <button onclick="openModal('primary', ${index})" class="mt-1.5 text-xs text-green-700 hover:text-green-900 font-bold flex items-center gap-1 border border-green-200 rounded px-2 py-0.5 hover:bg-green-50 transition w-fit">
+                            <i class="fa-solid fa-user-plus"></i>指派
+                        </button>`;
                 }
 
-                // Rolemail
-                const roleEmailHtml = store.roleEmail
-                    ? `<div class="flex items-center gap-1.5 pl-10 mb-1">
-                           <i class="fa-regular fa-envelope text-gray-300 text-xs"></i>
-                           <span class="font-mono text-xs text-gray-400 truncate">${store.roleEmail}</span>
-                       </div>`
-                    : '';
-
-                // Authorized users
-                let authHtml = '';
+                // Auth users cell
+                let authCell = '';
                 if (store.authorizedUsers.length === 0) {
-                    authHtml = `<div class="text-xs text-gray-400 italic py-0.5">無其他授權人員</div>`;
+                    authCell = `<span class="text-xs text-gray-400">無</span>`;
                 } else {
-                    const shown = store.authorizedUsers.slice(0, 3);
-                    authHtml = shown.map((u, uIdx) => {
+                    authCell = store.authorizedUsers.map((u, uIdx) => {
                         const idBadge = u.employeeId
-                            ? `<span class="font-mono text-[10px] bg-gray-200 text-gray-600 px-1 rounded flex-shrink-0">${u.employeeId}</span>`
-                            : (u.role ? `<span class="text-[10px] text-gray-400 flex-shrink-0">${u.role}</span>` : '');
-                        return `<div class="flex items-center gap-1.5 py-0.5 group">
+                            ? `<span class="font-mono text-[10px] bg-gray-100 text-gray-500 px-1 rounded mr-1">${u.employeeId}</span>`
+                            : (u.role ? `<span class="text-[10px] text-gray-400 mr-1">${u.role}</span>` : '');
+                        return `<div class="flex items-center py-0.5 group">
                             ${idBadge}
-                            <span class="text-xs font-medium text-gray-700 flex-1 truncate">${u.name}</span>
-                            <div class="flex gap-0.5 flex-shrink-0">${formatReportBadges(u.scopes, 2)}</div>
+                            <span class="text-xs font-medium text-gray-700 mr-1.5">${u.name}</span>
+                            <div class="flex gap-0.5 mr-auto">${formatReportBadges(u.scopes, 2)}</div>
                             <button onclick="removeAuthorizedUser(${index}, ${uIdx})" class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition text-xs ml-1 flex-shrink-0">
                                 <i class="fa-solid fa-times"></i>
                             </button>
                         </div>`;
                     }).join('');
-                    if (store.authorizedUsers.length > 3) {
-                        authHtml += `<div class="text-xs text-gray-400 mt-0.5">...還有 ${store.authorizedUsers.length - 3} 人</div>`;
-                    }
                 }
 
+                // Mobile row (shown on small screens via CSS)
                 return `
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 flex flex-col">
-                        <!-- Card Header -->
-                        <div class="bg-gradient-to-r ${cfg.grad} px-4 py-3 flex items-center justify-between">
-                            <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                                <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                                    <i class="fa-solid ${cfg.icon} text-white text-sm"></i>
-                                </div>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <!-- 門市 -->
+                        <td class="px-4 py-3 align-top">
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid ${icon} mt-0.5 flex-shrink-0 text-sm"></i>
                                 <div class="min-w-0">
-                                    <div class="text-white font-bold text-sm truncate">${store.name}</div>
-                                    <div class="font-mono text-white/70 text-[11px]">${store.code}</div>
+                                    <div class="text-sm font-bold text-gray-900 leading-snug">${store.name}</div>
+                                    <div class="font-mono text-[11px] text-gray-400 mt-0.5">${store.code}</div>
                                 </div>
+                                <button onclick="openModal('edit-store', ${index})" class="ml-auto text-gray-300 hover:text-gray-500 transition flex-shrink-0" title="門市設定">
+                                    <i class="fa-solid fa-gear text-xs"></i>
+                                </button>
                             </div>
-                            <button onclick="openModal('edit-store', ${index})" class="text-white/70 hover:text-white transition p-1.5 rounded-lg hover:bg-white/20 flex-shrink-0" title="門市設定">
-                                <i class="fa-solid fa-gear text-sm"></i>
+                        </td>
+                        <!-- 店經理 -->
+                        <td class="px-4 py-3 align-top hidden sm:table-cell">${mgrCell}</td>
+                        <!-- 授權人員 -->
+                        <td class="px-4 py-3 align-top hidden sm:table-cell">
+                            <div class="space-y-0.5">${authCell}</div>
+                        </td>
+                        <!-- 操作 -->
+                        <td class="px-4 py-3 align-top text-right">
+                            <button onclick="openModal('granular', ${index})" class="text-xs text-gray-500 hover:text-primary font-bold border border-gray-200 hover:border-primary/40 hover:bg-blue-50 px-2.5 py-1 rounded-lg transition whitespace-nowrap">
+                                <i class="fa-solid fa-plus mr-1 text-[10px]"></i>加人
                             </button>
-                        </div>
-                        <!-- Card Body -->
-                        <div class="p-3 flex-1 flex flex-col gap-2">
-                            <!-- Manager block -->
-                            <div class="bg-gray-50 rounded-xl p-2.5">
-                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">店經理</div>
-                                ${mgrHtml}
-                                ${roleEmailHtml}
+                            <!-- Mobile: also show manager button -->
+                            <div class="sm:hidden mt-1.5 flex gap-1 justify-end">
+                                <button onclick="openModal('primary', ${index})" class="text-xs text-blue-600 font-bold border border-blue-200 px-2 py-1 rounded-lg hover:bg-blue-50 transition">
+                                    <i class="fa-solid fa-user-tie mr-1 text-[10px]"></i>店長
+                                </button>
                             </div>
-                            <!-- Auth users block -->
-                            <div class="bg-gray-50 rounded-xl p-2.5 flex-1">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">授權人員 <span class="font-normal text-gray-300">${store.authorizedUsers.length}</span></div>
-                                    <button onclick="openModal('granular', ${index})" class="text-xs text-primary hover:text-blue-700 font-bold flex items-center gap-1">
-                                        <i class="fa-solid fa-plus text-[10px]"></i>加入
-                                    </button>
-                                </div>
-                                ${authHtml}
-                            </div>
-                        </div>
-                    </div>`;
+                        </td>
+                    </tr>`;
             }).join('');
         }
 
@@ -2862,7 +2787,6 @@
         function switchSettingsTab(tab) {
             document.getElementById('settings-new-store').classList.toggle('hidden', tab !== 'new-store');
             document.getElementById('settings-reports').classList.toggle('hidden', tab !== 'reports');
-            document.getElementById('settings-gdrive').classList.toggle('hidden', tab !== 'gdrive');
             document.getElementById('settings-store-assoc').classList.toggle('hidden', tab !== 'store-assoc');
 
             document.querySelectorAll('.settings-tab-btn').forEach(btn => {
